@@ -67,7 +67,7 @@
         {
             "comment": "modifikátory, které jsou odděleny pouze mezerou!!",
             "name": "storage.modifier.object.fcs",
-            "match": "(?<= )(lcs|curvelcs|xyz|color|area|arc vertex|vertex)(?= )"
+            "match": "(?<= )(lcs|curvelcs|xyz|color|area|arc vertex|vertex|templates)(?= )"
         },
         {
             "comment": "modifikátory za kterými musí být závorka nebo uvozovka (může být před nimi znaménko + nebo -)",
@@ -91,7 +91,7 @@
         },
         {
             "name": "support.function.fcs",
-            "match": "^(browse_report|print|model_shell3d|import)\\b"
+            "match": "^(browse_report|print|model_shell3d|import|exportesaxml)\\b"
         },
         {
             "name": "entity.name.function.fcs",
