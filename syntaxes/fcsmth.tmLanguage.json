@@ -1,0 +1,1843 @@
+{
+  "bundleUUID": "E3BADC20-6B0E-11D9-9DC9-000D93589AF7",
+  "comment": "\r\n            todo:\r\n            list comprehension / generator comprehension scope.\r\n\r\n        ",
+  "fileTypes": [
+    "fcsmth"
+  ],
+  "scopeName": "source.fcsmth",
+  "uuid": "F23DB5B2-7D08-11D9-A709-000D93B6E43C",
+  "foldingStartMarker": "\\{\\s*$",
+  "foldingStopMarker": "^\\s*\\}",
+  "keyEquivalent": "^~P",
+  "name": "Femcad Math",
+  "patterns": [
+    {
+      "begin": "(^[ \\t]+)?(?=#)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.whitespace.comment.leading.fcsmth"
+        }
+      },
+      "end": "(?!\\G)",
+      "patterns": [
+        {
+          "begin": "#",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.fcsmth"
+            }
+          },
+          "end": "\\n",
+          "name": "comment.line.number-sign.fcsmth"
+        }
+      ]
+    },
+    {
+      "match": "\\b(?i:(0x\\h*)L)",
+      "name": "constant.numeric.integer.long.hexadecimal.fcsmth"
+    },
+    {
+      "match": "\\b(?i:(0x\\h*))",
+      "name": "constant.numeric.integer.hexadecimal.fcsmth"
+    },
+    {
+      "match": "\\b(?i:(0[0-7]+)L)",
+      "name": "constant.numeric.integer.long.octal.fcsmth"
+    },
+    {
+      "match": "\\b(0[0-7]+)",
+      "name": "constant.numeric.integer.octal.fcsmth"
+    },
+    {
+      "match": "\\b(?i:(((\\d+(\\.(?=[^a-zA-Z_])\\d*)?|(?<=[^0-9a-zA-Z_])\\.\\d+)(e[\\-\\+]?\\d+)?))J)",
+      "name": "constant.numeric.complex.fcsmth"
+    },
+    {
+      "match": "\\b(?i:(\\d+\\.\\d*(e[\\-\\+]?\\d+)?))(?=[^a-zA-Z_])",
+      "name": "constant.numeric.float.fcsmth"
+    },
+    {
+      "match": "(?<=[^0-9a-zA-Z_])(?i:(\\.\\d+(e[\\-\\+]?\\d+)?))",
+      "name": "constant.numeric.float.fcsmth"
+    },
+    {
+      "match": "\\b(?i:(\\d+e[\\-\\+]?\\d+))",
+      "name": "constant.numeric.float.fcsmth"
+    },
+    {
+      "match": "\\b(?i:([1-9]+[0-9]*|0)L)",
+      "name": "constant.numeric.integer.long.decimal.fcsmth"
+    },
+    {
+      "match": "\\b([1-9]+[0-9]*|0)",
+      "name": "constant.numeric.integer.decimal.fcsmth"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "storage.modifier.global.fcsmth"
+        }
+      },
+      "match": "\\b(global)\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.control.import.fcsmth"
+        },
+        "2": {
+          "name": "keyword.control.import.from.fcsmth"
+        }
+      },
+      "match": "\\b(?:(import)|(from))\\b"
+    },
+    {
+      "comment": "keywords that delimit flow blocks or alter flow from within a block",
+      "match": "\\b(elif|else|except|finally|for|if|try|while|with|break|continue|pass|raise|return|yield)\\b",
+      "name": "keyword.control.flow.fcsmth"
+    },
+    {
+      "comment": "keyword operators that evaluate to True or False",
+      "match": "\\b(and|in|is|not|or)\\b",
+      "name": "keyword.operator.logical.fcsmth"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "keyword.other.fcsmth"
+        }
+      },
+      "comment": "keywords that haven't fit into other groups (yet).",
+      "match": "\\b(as|assert|del|exec|print)\\b"
+    },
+    {
+      "match": "<>",
+      "name": "invalid.deprecated.operator.fcsmth"
+    },
+    {
+      "match": "<\\=|>\\=|\\=\\=|<|>|\\!\\=",
+      "name": "keyword.operator.comparison.fcsmth"
+    },
+    {
+      "match": "\\+\\=|-\\=|\\*\\=|/\\=|//\\=|%\\=|&\\=|\\|\\=|\\^\\=|>>\\=|<<\\=|\\*\\*\\=",
+      "name": "keyword.operator.assignment.augmented.fcsmth"
+    },
+    {
+      "match": "\\+|\\-|\\*|\\*\\*|/|//|%|<<|>>|&|\\||\\^|~",
+      "name": "keyword.operator.arithmetic.fcsmth"
+    },
+    {
+      "match": "\\=",
+      "name": "keyword.operator.assignment.fcsmth"
+    },
+    {
+      "begin": "^\\s*(class)\\s+(?=[a-zA-Z_][a-zA-Z_0-9]*\\s*\\:)",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.class.fcsmth"
+        }
+      },
+      "contentName": "entity.name.type.class.fcsmth",
+      "end": "\\s*(:)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.section.class.begin.fcsmth"
+        }
+      },
+      "name": "meta.class.old-style.fcsmth",
+      "patterns": [
+        {
+          "include": "#entity_name_class"
+        }
+      ]
+    },
+    {
+      "begin": "^\\s*(class)\\s+(?=[a-zA-Z_][a-zA-Z_0-9]*\\s*\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.class.fcsmth"
+        }
+      },
+      "end": "(\\))\\s*(?:(\\:)|(.*$\\n?))",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.inheritance.end.fcsmth"
+        },
+        "2": {
+          "name": "punctuation.section.class.begin.fcsmth"
+        },
+        "3": {
+          "name": "invalid.illegal.missing-section-begin.fcsmth"
+        }
+      },
+      "name": "meta.class.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=[A-Za-z_][A-Za-z0-9_]*)",
+          "contentName": "entity.name.type.class.fcsmth",
+          "end": "(?![A-Za-z0-9_])",
+          "patterns": [
+            {
+              "include": "#entity_name_class"
+            }
+          ]
+        },
+        {
+          "begin": "(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.inheritance.begin.fcsmth"
+            }
+          },
+          "contentName": "meta.class.inheritance.fcsmth",
+          "end": "(?=\\)|:)",
+          "patterns": [
+            {
+              "begin": "(?<=\\(|,)\\s*",
+              "contentName": "entity.other.inherited-class.fcsmth",
+              "end": "\\s*(?:(,)|(?=\\)))",
+              "endCaptures": {
+                "1": {
+                  "name": "punctuation.separator.inheritance.fcsmth"
+                }
+              },
+              "patterns": [
+                {
+                  "include": "$self"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "^\\s*(class)\\s+(?=[a-zA-Z_][a-zA-Z_0-9])",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.class.fcsmth"
+        }
+      },
+      "end": "(\\()|(\\s*$\\n?|#.*$\\n?)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.inheritance.begin.fcsmth"
+        },
+        "2": {
+          "name": "invalid.illegal.missing-inheritance.fcsmth"
+        }
+      },
+      "name": "meta.class.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=[A-Za-z_][A-Za-z0-9_]*)",
+          "contentName": "entity.name.type.class.fcsmth",
+          "end": "(?![A-Za-z0-9_])",
+          "patterns": [
+            {
+              "include": "#entity_name_function"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "^\\s*(def)\\s+(?=[A-Za-z_][A-Za-z0-9_]*\\s*\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.function.fcsmth"
+        }
+      },
+      "end": "(\\))\\s*(?:(\\:)|(.*$\\n?))",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.parameters.end.fcsmth"
+        },
+        "2": {
+          "name": "punctuation.section.function.begin.fcsmth"
+        },
+        "3": {
+          "name": "invalid.illegal.missing-section-begin.fcsmth"
+        }
+      },
+      "name": "meta.function.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=[A-Za-z_][A-Za-z0-9_]*)",
+          "contentName": "entity.name.function.fcsmth",
+          "end": "(?![A-Za-z0-9_])",
+          "patterns": [
+            {
+              "include": "#entity_name_function"
+            }
+          ]
+        },
+        {
+          "begin": "(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.parameters.begin.fcsmth"
+            }
+          },
+          "contentName": "meta.function.parameters.fcsmth",
+          "end": "(?=\\)\\s*\\:)",
+          "patterns": [
+            {
+              "include": "#keyword_arguments"
+            },
+            {
+              "captures": {
+                "1": {
+                  "name": "variable.parameter.function.fcsmth"
+                },
+                "2": {
+                  "name": "punctuation.separator.parameters.fcsmth"
+                }
+              },
+              "match": "\\b([a-zA-Z_][a-zA-Z_0-9]*)\\s*(?:(,)|(?=[\\n\\)]))"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "^\\s*(def)\\s+(?=[A-Za-z_][A-Za-z0-9_]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.function.fcsmth"
+        }
+      },
+      "end": "(\\()|\\s*($\\n?|#.*$\\n?)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.parameters.begin.fcsmth"
+        },
+        "2": {
+          "name": "invalid.illegal.missing-parameters.fcsmth"
+        }
+      },
+      "name": "meta.function.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=[A-Za-z_][A-Za-z0-9_]*)",
+          "contentName": "entity.name.function.fcsmth",
+          "end": "(?![A-Za-z0-9_])",
+          "patterns": [
+            {
+              "include": "#entity_name_function"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "(lambda)(?=\\s+)",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.function.inline.fcsmth"
+        }
+      },
+      "end": "(\\:)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.parameters.end.fcsmth"
+        },
+        "2": {
+          "name": "punctuation.section.function.begin.fcsmth"
+        },
+        "3": {
+          "name": "invalid.illegal.missing-section-begin.fcsmth"
+        }
+      },
+      "name": "meta.function.inline.fcsmth",
+      "patterns": [
+        {
+          "begin": "\\s+",
+          "contentName": "meta.function.inline.parameters.fcsmth",
+          "end": "(?=\\:)",
+          "patterns": [
+            {
+              "include": "#keyword_arguments"
+            },
+            {
+              "captures": {
+                "1": {
+                  "name": "variable.parameter.function.fcsmth"
+                },
+                "2": {
+                  "name": "punctuation.separator.parameters.fcsmth"
+                }
+              },
+              "match": "\\b([a-zA-Z_][a-zA-Z_0-9]*)\\s*(?:(,)|(?=[\\n\\)\\:]))"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "^\\s*(?=@\\s*[A-Za-z_][A-Za-z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z_0-9]*)*\\s*\\()",
+      "comment": "a decorator may be a function call which returns a decorator.",
+      "end": "(\\))",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.arguments.end.fcsmth"
+        }
+      },
+      "name": "meta.function.decorator.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=(@)\\s*[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*\\s*\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.decorator.fcsmth"
+            }
+          },
+          "contentName": "entity.name.function.decorator.fcsmth",
+          "end": "(?=\\s*\\()",
+          "patterns": [
+            {
+              "include": "#dotted_name"
+            }
+          ]
+        },
+        {
+          "begin": "(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.arguments.begin.fcsmth"
+            }
+          },
+          "contentName": "meta.function.decorator.arguments.fcsmth",
+          "end": "(?=\\))",
+          "patterns": [
+            {
+              "include": "#keyword_arguments"
+            },
+            {
+              "include": "$self"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "^\\s*(?=@\\s*[A-Za-z_][A-Za-z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z_0-9]*)*)",
+      "contentName": "entity.name.function.decorator.fcsmth",
+      "end": "(?=\\s|$\\n?|#)",
+      "name": "meta.function.decorator.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=(@)\\s*[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.decorator.fcsmth"
+            }
+          },
+          "end": "(?=\\s|$\\n?|#)",
+          "patterns": [
+            {
+              "include": "#dotted_name"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "(?<=\\)|\\])\\s*(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.arguments.begin.fcsmth"
+        }
+      },
+      "contentName": "meta.function-call.arguments.fcsmth",
+      "end": "(\\))",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.arguments.end.fcsmth"
+        }
+      },
+      "name": "meta.function-call.fcsmth",
+      "patterns": [
+        {
+          "include": "#keyword_arguments"
+        },
+        {
+          "include": "$self"
+        }
+      ]
+    },
+    {
+      "begin": "(?=[A-Za-z_][A-Za-z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z_0-9]*)*\\s*\\()",
+      "end": "(\\))",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.arguments.end.fcsmth"
+        }
+      },
+      "name": "meta.function-call.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*\\s*\\()",
+          "end": "(?=\\s*\\()",
+          "patterns": [
+            {
+              "include": "#dotted_name"
+            }
+          ]
+        },
+        {
+          "begin": "(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.arguments.begin.fcsmth"
+            }
+          },
+          "contentName": "meta.function-call.arguments.fcsmth",
+          "end": "(?=\\))",
+          "patterns": [
+            {
+              "include": "#keyword_arguments"
+            },
+            {
+              "include": "$self"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "(?=[A-Za-z_][A-Za-z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z_0-9]*)*\\s*\\[)",
+      "end": "(\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.arguments.end.fcsmth"
+        }
+      },
+      "name": "meta.item-access.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?=[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*\\s*\\[)",
+          "end": "(?=\\s*\\[)",
+          "patterns": [
+            {
+              "include": "#dotted_name"
+            }
+          ]
+        },
+        {
+          "begin": "(\\[)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.arguments.begin.fcsmth"
+            }
+          },
+          "contentName": "meta.item-access.arguments.fcsmth",
+          "end": "(?=\\])",
+          "patterns": [
+            {
+              "include": "$self"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "begin": "(?<=\\)|\\])\\s*(\\[)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.arguments.begin.fcsmth"
+        }
+      },
+      "contentName": "meta.item-access.arguments.fcsmth",
+      "end": "(\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.arguments.end.fcsmth"
+        }
+      },
+      "name": "meta.item-access.fcsmth",
+      "patterns": [
+        {
+          "include": "$self"
+        }
+      ]
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "storage.type.function.fcsmth"
+        }
+      },
+      "match": "\\b(def|lambda)\\b"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "storage.type.class.fcsmth"
+        }
+      },
+      "match": "\\b(class)\\b"
+    },
+    {
+      "include": "#line_continuation"
+    },
+    {
+      "include": "#language_variables"
+    },
+    {
+      "match": "\\b(None|True|False|Ellipsis|NotImplemented)\\b",
+      "name": "constant.language.fcsmth"
+    },
+    {
+      "include": "#string_quoted_single"
+    },
+    {
+      "include": "#string_quoted_double"
+    },
+    {
+      "include": "#dotted_name"
+    },
+    {
+      "begin": "(\\()",
+      "end": "(\\))",
+      "patterns": [
+        {
+          "include": "$self"
+        }
+      ]
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.list.begin.fcsmth"
+        },
+        "2": {
+          "name": "meta.empty-list.fcsmth"
+        },
+        "3": {
+          "name": "punctuation.definition.list.end.fcsmth"
+        }
+      },
+      "match": "(\\[)(\\s*(\\]))\\b"
+    },
+    {
+      "begin": "(\\[)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.list.begin.fcsmth"
+        }
+      },
+      "end": "(\\])",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.list.end.fcsmth"
+        }
+      },
+      "name": "meta.structure.list.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?<=\\[|\\,)\\s*(?![\\],])",
+          "contentName": "meta.structure.list.item.fcsmth",
+          "end": "\\s*(?:(,)|(?=\\]))",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.separator.list.fcsmth"
+            }
+          },
+          "patterns": [
+            {
+              "include": "$self"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.tuple.begin.fcsmth"
+        },
+        "2": {
+          "name": "meta.empty-tuple.fcsmth"
+        },
+        "3": {
+          "name": "punctuation.definition.tuple.end.fcsmth"
+        }
+      },
+      "match": "(\\()(\\s*(\\)))",
+      "name": "meta.structure.tuple.fcsmth"
+    },
+    {
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.dictionary.begin.fcsmth"
+        },
+        "2": {
+          "name": "meta.empty-dictionary.fcsmth"
+        },
+        "3": {
+          "name": "punctuation.definition.dictionary.end.fcsmth"
+        }
+      },
+      "match": "(\\{)(\\s*(\\}))",
+      "name": "meta.structure.dictionary.fcsmth"
+    },
+    {
+      "begin": "(\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.dictionary.begin.fcsmth"
+        }
+      },
+      "end": "(\\})",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.dictionary.end.fcsmth"
+        }
+      },
+      "name": "meta.structure.dictionary.fcsmth",
+      "patterns": [
+        {
+          "begin": "(?<=\\{|\\,|^)\\s*(?![\\},])",
+          "contentName": "meta.structure.dictionary.key.fcsmth",
+          "end": "\\s*(?:(?=\\})|(\\:))",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.separator.valuepair.dictionary.fcsmth"
+            }
+          },
+          "patterns": [
+            {
+              "include": "$self"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=\\:|^)\\s*",
+          "contentName": "meta.structure.dictionary.value.fcsmth",
+          "end": "\\s*(?:(?=\\})|(,))",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.separator.dictionary.fcsmth"
+            }
+          },
+          "patterns": [
+            {
+              "include": "$self"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "repository": {
+    "builtin_exceptions": {
+      "match": "\r\n                    (?x)\\b(\r\n                    (\r\n                    Arithmetic|Assertion|Attribute|BlockingIO|BrokenPipe|Buffer|ChildProcess|\r\n                    Connection(Aborted|Refused|Reset)?|EOF|Environment|FileExists|\r\n                    FileNotFound|FloatingPoint|Interrupted|IO|IsADirectoryError|\r\n                    Import|Indentation|Index|Key|Lookup|Memory|Name|NotADirectory|\r\n                    NotImplemented|OS|Overflow|Permission|ProcessLookup|Reference|\r\n                    Runtime|Standard|Syntax|System|Tab|Timeout|Type|UnboundLocal|\r\n                    Unicode(Encode|Decode|Translate)?|Value|VMS|Windows|ZeroDivision\r\n                    )Error|\r\n                    ((Pending)?Deprecation|Runtime|Syntax|User|Future|Import|Unicode|Bytes)?Warning|\r\n                    (Base)?Exception|\r\n                    SystemExit|StopIteration|NotImplemented|KeyboardInterrupt|GeneratorExit\r\n                    )\\b\r\n                ",
+      "name": "support.type.exception.fcsmth"
+    },
+    "builtin_functions": {
+      "match": "\r\n                    (?x)\\b(\r\n                    __import__|all|abs|any|apply|ascii|bin|callable|chr|classmethod|cmp|coerce|\r\n                    compile|delattr|dir|divmod|enumerate|eval|execfile|filter|format|getattr|\r\n                    globals|hasattr|hash|help|hex|id|input|intern|isinstance|issubclass|iter|\r\n                    len|locals|map|max|min|next|oct|open|ord|pow|print|property|range|\r\n                    raw_input|reduce|reload|repr|reversed|round|setattr|sorted|staticmethod|\r\n                    sum|super|type|unichr|vars|zip\r\n                    )\\b\r\n                ",
+      "name": "support.function.builtin.fcsmth"
+    },
+    "builtin_types": {
+      "match": "\r\n                    (?x)\\b(\r\n                    basestring|bool|buffer|bytearray|bytes|complex|dict|float|frozenset|int|\r\n                    list|long|memoryview|object|range|set|slice|str|tuple|unicode|xrange\r\n                    )\\b\r\n                ",
+      "name": "support.type.fcsmth"
+    },
+    "constant_placeholder": {
+      "match": "(?i:(%(\\([a-z_]+\\))?#?0?\\-?[ ]?\\+?([0-9]*|\\*)(\\.([0-9]*|\\*))?[hL]?[a-z%])|(\\{([!\\[\\].:\\w ]+)?\\}))",
+      "name": "constant.other.placeholder.fcsmth"
+    },
+    "docstrings": {
+      "patterns": [
+        {
+          "begin": "^\\s*(?=[uU]?[rR]?\"\"\")",
+          "end": "(?<=\"\"\")",
+          "name": "comment.block.fcsmth",
+          "patterns": [
+            {
+              "include": "#string_quoted_double"
+            }
+          ]
+        },
+        {
+          "begin": "^\\s*(?=[uU]?[rR]?''')",
+          "end": "(?<=''')",
+          "name": "comment.block.fcsmth",
+          "patterns": [
+            {
+              "include": "#string_quoted_single"
+            }
+          ]
+        }
+      ]
+    },
+    "dotted_name": {
+      "begin": "(?=[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)",
+      "end": "(?![A-Za-z0-9_\\.])",
+      "patterns": [
+        {
+          "begin": "(\\.)(?=[A-Za-z_][A-Za-z0-9_]*)",
+          "end": "(?![A-Za-z0-9_])",
+          "patterns": [
+            {
+              "include": "#magic_function_names"
+            },
+            {
+              "include": "#magic_variable_names"
+            },
+            {
+              "include": "#illegal_names"
+            },
+            {
+              "include": "#generic_names"
+            }
+          ]
+        },
+        {
+          "begin": "(?<!\\.)(?=[A-Za-z_][A-Za-z0-9_]*)",
+          "end": "(?![A-Za-z0-9_])",
+          "patterns": [
+            {
+              "include": "#builtin_functions"
+            },
+            {
+              "include": "#builtin_types"
+            },
+            {
+              "include": "#builtin_exceptions"
+            },
+            {
+              "include": "#illegal_names"
+            },
+            {
+              "include": "#magic_function_names"
+            },
+            {
+              "include": "#magic_variable_names"
+            },
+            {
+              "include": "#language_variables"
+            },
+            {
+              "include": "#generic_names"
+            }
+          ]
+        }
+      ]
+    },
+    "entity_name_class": {
+      "patterns": [
+        {
+          "include": "#illegal_names"
+        },
+        {
+          "include": "#generic_names"
+        }
+      ]
+    },
+    "entity_name_function": {
+      "patterns": [
+        {
+          "include": "#magic_function_names"
+        },
+        {
+          "include": "#illegal_names"
+        },
+        {
+          "include": "#generic_names"
+        }
+      ]
+    },
+    "escaped_char": {
+      "captures": {
+        "1": {
+          "name": "constant.character.escape.hex.fcsmth"
+        },
+        "2": {
+          "name": "constant.character.escape.octal.fcsmth"
+        },
+        "3": {
+          "name": "constant.character.escape.newline.fcsmth"
+        },
+        "4": {
+          "name": "constant.character.escape.backlash.fcsmth"
+        },
+        "5": {
+          "name": "constant.character.escape.double-quote.fcsmth"
+        },
+        "6": {
+          "name": "constant.character.escape.single-quote.fcsmth"
+        },
+        "7": {
+          "name": "constant.character.escape.bell.fcsmth"
+        },
+        "8": {
+          "name": "constant.character.escape.backspace.fcsmth"
+        },
+        "9": {
+          "name": "constant.character.escape.formfeed.fcsmth"
+        },
+        "10": {
+          "name": "constant.character.escape.linefeed.fcsmth"
+        },
+        "11": {
+          "name": "constant.character.escape.return.fcsmth"
+        },
+        "12": {
+          "name": "constant.character.escape.tab.fcsmth"
+        },
+        "13": {
+          "name": "constant.character.escape.vertical-tab.fcsmth"
+        }
+      },
+      "match": "(\\\\x[0-9A-F]{2})|(\\\\[0-7]{3})|(\\\\\\n)|(\\\\\\\\)|(\\\\\\\")|(\\\\')|(\\\\a)|(\\\\b)|(\\\\f)|(\\\\n)|(\\\\r)|(\\\\t)|(\\\\v)"
+    },
+    "escaped_unicode_char": {
+      "captures": {
+        "1": {
+          "name": "constant.character.escape.unicode.16-bit-hex.fcsmth"
+        },
+        "2": {
+          "name": "constant.character.escape.unicode.32-bit-hex.fcsmth"
+        },
+        "3": {
+          "name": "constant.character.escape.unicode.name.fcsmth"
+        }
+      },
+      "match": "(\\\\U[0-9A-Fa-f]{8})|(\\\\u[0-9A-Fa-f]{4})|(\\\\N\\{[a-zA-Z ]+\\})"
+    },
+    "function_name": {
+      "patterns": [
+        {
+          "include": "#magic_function_names"
+        },
+        {
+          "include": "#magic_variable_names"
+        },
+        {
+          "include": "#builtin_exceptions"
+        },
+        {
+          "include": "#builtin_functions"
+        },
+        {
+          "include": "#builtin_types"
+        },
+        {
+          "include": "#generic_names"
+        }
+      ]
+    },
+    "generic_names": {
+      "match": "[A-Za-z_][A-Za-z0-9_]*"
+    },
+    "illegal_names": {
+      "match": "\\b(and|as|assert|break|class|continue|def|del|elif|else|except|exec|finally|for|from|global|if|import|in|is|lambda|not|or|pass|print|raise|return|try|while|with|yield)\\b",
+      "name": "invalid.illegal.name.fcsmth"
+    },
+    "keyword_arguments": {
+      "begin": "\\b([a-zA-Z_][a-zA-Z_0-9]*)\\s*(=)(?!=)",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.parameter.function.fcsmth"
+        },
+        "2": {
+          "name": "keyword.operator.assignment.fcsmth"
+        }
+      },
+      "end": "\\s*(?:(,)|(?=$\\n?|[\\)\\:]))",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.separator.parameters.fcsmth"
+        }
+      },
+      "patterns": [
+        {
+          "include": "$self"
+        }
+      ]
+    },
+    "language_variables": {
+      "match": "\\b(self|cls)\\b",
+      "name": "variable.language.fcsmth"
+    },
+    "line_continuation": {
+      "captures": {
+        "1": {
+          "name": "punctuation.separator.continuation.line.fcsmth"
+        },
+        "2": {
+          "name": "invalid.illegal.unexpected-text.fcsmth"
+        }
+      },
+      "match": "(\\\\)(.*)$\\n?"
+    },
+    "magic_function_names": {
+      "comment": "these methods have magic interpretation by python and are generally called indirectly through syntactic constructs",
+      "match": "\r\n                    (?x)\\b(__(?:\r\n                    abs|add|and|call|cmp|coerce|complex|contains|del|delattr|\r\n                    delete|delitem|delslice|div|divmod|enter|eq|exit|float|\r\n                    floordiv|ge|get|getattr|getattribute|getitem|getslice|gt|\r\n                    hash|hex|iadd|iand|idiv|ifloordiv|ilshift|imod|imul|init|\r\n                    int|invert|ior|ipow|irshift|isub|iter|itruediv|ixor|le|len|\r\n                    long|lshift|lt|mod|mul|ne|neg|new|nonzero|oct|or|pos|pow|\r\n                    radd|rand|rdiv|rdivmod|repr|rfloordiv|rlshift|rmod|rmul|ror|\r\n                    rpow|rrshift|rshift|rsub|rtruediv|rxor|set|setattr|setitem|\r\n                    setslice|str|sub|truediv|unicode|xor\r\n                    )__)\\b\r\n                ",
+      "name": "support.function.magic.fcsmth"
+    },
+    "magic_variable_names": {
+      "comment": "magic variables which a class/module may have.",
+      "match": "\\b__(all|bases|class|debug|dict|doc|file|members|metaclass|methods|name|slots|weakref)__\\b",
+      "name": "support.variable.magic.fcsmth"
+    },
+    "regular_expressions": {
+      "comment": "Changed disabled to 1 to turn off syntax highlighting in “r” strings.",
+      "disabled": 0,
+      "patterns": [
+        {
+          "include": "source.regexp.fcsmth"
+        }
+      ]
+    },
+    "string_quoted_double": {
+      "patterns": [
+        {
+          "begin": "([uU]r)(\"\"\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted unicode-raw string",
+          "end": "\"\"\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.block.unicode-raw-regex.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "#regular_expressions"
+            }
+          ]
+        },
+        {
+          "begin": "([uU]R)(\"\"\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted unicode-raw string without regular expression highlighting",
+          "end": "\"\"\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.block.unicode-raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "(r)(\"\"\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted raw string",
+          "end": "\"\"\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.block.raw-regex.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "#regular_expressions"
+            }
+          ]
+        },
+        {
+          "begin": "(R)(\"\"\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted raw string",
+          "end": "\"\"\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.block.raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "([uU])(\"\"\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted unicode string",
+          "end": "\"\"\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.block.unicode.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            },
+            "3": {
+              "patterns": [
+                {
+                  "include": "#constant_placeholder"
+                },
+                {
+                  "include": "#escaped_unicode_char"
+                },
+                {
+                  "include": "#escaped_char"
+                },
+                {
+                  "include": "#regular_expressions"
+                }
+              ]
+            },
+            "4": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "comment": "double-quoted raw string",
+          "match": "([uU]r)(\")((?:[^\"\\\\]|\\\\.)*)(\")",
+          "name": "string.quoted.double.single-line.unicode-raw-regex.fcsmth"
+        },
+        {
+          "begin": "([uU]R)(\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double-quoted raw string",
+          "end": "(\")|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.single-line.unicode-raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            },
+            "3": {
+              "patterns": [
+                {
+                  "include": "#constant_placeholder"
+                },
+                {
+                  "include": "#escaped_char"
+                },
+                {
+                  "include": "#regular_expressions"
+                }
+              ]
+            },
+            "4": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "comment": "double-quoted raw string",
+          "match": "(r)(\")((?:[^\"\\\\]|\\\\.)*)(\")",
+          "name": "string.quoted.double.single-line.raw-regex.fcsmth"
+        },
+        {
+          "begin": "(R)(\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double-quoted raw string",
+          "end": "(\")|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.single-line.raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "([uU])(\")",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted unicode string",
+          "end": "(\")|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.single-line.unicode.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "(\"\"\")(?=\\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|REPLACE|ALTER))",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted string",
+          "end": "\"\"\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.block.sql.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "source.sql"
+            }
+          ]
+        },
+        {
+          "begin": "(\")(?=\\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|REPLACE|ALTER))",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted string",
+          "end": "(\")|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.single-line.sql.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "source.sql"
+            }
+          ]
+        },
+        {
+          "begin": "(\"\"\")",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted string",
+          "end": "\"\"\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.block.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "(\")",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "double quoted string",
+          "end": "(\")|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.double.single-line.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        }
+      ]
+    },
+    "string_quoted_single": {
+      "patterns": [
+        {
+          "begin": "([uU]r)(''')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted unicode-raw string",
+          "end": "'''",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.block.unicode-raw-regex.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "#regular_expressions"
+            }
+          ]
+        },
+        {
+          "begin": "([uU]R)(''')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted unicode-raw string",
+          "end": "'''",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.block.unicode-raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "(r)(''')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted raw string",
+          "end": "'''",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.block.raw-regex.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "#regular_expressions"
+            }
+          ]
+        },
+        {
+          "begin": "(R)(''')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted raw string",
+          "end": "'''",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.block.raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "([uU])(''')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted unicode string",
+          "end": "'''",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.block.unicode.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            },
+            "3": {
+              "patterns": [
+                {
+                  "include": "#constant_placeholder"
+                },
+                {
+                  "include": "#escaped_unicode_char"
+                },
+                {
+                  "include": "#escaped_char"
+                },
+                {
+                  "include": "#regular_expressions"
+                }
+              ]
+            },
+            "4": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "comment": "single quoted raw string",
+          "match": "([uU]r)(')((?:[^'\\\\]|\\\\.)*)(')",
+          "name": "string.quoted.single.single-line.unicode-raw-regex.fcsmth"
+        },
+        {
+          "begin": "([uU]R)(')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted raw string",
+          "end": "(')|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.single-line.unicode-raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "captures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            },
+            "3": {
+              "patterns": [
+                {
+                  "include": "#constant_placeholder"
+                },
+                {
+                  "include": "#escaped_char"
+                },
+                {
+                  "include": "#regular_expressions"
+                }
+              ]
+            },
+            "4": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "comment": "single quoted raw string",
+          "match": "(r)(')((?:[^'\\\\]|\\\\.)*)(')",
+          "name": "string.quoted.single.single-line.raw-regex.fcsmth"
+        },
+        {
+          "begin": "(R)(')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted raw string",
+          "end": "(')|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.single-line.raw.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "([uU])(')",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.type.string.fcsmth"
+            },
+            "2": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted unicode string",
+          "end": "(')|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.single-line.unicode.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_unicode_char"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "(''')(?=\\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|REPLACE|ALTER))",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted string",
+          "end": "'''",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.block.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "source.sql"
+            }
+          ]
+        },
+        {
+          "begin": "(')(?=\\s*(SELECT|INSERT|UPDATE|DELETE|CREATE|REPLACE|ALTER))",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted string",
+          "end": "(')|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.single-line.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            },
+            {
+              "include": "source.sql"
+            }
+          ]
+        },
+        {
+          "begin": "(''')",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted string",
+          "end": "'''",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.block.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        },
+        {
+          "begin": "(')",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.begin.fcsmth"
+            }
+          },
+          "comment": "single quoted string",
+          "end": "(')|(\\n)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.definition.string.end.fcsmth"
+            },
+            "2": {
+              "name": "invalid.illegal.unclosed-string.fcsmth"
+            }
+          },
+          "name": "string.quoted.single.single-line.fcsmth",
+          "patterns": [
+            {
+              "include": "#constant_placeholder"
+            },
+            {
+              "include": "#escaped_char"
+            }
+          ]
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "include": "#string_quoted_double"
+        },
+        {
+          "include": "#string_quoted_single"
+        }
+      ]
+    }
+  }
+}
