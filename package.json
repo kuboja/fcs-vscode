@@ -13,17 +13,10 @@
         "Languages"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello",
         "onLanguage:fcs"
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [
-            {
-                "command": "extension.sayHello",
-                "title": "Hello World"
-            }
-        ],
         "languages": [
             {
                 "id": "fcs",
