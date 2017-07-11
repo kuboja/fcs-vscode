@@ -4,7 +4,7 @@
     "description": "Femcad Script for Visual Studio Code.",
     "author": "Kuboja",
     "license": "MIT",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "publisher": "kuboja",
     "engines": {
         "vscode": "^1.13.0"

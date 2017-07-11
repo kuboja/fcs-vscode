@@ -10,7 +10,7 @@ FemCAD Script language support for Visual Studio Code.
 
 ## Release Notes
 
-### 1.0.1
+### 1.0.2
 
 Fix some syntax highlighting.
 

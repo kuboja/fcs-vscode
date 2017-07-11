@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
-## [1.0.1] - 2017-07-11
+## [1.0.2] - 2017-07-11
 ### Change
-- Change syntax highlighting of dot functions.
+- Change syntax highlighting of dot functions and lambda function parameters.
 
 
 ## [1.0.0] - 2017-07-09
