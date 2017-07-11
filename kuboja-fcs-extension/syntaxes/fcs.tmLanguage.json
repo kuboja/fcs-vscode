@@ -48,7 +48,7 @@
             "include": "#comment-line"
         },
         {
-            "begin": "^(gclass|gblock|distribution|area|material|thickness|planestress|vertex|layer|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)",
+            "begin": "^(gclass|gblock|distribution|area|material|thickness|planestress|vertex|layer|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\b",
             "beginCaptures": {
                 "1": {
                     "name": "storage.type.class.fcs"
