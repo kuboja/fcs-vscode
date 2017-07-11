@@ -8,18 +8,21 @@
     "name": "Femcad Script",
     "patterns": [
         {
-            "begin": "(?<=:=|=|\\()[^>](?= *(?:[a-z]+,? *)+=>)",
-            "end": "(?=\\=>)",
-            "patterns": [
-                {
-                    "match": "([a-z]+),?",
-                    "captures": {
-                        "1": {
-                            "name": "variable.parameter.fcs"
+            "match": "(?i)(?<=:=|=[^>]|\\() *((?:[a-zA-Z0-9_]+,? *)+) *(?==>)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        {
+                            "match": "([a-zA-Z0-9_]+),?",
+                            "captures": {
+                                "1": {
+                                    "name": "variable.parameter.fcs"
+                                }
+                            }
                         }
-                    }
+                    ]
                 }
-            ]
+            }
         },
         {
             "include": "#numbers"
@@ -133,7 +136,7 @@
             "end": "(?![A-Za-z0-9_\\.])",
             "patterns": [
                 {
-                    "name":"support.function.fcs",
+                    "name": "support.function.fcs",
                     "match": "[a-zA-Z0-9_]"
                 }
             ]
