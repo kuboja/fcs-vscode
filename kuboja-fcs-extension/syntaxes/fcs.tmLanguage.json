@@ -124,15 +124,19 @@
         },
         "fcsFunctionsInClass": {
             "comment": "funkce/vlastnost umístěné v 'globálních' prostorech, není kontrolovano jestli funkce existuje",
-            "begin": "(?=(Fcs|FCS|Unit|FCM|Fcm|GCS|Math)\\.(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)",
+            "begin": "\\b(Fcs|FCS|Unit|FCM|Fcm|GCS|Math)\\.",
             "beginCaptures": {
                 "1": {
                     "name": "support.class.fcs"
                 }
             },
             "end": "(?![A-Za-z0-9_\\.])",
-            "contentName": "support.function.fcs",
-            "patterns": []
+            "patterns": [
+                {
+                    "name":"support.function.fcs",
+                    "match": "[a-zA-Z0-9_]"
+                }
+            ]
         },
         "fcsFunctions": {
             "patterns": [
