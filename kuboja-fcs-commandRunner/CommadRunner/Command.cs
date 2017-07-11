@@ -3,14 +3,14 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace FemCadCommand
+namespace Kuboja.Fcs.CommadRunner
 {
     public class Command
     {
         private const string report = "browse_report";
 
         public string Variable { get; }
-        public TypeOutputFunction Type { get; } 
+        public TypeOutputFunction Type { get; }
 
         public string FullCommand(string gclass = "")
         {

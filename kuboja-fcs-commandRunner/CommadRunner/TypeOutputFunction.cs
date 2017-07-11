@@ -1,4 +1,4 @@
-﻿namespace FemCadCommand
+﻿ namespace Kuboja.Fcs.CommadRunner
 {
     public enum TypeOutputFunction
     {

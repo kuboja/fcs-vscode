@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace FemCadCommand
+namespace Kuboja.Fcs.CommadRunner
 {
     public static class FliProcessManager
     {

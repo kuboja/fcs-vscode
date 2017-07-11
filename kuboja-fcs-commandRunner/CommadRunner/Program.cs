@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 using System;
 
-namespace FemCadCommand
+namespace Kuboja.Fcs.CommadRunner
 {
     internal class Program
     {
@@ -33,7 +33,7 @@ namespace FemCadCommand
             // Zobrazení aktuálního příkazu
             Console.WriteLine(command.Variable);
 
-            // Spuštění 
+            // Spuštění
             FliProcessManager.StartFliProcess(Options.FliPath, new string[] { runScriptPath }, Options.Verbose);
 
             if (Options.Break)

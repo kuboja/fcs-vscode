@@ -3,7 +3,7 @@ using CommandLine.Text;
 using System.Collections.Generic;
 using System.IO;
 
-namespace FemCadCommand
+namespace Kuboja.Fcs.CommadRunner
 {
     internal class Options
     {
@@ -11,6 +11,12 @@ namespace FemCadCommand
 
         [Option('b', null, HelpText = "Break execution before end.")]
         public bool Break { get; set; }
+
+        [ValueOption(3)]
+        [Option('c', "command", //Required = true,
+            DefaultValue = TypeOutputFunction.Print,
+            HelpText = "Output command.")]
+        public TypeOutputFunction FcsOutputCommnand { get; set; }
 
         [ValueOption(2)]
         [Option('l', "line", //Required = true,
