@@ -1,6 +1,6 @@
-# kuboja-fcs 
+# FemCAD Script
 
-FemCAD Script support extension. 
+FemCAD Script language support for Visual Studio Code. 
 
 ## Features
 
@@ -8,12 +8,11 @@ FemCAD Script support extension.
 - File symbols provider ( Ctrl+Shift+O )
 
 
-## Requirements
-
-No requirements.
-
-
 ## Release Notes
+
+### 1.0.1
+
+Fix some syntax highlighting.
 
 ### 1.0.0
 
