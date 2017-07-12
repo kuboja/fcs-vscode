@@ -11,6 +11,15 @@
             "include": "#comment-line"
         },
         {
+            "include": "#strings"
+        },
+        {
+            "include": "#fcsFunctions"
+        },
+        {
+            "include": "#fcsConstants"
+        },
+        {
             "include": "#fcsAnonymFunctionParameter"
         },
         {
@@ -20,71 +29,36 @@
             "include": "#numbers"
         },
         {
-            "include": "#strings"
+            "include": "#fcsCommands"
         },
         {
-            "begin": "^(gclass|gblock|distribution|area|material|thickness|planestress|vertex|layer|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\b",
-            "beginCaptures": {
-                "1": {
-                    "name": "storage.type.class.fcs"
-                }
-            },
-            "end": "(?<= |\\t)(?:(?:{)([a-zA-Z_][a-zA-Z_0-9]*)(?:\\})|([1-9][0-9]*))(?= |\\t)",
-            "endCaptures": {
-                "1": {
-                    "name": "entity.name.class.fcs"
-                },
-                "2": {
-                    "name": "entity.name.class.fcs"
-                }
-            }
+            "include": "fcsObjectCreators"
         },
         {
-            "comment": "modifikátory, které jsou odděleny pouze mezerou!!",
-            "name": "storage.modifier.object.fcs",
-            "match": "(?<= )(lcs|curvelcs|xyz|color|area|arc vertex|vertex|templates)(?= )"
+            "include": "#fcsAnonymFunctionName"
         },
         {
-            "comment": "modifikátory za kterými musí být závorka nebo uvozovka (může být před nimi znaménko + nebo -)",
-            "name": "storage.modifier.object.fcs",
-            "match": "(?<= )(if|area|geometry|section|material|t|metadata|styles|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions)(?= +[+-]?(?:\\(|\\[|\\{|\"))"
-        },
-        {
-            "comment": "názvy modifikátorů, které mohou být následovány číslem nebo textem (které může znamenat referenci)",
-            "name": "storage.modifier.object.fcs",
-            "match": "(?<= )(rho|alpha|lambda|c|linear E|ni|radiusmultiplier|vertexes|fillets|eccentricity|xsection|gclass|geometry_class|vertexlcs|matrix|origin|layer|curve)(?= +(?:\\(|\\[|\\{|[0-9]|[A-Za-z]))"
-        },
-        {
-            "comment": "první slovo víceslovných modifikátorů",
-            "name": "storage.modifier.object.fcs",
-            "match": "(?<= )(transformation|specialization|repetitions|mapping|boundary|filletedpoly|type)(?= +(?:\\(|\\[|\\{|[A-Za-z]))"
-        },
-        {
-            "comment": "další slova víceslovných modifikátorů",
-            "name": "storage.modifier.object.fcs",
-            "match": "(?<=[A-Za-z]) +(translation|direction|step|ithparameters|Auto|count|distance|items|Frame)"
-        },
-        {
-            "name": "support.function.fcs",
-            "match": "^(browse_report|print|model_shell3d|import|exportesaxml)\\b"
-        },
-        {
-            "name": "entity.name.function.fcs",
-            "match": "^[A-Za-z][A-Za-z0-9_]*(?= *(?::=|=) *[\\(]? *(?:[a-z]+,? *)+=>)"
-        },
-        {
-            "match": "^[A-Za-z][A-Za-z0-9_]* *(?=(?::=|=))",
-            "name": "variable.name.fcs"
-        },
-        {
-            "include": "#fcsFunctions"
-        },
-        {
-            "include": "#fcsConstants"
+            "include": "#fcsVariable"
         },
         {}
     ],
     "repository": {
+        "fcsCommands": {
+            "patterns": [
+                {
+                    "name": "support.function.fcs",
+                    "match": "^(browse_report|print|model_shell3d|import|exportesaxml)\\b"
+                }
+            ]
+        },
+        "fcsAnonymFunctionName": {
+            "patterns": [
+                {
+                    "name": "entity.name.function.fcs",
+                    "match": "^[A-Za-z][A-Za-z0-9_]*(?= *(?::=|=) *[\\(]? *(?:[a-z]+,? *)+=>)"
+                }
+            ]
+        },
         "fcsAnonymFunctionParameter": {
             "patterns": [
                 {
@@ -103,7 +77,27 @@
                                         },
                                         "2": {
                                             "patterns": [
-                                                
+                                                {
+                                                    "include": "#comment-line"
+                                                },
+                                                {
+                                                    "include": "#strings"
+                                                },
+                                                {
+                                                    "include": "#fcsFunctions"
+                                                },
+                                                {
+                                                    "include": "#fcsConstants"
+                                                },
+                                                {
+                                                    "include": "#fcsAnonymFunctionParameter"
+                                                },
+                                                {
+                                                    "include": "#fcsOperators"
+                                                },
+                                                {
+                                                    "include": "#numbers"
+                                                }
                                             ]
                                         },
                                         "3": {
@@ -143,11 +137,57 @@
                 }
             ]
         },
+        "fcsObjectCreators": {
+            "patterns": [
+                {
+                    "begin": "^(gclass|gblock|distribution|area|material|thickness|planestress|vertex|layer|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\b",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "storage.type.class.fcs"
+                        }
+                    },
+                    "end": "(?<= |\\t)(?:(?:{)([a-zA-Z_][a-zA-Z_0-9]*)(?:\\})|([1-9][0-9]*))(?= |\\t)",
+                    "endCaptures": {
+                        "1": {
+                            "name": "entity.name.class.fcs"
+                        },
+                        "2": {
+                            "name": "entity.name.class.fcs"
+                        }
+                    }
+                },
+                {
+                    "comment": "modifikátory, které jsou odděleny pouze mezerou!!",
+                    "name": "storage.modifier.object.fcs",
+                    "match": "(?<= )(lcs|curvelcs|xyz|color|area|arc vertex|vertex|templates)(?= )"
+                },
+                {
+                    "comment": "modifikátory za kterými musí být závorka nebo uvozovka (může být před nimi znaménko + nebo -)",
+                    "name": "storage.modifier.object.fcs",
+                    "match": "(?<= )(if|area|geometry|section|material|t|metadata|styles|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions)(?= +[+-]?(?:\\(|\\[|\\{|\"))"
+                },
+                {
+                    "comment": "názvy modifikátorů, které mohou být následovány číslem nebo textem (které může znamenat referenci)",
+                    "name": "storage.modifier.object.fcs",
+                    "match": "(?<= )(rho|alpha|lambda|c|linear E|ni|radiusmultiplier|vertexes|fillets|eccentricity|xsection|gclass|geometry_class|vertexlcs|matrix|origin|layer|curve)(?= +(?:\\(|\\[|\\{|[0-9]|[A-Za-z]))"
+                },
+                {
+                    "comment": "první slovo víceslovných modifikátorů",
+                    "name": "storage.modifier.object.fcs",
+                    "match": "(?<= )(transformation|specialization|repetitions|mapping|boundary|filletedpoly|type)(?= +(?:\\(|\\[|\\{|[A-Za-z]))"
+                },
+                {
+                    "comment": "další slova víceslovných modifikátorů",
+                    "name": "storage.modifier.object.fcs",
+                    "match": "(?<=[A-Za-z]) +(translation|direction|step|ithparameters|Auto|count|distance|items|Frame)"
+                }
+            ]
+        },
         "fcsOperators": {
             "patterns": [
                 {
                     "name": "keyword.operator.comparison.fcs",
-                    "match": "<=|>=|==|[^=](<|>)"
+                    "match": "<=|>=|==|<|>"
                 },
                 {
                     "name": "keyword.operator.assignment.fcs",
@@ -242,6 +282,14 @@
                     "comment": "vnořené znaky s lomítkem: \n \r ...",
                     "name": "constant.character.escape.fcs",
                     "match": "\\\\(?:p|t|r|n)"
+                }
+            ]
+        },
+        "fcsVariable": {
+            "patterns": [
+                {
+                    "match": "^[A-Za-z][A-Za-z0-9_]* *(?=(?::=|=))",
+                    "name": "variable.name.fcs"
                 }
             ]
         }
