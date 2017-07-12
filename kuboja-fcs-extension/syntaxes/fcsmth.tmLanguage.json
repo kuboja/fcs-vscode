@@ -1,6 +1,6 @@
 {
   "bundleUUID": "E3BADC20-6B0E-11D9-9DC9-000D93589AF7",
-  "comment": "\r\n            todo:\r\n            list comprehension / generator comprehension scope.\r\n\r\n        ",
+  "comment": "todo: list comprehension / generator comprehension scope.",
   "fileTypes": [
     "fcsmth"
   ],
@@ -115,7 +115,7 @@
       "name": "invalid.deprecated.operator.fcsmth"
     },
     {
-      "match": "<\\=|>\\=|\\=\\=|<|>|\\!\\=",
+      "match": "<\\=|>\\=|\\=\\=|[^=](<|>)|\\!\\=",
       "name": "keyword.operator.comparison.fcsmth"
     },
     {
@@ -732,15 +732,15 @@
   ],
   "repository": {
     "builtin_exceptions": {
-      "match": "\r\n                    (?x)\\b(\r\n                    (\r\n                    Arithmetic|Assertion|Attribute|BlockingIO|BrokenPipe|Buffer|ChildProcess|\r\n                    Connection(Aborted|Refused|Reset)?|EOF|Environment|FileExists|\r\n                    FileNotFound|FloatingPoint|Interrupted|IO|IsADirectoryError|\r\n                    Import|Indentation|Index|Key|Lookup|Memory|Name|NotADirectory|\r\n                    NotImplemented|OS|Overflow|Permission|ProcessLookup|Reference|\r\n                    Runtime|Standard|Syntax|System|Tab|Timeout|Type|UnboundLocal|\r\n                    Unicode(Encode|Decode|Translate)?|Value|VMS|Windows|ZeroDivision\r\n                    )Error|\r\n                    ((Pending)?Deprecation|Runtime|Syntax|User|Future|Import|Unicode|Bytes)?Warning|\r\n                    (Base)?Exception|\r\n                    SystemExit|StopIteration|NotImplemented|KeyboardInterrupt|GeneratorExit\r\n                    )\\b\r\n                ",
+      "match": "(?x)\\b((Arithmetic|Assertion|Attribute|BlockingIO|BrokenPipe|Buffer|ChildProcess|Connection(Aborted|Refused|Reset)?|EOF|Environment|FileExists|FileNotFound|FloatingPoint|Interrupted|IO|IsADirectoryError|Import|Indentation|Index|Key|Lookup|Memory|Name|NotADirectory|NotImplemented|OS|Overflow|Permission|ProcessLookup|Reference|Runtime|Standard|Syntax|System|Tab|Timeout|Type|UnboundLocal|Unicode(Encode|Decode|Translate)?|Value|VMS|Windows|ZeroDivision)Error|((Pending)?Deprecation|Runtime|Syntax|User|Future|Import|Unicode|Bytes)?Warning|(Base)?Exception|SystemExit|StopIteration|NotImplemented|KeyboardInterrupt|GeneratorExit)\\b",
       "name": "support.type.exception.fcsmth"
     },
     "builtin_functions": {
-      "match": "\r\n                    (?x)\\b(\r\n                    __import__|all|abs|any|apply|ascii|bin|callable|chr|classmethod|cmp|coerce|\r\n                    compile|delattr|dir|divmod|enumerate|eval|execfile|filter|format|getattr|\r\n                    globals|hasattr|hash|help|hex|id|input|intern|isinstance|issubclass|iter|\r\n                    len|locals|map|max|min|next|oct|open|ord|pow|print|property|range|\r\n                    raw_input|reduce|reload|repr|reversed|round|setattr|sorted|staticmethod|\r\n                    sum|super|type|unichr|vars|zip\r\n                    )\\b\r\n                ",
+      "match": "(?x)\\b(__import__|all|abs|any|apply|ascii|bin|callable|chr|classmethod|cmp|coerce|compile|delattr|dir|divmod|enumerate|eval|execfile|filter|format|getattr|globals|hasattr|hash|help|hex|id|input|intern|isinstance|issubclass|iter|len|locals|map|max|min|next|oct|open|ord|pow|print|property|range|raw_input|reduce|reload|repr|reversed|round|setattr|sorted|staticmethod|sum|super|type|unichr|vars|zip)\\b",
       "name": "support.function.builtin.fcsmth"
     },
     "builtin_types": {
-      "match": "\r\n                    (?x)\\b(\r\n                    basestring|bool|buffer|bytearray|bytes|complex|dict|float|frozenset|int|\r\n                    list|long|memoryview|object|range|set|slice|str|tuple|unicode|xrange\r\n                    )\\b\r\n                ",
+      "match": "(?x)\\b(basestring|bool|buffer|bytearray|bytes|complex|dict|float|frozenset|int|list|long|memoryview|object|range|set|slice|str|tuple|unicode|xrange)\\b",
       "name": "support.type.fcsmth"
     },
     "constant_placeholder": {
@@ -974,7 +974,7 @@
     },
     "magic_function_names": {
       "comment": "these methods have magic interpretation by python and are generally called indirectly through syntactic constructs",
-      "match": "\r\n                    (?x)\\b(__(?:\r\n                    abs|add|and|call|cmp|coerce|complex|contains|del|delattr|\r\n                    delete|delitem|delslice|div|divmod|enter|eq|exit|float|\r\n                    floordiv|ge|get|getattr|getattribute|getitem|getslice|gt|\r\n                    hash|hex|iadd|iand|idiv|ifloordiv|ilshift|imod|imul|init|\r\n                    int|invert|ior|ipow|irshift|isub|iter|itruediv|ixor|le|len|\r\n                    long|lshift|lt|mod|mul|ne|neg|new|nonzero|oct|or|pos|pow|\r\n                    radd|rand|rdiv|rdivmod|repr|rfloordiv|rlshift|rmod|rmul|ror|\r\n                    rpow|rrshift|rshift|rsub|rtruediv|rxor|set|setattr|setitem|\r\n                    setslice|str|sub|truediv|unicode|xor\r\n                    )__)\\b\r\n                ",
+      "match": "(?x)\\b(__(?:abs|add|and|call|cmp|coerce|complex|contains|del|delattr|delete|delitem|delslice|div|divmod|enter|eq|exit|float|floordiv|ge|get|getattr|getattribute|getitem|getslice|gt|hash|hex|iadd|iand|idiv|ifloordiv|ilshift|imod|imul|init|int|invert|ior|ipow|irshift|isub|iter|itruediv|ixor|le|len|long|lshift|lt|mod|mul|ne|neg|new|nonzero|oct|or|pos|pow|radd|rand|rdiv|rdivmod|repr|rfloordiv|rlshift|rmod|rmul|ror|rpow|rrshift|rshift|rsub|rtruediv|rxor|set|setattr|setitem|setslice|str|sub|truediv|unicode|xor)__)\\b",
       "name": "support.function.magic.fcsmth"
     },
     "magic_variable_names": {
