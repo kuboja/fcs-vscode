@@ -55,7 +55,7 @@
             "patterns": [
                 {
                     "name": "entity.name.function.fcs",
-                    "match": "^[A-Za-z][A-Za-z0-9_]*(?= *(?::=|=) *[\\(]? *(?:[a-z]+,? *)+=>)"
+                    "match": "^[A-Za-z][A-Za-z0-9_]*(?= *(?::=|=).*=>)"
                 }
             ]
         },
@@ -116,9 +116,17 @@
                     }
                 },
                 {
-                    "match": "(?::=|=[^>]|\\()([a-zA-Z0-9_, ]+)(=>)",
+                    "match": "(:=|=[^>]|\\()([a-zA-Z0-9_, ]+)(=>)",
                     "captures": {
                         "1": {
+                            "patterns": [
+                                {
+                                    "name": "keyword.operator.assignment.fcs",
+                                    "match": "=|:="
+                                }
+                            ]
+                        },
+                        "2": {
                             "patterns": [
                                 {
                                     "match": "([a-zA-Z0-9_]+),?",
@@ -130,7 +138,7 @@
                                 }
                             ]
                         },
-                        "2": {
+                        "3": {
                             "name": "keyword.operator.assignment.fcs"
                         }
                     }
