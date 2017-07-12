@@ -88,7 +88,7 @@
         "fcsAnonymFunctionParameter": {
             "patterns": [
                 {
-                    "match": "(:=|=[^>])([a-zA-Z0-9_, ]+)(=>)",
+                    "match": "(:=|=[^>]|\\()([a-zA-Z0-9_, ]+)(=>)",
                     "captures": {
                         "1": {
                             "name": "keyword.operator.assignment.fcs"
