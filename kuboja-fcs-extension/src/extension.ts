@@ -1,9 +1,10 @@
 'use strict';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import { FcsExplorerProvider } from './fcsExplorer';
 import { FcsSymbolProvider } from './fcsSymbolUtil';
+import { FcsCommandService } from './fcsCommands';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -24,7 +25,13 @@ export function activate(context: vscode.ExtensionContext) {
     //});
 
     //context.subscriptions.push(disposable);
+    let commandService = new FcsCommandService();
 
+    let runLine = vscode.commands.registerCommand("kuboja-fcs.runLine", () => {
+        commandService.runCurrentLine();
+    } );
+
+    context.subscriptions.push(runLine);
 
 
     context.subscriptions.push(

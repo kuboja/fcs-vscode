@@ -13,10 +13,13 @@
         "Languages"
     ],
     "activationEvents": [
-        "onLanguage:fcs"
+        "onLanguage:fcs",
+        "onCommand:kuboja-fcs.runLine"
     ],
     "main": "./out/src/extension",
+    
     "contributes": {
+
         "languages": [
             {
                 "id": "fcs",
@@ -51,6 +54,13 @@
                 "language": "fcsmth",
                 "scopeName": "source.fcsmth",
                 "path": "./syntaxes/fcsmth.tmLanguage.json"
+            }
+        ],
+        "commands":[
+            {
+                "command": "kuboja-fcs.runLine",
+                "title": "Run current line",
+                "description" : "Run command on current line"
             }
         ],
         "capabilities": {
