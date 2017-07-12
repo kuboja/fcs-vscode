@@ -8,9 +8,12 @@
     "name": "Femcad Script",
     "patterns": [
         {
-            "match": "(?i)(?<=:=|=[^>]|\\() *((?:[a-zA-Z0-9_]+,? *)+) *(?==>)",
+            "match": "(:=|=[^>])([a-zA-Z0-9_, ]+)(=>)",
             "captures": {
                 "1": {
+                    "name": "keyword.operator.assignment.fcs"
+                },
+                "2": {
                     "patterns": [
                         {
                             "match": "([a-zA-Z0-9_]+),?",
@@ -21,6 +24,9 @@
                             }
                         }
                     ]
+                },
+                "3": {
+                    "name": "keyword.operator.assignment.fcs"
                 }
             }
         },
