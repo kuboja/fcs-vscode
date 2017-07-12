@@ -32,7 +32,7 @@
             "include": "#fcsCommands"
         },
         {
-            "include": "fcsObjectCreators"
+            "include": "#fcsObjectCreators"
         },
         {
             "include": "#fcsAnonymFunctionName"
