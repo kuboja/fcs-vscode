@@ -8,58 +8,19 @@
     "name": "Femcad Script",
     "patterns": [
         {
-            "match": "(:=|=[^>])([a-zA-Z0-9_, ]+)(=>)",
-            "captures": {
-                "1": {
-                    "name": "keyword.operator.assignment.fcs"
-                },
-                "2": {
-                    "patterns": [
-                        {
-                            "match": "([a-zA-Z0-9_]+),?",
-                            "captures": {
-                                "1": {
-                                    "name": "variable.parameter.fcs"
-                                }
-                            }
-                        }
-                    ]
-                },
-                "3": {
-                    "name": "keyword.operator.assignment.fcs"
-                }
-            }
+            "include": "#comment-line"
+        },
+        {
+            "include": "#fcsAnonymFunctionParameter"
+        },
+        {
+            "include": "#fcsOperators"
         },
         {
             "include": "#numbers"
         },
         {
-            "name": "keyword.operator.comparison.fcs",
-            "match": "<=|>=|==|[^=](<|>)"
-        },
-        {
-            "name": "keyword.operator.arithmetic.fcs",
-            "match": "\\+|\\-|\\*|\\*\\*|/"
-        },
-        {
-            "name": "keyword.operator.assignment.fcs",
-            "match": "=|:="
-        },
-        {
-            "name": "keyword.operator.logical.fcs",
-            "comment": "keyword operators that evaluate to True or False",
-            "match": "\\b(and|or)\\b"
-        },
-        {
-            "name": "keyword.operator.condition.fcs",
-            "comment": "keyword operators that evaluate to True or False",
-            "match": "\\:|\\?"
-        },
-        {
             "include": "#strings"
-        },
-        {
-            "include": "#comment-line"
         },
         {
             "begin": "^(gclass|gblock|distribution|area|material|thickness|planestress|vertex|layer|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\b",
@@ -124,6 +85,59 @@
         {}
     ],
     "repository": {
+        "fcsAnonymFunctionParameter": {
+            "patterns": [
+                {
+                    "match": "(:=|=[^>])([a-zA-Z0-9_, ]+)(=>)",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.operator.assignment.fcs"
+                        },
+                        "2": {
+                            "patterns": [
+                                {
+                                    "match": "([a-zA-Z0-9_]+),?",
+                                    "captures": {
+                                        "1": {
+                                            "name": "variable.parameter.fcs"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "3": {
+                            "name": "keyword.operator.assignment.fcs"
+                        }
+                    }
+                }
+            ]
+        },
+        "fcsOperators": {
+            "patterns": [
+                {
+                    "name": "keyword.operator.comparison.fcs",
+                    "match": "<=|>=|==|[^=](<|>)"
+                },
+                {
+                    "name": "keyword.operator.assignment.fcs",
+                    "match": "=|:="
+                },
+                {
+                    "name": "keyword.operator.arithmetic.fcs",
+                    "match": "\\+|\\-|\\*|\\*\\*|/"
+                },
+                {
+                    "name": "keyword.operator.logical.fcs",
+                    "comment": "keyword operators that evaluate to True or False",
+                    "match": "\\b(and|or)\\b"
+                },
+                {
+                    "name": "keyword.operator.condition.fcs",
+                    "comment": "keyword operators that evaluate to True or False",
+                    "match": "\\:|\\?"
+                }
+            ]
+        },
         "fcsFunctionsGlobal": {
             "comment": "funkce, které stojí samostatně",
             "match": "(?x)\\b(Max|Min|Abs|Round|Truncate|Sqrt|Pow|Exp|Log10|Sin|Cos|Tan|Asin|Acos|Atan(2)?|Argb)(?=\\()",
@@ -148,7 +162,7 @@
             "patterns": [
                 {
                     "name": "support.function.fcs",
-                    "match": "[a-zA-Z0-9_]"
+                    "match": "\\w"
                 }
             ]
         },
