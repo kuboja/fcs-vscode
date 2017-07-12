@@ -7,7 +7,7 @@
     "version": "1.0.2",
     "publisher": "kuboja",
     "engines": {
-        "vscode": "^1.13.0"
+        "vscode": "^1.14.0"
     },
     "categories": [
         "Languages"
@@ -86,8 +86,8 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.1.5",
-        "vscode": "^1.0.3",
+        "typescript": "^2.4.1",
+        "vscode": "^1.1.2",
         "mocha": "^2.3.3",
         "@types/node": "^6.0.52",
         "@types/mocha": "^2.2.33"
