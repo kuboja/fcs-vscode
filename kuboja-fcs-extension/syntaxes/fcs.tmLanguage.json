@@ -29,7 +29,7 @@
         },
         {
             "name": "keyword.operator.comparison.fcs",
-            "match": "<=|>=|==|<|>|!="
+            "match": "<=|>=|==|[^=](<|>)"
         },
         {
             "name": "keyword.operator.arithmetic.fcs",
