@@ -207,62 +207,52 @@
                 },
                 {
                     "name": "keyword.operator.logical.fcs",
-                    "comment": "keyword operators that evaluate to True or False",
                     "match": "\\b(and|or)\\b"
                 },
                 {
                     "name": "keyword.operator.condition.fcs",
-                    "comment": "keyword operators that evaluate to True or False",
                     "match": "\\:|\\?"
-                }
-            ]
-        },
-        "fcsFunctionsGlobal": {
-            "comment": "funkce, které stojí samostatně",
-            "match": "(?x)\\b(Max|Min|Abs|Round|Truncate|Sqrt|Pow|Exp|Log10|Sin|Cos|Tan|Asin|Acos|Atan(2)?|Argb)(?=\\()",
-            "name": "support.function.builtin.fcs",
-            "patterns": []
-        },
-        "fcsFunctionsDot": {
-            "comment": "standardní metody/vlastnosti objektů (předchází jim tečka)",
-            "match": "(?x)\\b(?<=\\.)(ToString|PointToGcs|GcsToLcs|(T|R)(x|y|z)|(IndexOf)?(Max|Min)(By)?|OrderBy(A|De)scending(More)?|Where|Find(OrDefault)?|Take|Skip|Reverse|Zip|(Get)?CumulativeSums|Sum(Items)?|(Is)?Empty|Count|Select|CollectBy|GetSpacings|Any|All|MaskedSpanSums|MergeDoubles|Mul(tiplyElements)?|ToFCS)\\b",
-            "name": "support.function.builtin.fcs",
-            "patterns": []
-        },
-        "fcsFunctionsInClass": {
-            "comment": "funkce/vlastnost umístěné v 'globálních' prostorech, není kontrolovano jestli funkce existuje",
-            "begin": "\\b(Fcs|FCS|Unit|FCM|Fcm|GCS|Math)\\.",
-            "beginCaptures": {
-                "1": {
-                    "name": "support.class.fcs"
-                }
-            },
-            "end": "(?![A-Za-z0-9_\\.])",
-            "patterns": [
-                {
-                    "name": "support.function.fcs",
-                    "match": "\\w"
                 }
             ]
         },
         "fcsFunctions": {
             "patterns": [
                 {
-                    "include": "#fcsFunctionsGlobal"
+                    "comment": "funkce, které stojí samostatně",
+                    "match": "\\b(Max|Min|Abs|Round|Truncate|Sqrt|Pow|Exp|Log10|Sin|Cos|Tan|Asin|Acos|Atan(2)?|Argb)(?=\\()",
+                    "name": "support.function.builtin.fcs"
                 },
                 {
-                    "include": "#fcsFunctionsDot"
+                    "comment": "standardní metody/vlastnosti objektů (předchází jim tečka)",
+                    "match": "\\b(?<=\\.)(ToString|PointToGcs|GcsToLcs|(T|R)(x|y|z)|(IndexOf)?(Max|Min)(By)?|OrderBy(A|De)scending(More)?|Where|Find(OrDefault)?|Take|Skip|Reverse|Zip|(Get)?CumulativeSums|Sum(Items)?|(Is)?Empty|Count|Select|CollectBy|GetSpacings|Any|All|MaskedSpanSums|MergeDoubles|Mul(tiplyElements)?|ToFCS)\\b",
+                    "name": "support.function.builtin.fcs"
                 },
                 {
-                    "include": "#fcsFunctionsInClass"
+                    "comment": "funkce/vlastnost umístěné v 'globálních' prostorech, není kontrolovano jestli funkce existuje",
+                    "begin": "\\b(Fcs|FCS|Unit|FCM|Fcm|GCS|Math)\\.",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "support.class.fcs"
+                        }
+                    },
+                    "end": "(?![A-Za-z0-9_\\.])",
+                    "patterns": [
+                        {
+                            "name": "support.function.fcs",
+                            "match": "\\w"
+                        }
+                    ]
                 }
             ]
         },
         "fcsConstants": {
-            "comment": "globální konstanty",
-            "match": "(?x)\\b(PI)\\b",
-            "name": "constant.language.fcs",
-            "patterns": []
+            "patterns": [
+                {
+                    "name": "constant.language.fcs",
+                    "comment": "globální konstanty",
+                    "match": "(?x)\\b(PI)\\b"
+                }
+            ]
         },
         "numbers": {
             "patterns": [
@@ -286,14 +276,18 @@
             ]
         },
         "strings": {
-            "name": "string.quoted.double.fcs",
-            "begin": "\"",
-            "end": "\"",
             "patterns": [
                 {
-                    "comment": "vnořené znaky s lomítkem: \n \r ...",
-                    "name": "constant.character.escape.fcs",
-                    "match": "\\\\(?:p|t|r|n)"
+                    "name": "string.quoted.double.fcs",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [
+                        {
+                            "comment": "vnořené znaky s lomítkem: \n \r ...",
+                            "name": "constant.character.escape.fcs",
+                            "match": "\\\\(?:p|t|r|n)"
+                        }
+                    ]
                 }
             ]
         },
