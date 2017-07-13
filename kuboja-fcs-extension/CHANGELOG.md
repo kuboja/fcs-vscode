@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
-## [1.0.2] - 2017-07-11
+## [1.0.3] - 2017-07-12
+
+### Added
+- Support for highlighting of Aggregate function.
+
 ### Change
 - Change syntax highlighting of dot functions and lambda function parameters.
+- Many syntax speed optimalizations.
+
 
 
 ## [1.0.0] - 2017-07-09
