@@ -250,7 +250,7 @@
                 {
                     "name": "constant.language.fcs",
                     "comment": "globální konstanty",
-                    "match": "(?x)\\b(PI)\\b"
+                    "match": "\\b(True|False|PI)\\b"
                 }
             ]
         },
