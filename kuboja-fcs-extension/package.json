@@ -4,7 +4,7 @@
     "description": "Femcad Script for Visual Studio Code.",
     "author": "Kuboja",
     "license": "MIT",
-    "version": "1.0.4-alfa",
+    "version": "1.0.4",
     "publisher": "kuboja",
     "engines": {
         "vscode": "^1.14.0"
@@ -17,9 +17,7 @@
         "onCommand:kuboja-fcs.runLine"
     ],
     "main": "./out/src/extension",
-    
     "contributes": {
-
         "languages": [
             {
                 "id": "fcs",
@@ -28,9 +26,30 @@
                     "fcs"
                 ],
                 "extensions": [
-                    ".fcs"
+                    ".fcs",
+                    ".fcs.bak"
                 ],
                 "configuration": "./syntaxes/fcs-language-configuration.json"
+            },
+            {
+                "id": "fcsdrs",
+                "aliases": [
+                    "FemCAD file (fcsdrs)",
+                    "json"
+                ],
+                "extensions": [
+                    ".fcsdrs"
+                ]
+            },
+            {
+                "id": "fcsdrv",
+                "aliases": [
+                    "FemCAD file (fcsdrv)",
+                    "json"
+                ],
+                "extensions": [
+                    ".fcsdrv"
+                ]
             },
             {
                 "id": "fcsmth",
@@ -56,11 +75,11 @@
                 "path": "./syntaxes/fcsmth.tmLanguage.json"
             }
         ],
-        "commands":[
+        "commands": [
             {
                 "command": "kuboja-fcs.runLine",
                 "title": "Run current line",
-                "description" : "Run command on current line"
+                "description": "Run command on current line"
             }
         ],
         "capabilities": {

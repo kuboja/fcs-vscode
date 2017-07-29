@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 
+## [1.0.4] - 2017-07-29
+
+### Added
+- Support for latex highlighting in string.
+- Add != oprator hightlighting.
+
+### Change
+- Fix strings, numbers, and buildin functions syntax matcher.
+
+
+
 ## [1.0.3] - 2017-07-12
 
 ### Added
