@@ -275,19 +275,62 @@
                 }
             ]
         },
+        "fcsLatexInString": {
+            "patterns": [
+                {
+                    "comment": "vnořené znaky s lomítkem: \n \r ...",
+                    "name": "constant.character.escape.fcs",
+                    "match": "[\\\\]?\\\\([a-zA-Z]+|[!,:>; #$%&_|{}])"
+                }
+            ]
+        },
         "strings": {
             "patterns": [
                 {
-                    "name": "string.quoted.double.fcs",
-                    "begin": "\"",
-                    "end": "\"",
-                    "patterns": [
-                        {
-                            "comment": "vnořené znaky s lomítkem: \n \r ...",
-                            "name": "constant.character.escape.fcs",
-                            "match": "\\\\(?:p|t|r|n)"
+                    "match": "\\bSymbol *(:?=) *(\")([^\"]*)(\")",
+                    "captures": {
+                        "1": {
+                            "name": "keyword.operator.assignment.fcs"
+                        },
+                        "2": {
+                            "name": "string.quoted.double.fcs"
+                        },
+                        "3": {
+                            "name": "string.quoted.double.fcs",
+                            "patterns": [
+                                {
+                                    "include": "#fcsLatexInString"
+                                }
+                            ]
+                        },
+                        "4": {
+                            "name": "string.quoted.double.fcs"
                         }
-                    ]
+                    }
+                },
+                {
+                    "name": "string.quoted.double.fcs",
+                    "match": "\"([^\"]*)\"",
+                    "captures": {
+                        "1": {
+                            "patterns": [
+                                {
+                                    "begin": "\\\\\\(",
+                                    "end": "\\\\\\)",
+                                    "patterns": [
+                                        {
+                                            "include": "#fcsLatexInString"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "comment": "vnořené znaky s lomítkem: \n \r ...",
+                                    "name": "constant.character.escape.fcs",
+                                    "match": "(?<=[^\\\\])\\\\(?:p|t|r|n)"
+                                }
+                            ]
+                        }
+                    }
                 }
             ]
         },
