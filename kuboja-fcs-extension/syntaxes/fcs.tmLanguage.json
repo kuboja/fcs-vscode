@@ -223,8 +223,13 @@
                     "name": "support.function.builtin.fcs"
                 },
                 {
-                    "comment": "standardní metody/vlastnosti objektů (předchází jim tečka)",
-                    "match": "\\b(?<=\\.)(ToString|PointToGcs|GcsToLcs|(T|R)(x|y|z)|(IndexOf)?(Max|Min)(By)?|OrderBy(A|De)scending(More)?|Where|Find(OrDefault)?|Take|Skip|Reverse|Zip|(Get)?CumulativeSums|Sum(Items)?|(Is)?Empty|Count|Select|CollectBy|GetSpacings|Any|All|MaskedSpanSums|MergeDoubles|Mul(tiplyElements)?|ToFCS)\\b",
+                    "comment": "standardní metody objektů (předchází jim tečka)",
+                    "match": "\\b(?<=\\.)(ToString|PointToGcs|GcsToLcs|(T|R)(x|y|z)|(IndexOf)?(Max|Min)(By)?|OrderBy(A|De)scending(More)?|Where|Find(OrDefault)?|Take|Skip|Reverse|Zip|GetCumulativeSums|SumItems|Empty|Select|CollectBy|GetSpacings|Any|All|MaskedSpanSums|MergeDoubles|Mul(tiplyElements)?|ToFCS)(?=\\()",
+                    "name": "support.function.builtin.fcs"
+                },
+                {
+                    "comment": "standardní vlastnosti objektů (předchází jim tečka)",
+                    "match": "\\b(?<=\\.)(CumulativeSums|Sum|Count|IsEmpty)(?!\\()\\b",
                     "name": "support.function.builtin.fcs"
                 },
                 {
@@ -235,7 +240,7 @@
                             "name": "support.class.fcs"
                         }
                     },
-                    "end": "(?![A-Za-z0-9_\\.])",
+                    "end": "(?![A-Za-z0-9_.])",
                     "patterns": [
                         {
                             "name": "support.function.fcs",
