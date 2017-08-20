@@ -68,23 +68,23 @@
             }
         ],
         "configurationDefaults": {
-            "[fcs]":{
+            "[fcs]": {
                 "editor.autoIndent": true,
                 "editor.detectIndentation": false,
                 "editor.tabSize": 3,
                 "editor.insertSpaces": true
             },
-            "[json]":{
+            "[json]": {
                 "editor.autoIndent": true,
                 "editor.detectIndentation": true,
                 "editor.tabSize": 2,
-                "editor.insertSpaces": true                
+                "editor.insertSpaces": true
             },
-            "[fcsmth]":{
+            "[fcsmth]": {
                 "editor.autoIndent": true,
                 "editor.detectIndentation": false,
                 "editor.tabSize": 3,
-                "editor.insertSpaces": true               
+                "editor.insertSpaces": true
             }
         },
         "commands": [
@@ -115,11 +115,11 @@
                 {
                     "when": "config.kuboja-fcs.showRunIconInEditorTitleMenu && editorLangId==fcs",
                     "command": "kuboja-fcs.runLine",
-                    "group": "navigation"                    
+                    "group": "navigation"
                 }
             ]
         },
-        "keybindings":[
+        "keybindings": [
             {
                 "command": "kuboja-fcs.runLine",
                 "key": "f5",

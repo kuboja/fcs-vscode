@@ -19,7 +19,7 @@ class CommandManager {
     public static stopText = "--FcsScriptEnD--"
     private static gclassName = "cls"
 
-    public static createRunScriptFile(lineCode: string, scriptFileName: string) : string {
+    public static createRunScriptFile(lineCode: string, scriptFileName: string): string {
 
         let tempDirPath = this.getTempFolderPath();
         let tempFileContent = CommandManager.getTempFileContent(lineCode, scriptFileName);
@@ -29,7 +29,7 @@ class CommandManager {
     }
 
 
-    private static getTempFileContent(lineCode: string, scriptFileName: string) : string {
+    private static getTempFileContent(lineCode: string, scriptFileName: string): string {
 
         let rawCommand = CommandManager.getRawCommand(lineCode);
 
@@ -120,7 +120,7 @@ class CommandManager {
         return rawCommand;
     }
 
-    private static createRandomFile(content: string, folder: string, fileExtension: string) : string {
+    private static createRandomFile(content: string, folder: string, fileExtension: string): string {
         const tmpFileName = "temp_" + this.rndName() + fileExtension;
         let fullPath = join(folder, tmpFileName);
         fs.writeFileSync(fullPath, content);
@@ -132,8 +132,8 @@ class CommandManager {
         return Math.random().toString(36).replace(/[^a-z]+/g, "").substr(0, 10);
     }
 
-    private static createFolderIfNotExist(dirPath : string): void{
-        if (!fs.existsSync( dirPath )){
+    private static createFolderIfNotExist(dirPath: string): void {
+        if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath);
         }
     }
@@ -149,23 +149,23 @@ export class CodeManager {
     private _context: vscode.ExtensionContext;
     private _config: vscode.WorkspaceConfiguration;
     private _appInsightsClient: AppInsightsClient;
-    private _editor : vscode.TextEditor;
+    private _editor: vscode.TextEditor;
     private _outputChannel: vscode.OutputChannel;
     private _isRunning: boolean;
     private _process;
-    private _outputLineCount : number;
-    private _showExecutionMessage : boolean;
-    private _startTime : Date;
-    private _codeFile : string;
-    private _femCadFolder : string;
-    private _fliPath : string;
+    private _outputLineCount: number;
+    private _showExecutionMessage: boolean;
+    private _startTime: Date;
+    private _codeFile: string;
+    private _femCadFolder: string;
+    private _fliPath: string;
 
     constructor(context: vscode.ExtensionContext) {
         this._context = context;
         this._outputChannel = vscode.window.createOutputChannel("fcs");
 
         this._appInsightsClient = new AppInsightsClient();
-        this._appInsightsClient.sendEvent("Startup"); 
+        this._appInsightsClient.sendEvent("Startup");
     }
 
     public run(): void {
@@ -175,7 +175,7 @@ export class CodeManager {
             vscode.window.showInformationMessage("Code is already running!");
             return;
         }
-        
+
         this._config = vscode.workspace.getConfiguration("kuboja-fcs");
         this._showExecutionMessage = this._config.get<boolean>("showExecutionMessage");
 
@@ -189,12 +189,12 @@ export class CodeManager {
         this._fliPath = join(this._femCadFolder, "fli.exe");
 
         fs.access(this._fliPath, (err) => {
-            if (err){
+            if (err) {
                 vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
-            } else  {               
+            } else {
                 this.getCodeFileAndExecute();
             }
-        })       
+        })
     }
 
     public stop(): void {
@@ -206,8 +206,8 @@ export class CodeManager {
         }
     }
 
-    private createFolderIfNotExist(dirPath : string): void{
-        if (!fs.existsSync( dirPath )){
+    private createFolderIfNotExist(dirPath: string): void {
+        if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath);
         }
     }
@@ -241,10 +241,10 @@ export class CodeManager {
             });
         }
 
-        if (!this._editor.document.isDirty){
+        if (!this._editor.document.isDirty) {
             return this.executeCommand(command);
         }
-        
+
         if (this._config.get<boolean>("saveFileBeforeRun")) {
             return this._editor.document.save().then(() => {
                 this.executeCommand(command);
@@ -268,7 +268,7 @@ export class CodeManager {
     /**
      * Načtení zadaného řádku z dokumentu
      */
-    private getLineFromScript(lineNumber: number) : string {
+    private getLineFromScript(lineNumber: number): string {
         // načtení vybraného řádku
         return this._editor.document.lineAt(lineNumber).text;
     }
@@ -294,12 +294,12 @@ export class CodeManager {
 
         this._appInsightsClient.sendEvent(command);
         this._startTime = new Date();
-       
+
         this._process = exec(command);
         this._process.stdout.setEncoding('utf8');
-        this._process.stdout.on("data", (data : string) => this.onGetOutputData(data) );
-        this._process.stderr.on("data", (data : string) => this.onGetOutputData(data) );
-        this._process.on("close", (code) => this.onCloseEvent(code) );
+        this._process.stdout.on("data", (data: string) => this.onGetOutputData(data));
+        this._process.stderr.on("data", (data: string) => this.onGetOutputData(data));
+        this._process.on("close", (code) => this.onCloseEvent(code));
     }
 
     private onGetOutputData(data: string) {
@@ -355,7 +355,7 @@ export class CodeManager {
         }
     }
 
-    private onCloseEvent( code ){
+    private onCloseEvent(code) {
         this._isRunning = false;
         const endTime = new Date();
         const elapsedTime = (endTime.getTime() - this._startTime.getTime()) / 1000;
@@ -364,11 +364,11 @@ export class CodeManager {
             this._outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
             this._outputChannel.appendLine("");
         }
-        
+
         fs.unlink(this._codeFile);
     }
 
-    private killProcess(){
+    private killProcess() {
         if (this._isRunning) {
             this._isRunning = false;
             kill(this._process.pid);
