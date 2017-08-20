@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
     const codeManager = new CodeManager(context);
     
     vscode.window.onDidCloseTerminal(() => {
-        codeManager.onDidCloseTerminal();
+     //   codeManager.onDidCloseTerminal();
     }); 
 
     const run = vscode.commands.registerCommand("kuboja-fcs.runLine", () => {
