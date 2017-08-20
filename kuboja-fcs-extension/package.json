@@ -1,10 +1,10 @@
 {
-    "name": "kuboja-fcs",
+    "name": "kuboja-fcs-dev",
     "displayName": "FemCad Script",
     "description": "Femcad Script for Visual Studio Code.",
     "author": "Kuboja",
     "license": "MIT",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "publisher": "kuboja",
     "engines": {
         "vscode": "^1.14.0"
@@ -80,8 +80,33 @@
                 "command": "kuboja-fcs.runLine",
                 "title": "Run current line",
                 "description": "Run command on current line"
+            },
+            {
+                "command": "kuboja-fcs.stop",
+                "title": "Stop Code Run"
             }
         ],
+        "menus": {
+            "editor/context": [
+                {
+                    "when": "!inOutput",
+                    "command": "kuboja-fcs.runLine",
+                    "group": "navigation"
+                },
+                {
+                    "when": "inOutput",
+                    "command": "kuboja-fcs.stop",
+                    "group": "stop-code-run"
+                }
+            ],
+            "editor/title": [
+                {
+                    "when": "config.kuboja-fcs.showRunIconInEditorTitleMenu",
+                    "command": "kuboja-fcs.runLine",
+                    "group": "navigation"
+                }
+            ]
+        },
         "capabilities": {
             "documentSymbolProvider": "true"
         },
@@ -103,6 +128,104 @@
                     ],
                     "default": "off",
                     "description": "Traces the communication between VSCode and the kuboja-fcs service."
+                },
+                "kuboja-fcs.femcadFolder": {
+                    "type": "string",
+                    "default": "",
+                    "description": "FemCAD instalation folder."
+                },
+                "kuboja-fcs.executorMap": {
+                    "type": "object",
+                    "default": {
+                        "javascript": "node"
+                    },
+                    "description": "Set the executor of each language."
+                },
+                "kuboja-fcs.executorMapByFileExtension": {
+                    "type": "object",
+                    "default": {
+                        ".vb": "cd $dir && vbc /nologo $fileName && $dir$fileNameWithoutExt",
+                        ".nim": "nim compile --verbosity:0 --hints:off --run"
+                    },
+                    "description": "Set the executor of each file extension."
+                },
+                "kuboja-fcs.customCommand": {
+                    "type": "string",
+                    "default": "echo Hello",
+                    "description": "Set the custom command to run."
+                },
+                "kuboja-fcs.languageIdToFileExtensionMap": {
+                    "type": "object",
+                    "default": {
+                        "bat": ".bat",
+                        "powershell": ".ps1"
+                    },
+                    "description": "Set the mapping of languageId to file extension."
+                },
+                "kuboja-fcs.defaultLanguage": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Set the default language to run."
+                },
+                "kuboja-fcs.cwd": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Set the working directory."
+                },
+                "kuboja-fcs.fileDirectoryAsCwd": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to use the directory of the file to be executed as the working directory."
+                },
+                "kuboja-fcs.clearPreviousOutput": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to clear previous output before each run."
+                },
+                "kuboja-fcs.saveAllFilesBeforeRun": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to save all files before running."
+                },
+                "kuboja-fcs.saveFileBeforeRun": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to save the current file before running."
+                },
+                "kuboja-fcs.enableAppInsights": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to enable AppInsights to track user telemetry data."
+                },
+                "kuboja-fcs.showExecutionMessage": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to show extra execution message like [Running] ... and [Done] ..."
+                },
+                "kuboja-fcs.runInTerminal": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to run code in Integrated Terminal."
+                },
+                "kuboja-fcs.terminalRoot": {
+                    "type": "string",
+                    "default": "",
+                    "description": "For Windows system, replaces the Windows style drive letter in the command with a Unix style root when using a custom shell as the terminal, like Bash or Cgywin. Example: Setting this to '/mnt/' will replace 'C:\\path' with '/mnt/c/path'"
+                },
+                "kuboja-fcs.preserveFocus": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to preserve focus on code editor after code run is triggered."
+                },
+                "kuboja-fcs.ignoreSelection": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to ignore selection to always run entire file."
+                },
+                "kuboja-fcs.showRunIconInEditorTitleMenu": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to show 'Run Code' icon in editor title menu."
                 }
             }
         }
@@ -115,13 +238,14 @@
         "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "typescript": "^2.4.1",
-        "vscode": "^1.1.2",
+        "@types/mocha": "^2.2.33",
+        "@types/node": "^6.0.85",
         "mocha": "^2.3.3",
-        "@types/node": "^6.0.52",
-        "@types/mocha": "^2.2.33"
+        "typescript": "^2.4.2",
+        "vscode": "^1.1.4"
     },
     "dependencies": {
-        "vscode-languageclient": "^3.1.0"
+        "vscode-languageclient": "^3.1.0",
+        "applicationinsights": "^0.19.0"
     }
 }
