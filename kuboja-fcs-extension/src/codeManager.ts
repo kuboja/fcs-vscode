@@ -20,8 +20,9 @@ class CommandManager {
 
     public static createRunScriptFile(lineCode: string, scriptFileName: string) : string {
 
+        let tempDirPath = this.getTempFolderPath();
         let tempFileContent = CommandManager.getTempFileContent(lineCode, scriptFileName);
-        let tempFilePath = this.createRandomFile(tempFileContent, "", ".fcs");
+        let tempFilePath = this.createRandomFile(tempFileContent, tempDirPath, ".fcs");
 
         return tempFilePath;
     }
@@ -75,13 +76,13 @@ class CommandManager {
     }
 
     private static getCommandType(rawCommand: string): OutputFunctionType {
-        if (rawCommand.startsWith("browse_report") || rawCommand.startsWith("report")) {
+        if (rawCommand.startsWith("browse_report ") || rawCommand.startsWith("report ")) {
             return OutputFunctionType.Document;
         }
-        if (rawCommand.startsWith("print")) {
+        if (rawCommand.startsWith("print ")) {
             return OutputFunctionType.Print;
         }
-        if (rawCommand.startsWith("json")) {
+        if (rawCommand.startsWith("json ")) {
             return OutputFunctionType.Json;
         }
 
@@ -111,7 +112,7 @@ class CommandManager {
         // výběr příkazu z řádku
         let rawCommand = "";
 
-        let symbolReg = /(?i:\A[#a-z][\w\.\(\)\[\] -[:=]]*)/;
+        let symbolReg = /^([#a-zA-Z][\w\.\(\)\[\] ]*)/;
         let matches = lineText.match(symbolReg);
 
         if (matches.length >= 1) {
@@ -120,7 +121,7 @@ class CommandManager {
 
         let prvniZnak = rawCommand.charAt(0);
         if (rawCommand.startsWith('#'))
-            rawCommand.replace('#', '');
+            rawCommand = rawCommand.replace('#', '');
 
         return rawCommand;
     }
@@ -136,20 +137,35 @@ class CommandManager {
     private static rndName(): string {
         return Math.random().toString(36).replace(/[^a-z]+/g, "").substr(0, 10);
     }
+
+    private static createFolderIfNotExist(dirPath : string): void{
+        if (!fs.existsSync( dirPath )){
+            fs.mkdirSync(dirPath);
+        }
+    }
+
+    private static getTempFolderPath(): string {
+        let tempDir = join(os.tmpdir(), "kuboja-fcs", "runner");
+        this.createFolderIfNotExist(tempDir);
+        return tempDir;
+    }
 }
 
 export class CodeManager {
     private _context: vscode.ExtensionContext;
+    private _config: vscode.WorkspaceConfiguration;
+    private _appInsightsClient: AppInsightsClient;
+    private _editor : vscode.TextEditor
     private _outputChannel: vscode.OutputChannel;
     private _terminal: vscode.Terminal;
     private _isRunning: boolean;
     private _process;
+    private _outputLineCount : number
+
     private _codeFile: string;
     private _isTmpFile: boolean;
     private _cwd: string; // složka pro vykonávání příkazů - temp složka
-    private _config: vscode.WorkspaceConfiguration;
-    private _appInsightsClient: AppInsightsClient;
-    private _editor : vscode.TextEditor
+    
 
     constructor(context: vscode.ExtensionContext) {
         this._context = context;
@@ -174,6 +190,7 @@ export class CodeManager {
             vscode.window.showInformationMessage("Code is already running!");
             return;
         }
+        this._outputLineCount = 0;
 
         this._editor = vscode.window.activeTextEditor;
         if (!this._editor) {
@@ -233,6 +250,23 @@ export class CodeManager {
     }
 
     private getCodeFileAndExecute(editor: vscode.TextEditor, executor: string, appendFile: boolean = true): any {
+
+        let fcsFile = editor.document.fileName;
+        let lineNumber = editor.selection.active.line;
+
+        let lineText = this.getLineFromScript(fcsFile, lineNumber);
+        console.log(lineText);
+
+        let tempScriptPath = CommandManager.createRunScriptFile(lineText, fcsFile);
+        console.log(tempScriptPath);
+
+        let femCADfolder = "C:\\Users\\kuboj\\ownCloud\\FemCAD\\FemCAD_app\\app current";
+        let fliPath = join(femCADfolder, "fli.exe");
+        console.log(fliPath);
+        
+        let command = `${this.quoteFileName(fliPath)} ${this.quoteFileName(tempScriptPath)}`;
+        console.log(command);
+
         /*
         const selection = editor.selection;
         const ignoreSelection = this._config.get<boolean>("ignoreSelection");
@@ -267,7 +301,7 @@ export class CodeManager {
             this.createRandomFile(text, folder, fileExtension);
         }
         */
-        this.executeCommand(executor, appendFile);
+        this.executeCommand(command, appendFile);
         
     }
 
@@ -389,7 +423,32 @@ export class CodeManager {
         this._process = exec(command, { cwd: this._cwd });
 
         this._process.stdout.on("data", (data) => {
-            this._outputChannel.append(data);
+            let lines = data.split(/\r?\n/);
+            let lineCount = lines.length;
+
+            for (var iLine = 0; iLine < lineCount; iLine++) {
+                var line = lines[iLine];
+
+                if (line.includes(CommandManager.stopText)) {
+                    this.killProcess();
+                }
+
+                this._outputLineCount++;
+                if (this._outputLineCount <= 4) continue;
+
+                if (this._isRunning) {
+                    if (iLine == lineCount - 1) {
+                        this._outputChannel.append(line);
+                    }
+                    else {
+                        this._outputChannel.appendLine(line);
+                    }
+                }
+            }
+
+            lines.forEach(line => {
+                
+            });
         });
 
         this._process.stderr.on("data", (data) => {
@@ -409,5 +468,13 @@ export class CodeManager {
                 fs.unlink(this._codeFile);
             }
         });
+    }
+
+    private killProcess(){
+        if (this._isRunning) {
+            this._isRunning = false;
+            const kill = require("tree-kill");
+            kill(this._process.pid);
+        }
     }
 }
