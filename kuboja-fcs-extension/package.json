@@ -91,7 +91,7 @@
             {
                 "command": "kuboja-fcs.runLine",
                 "title": "Run line",
-                "description": "Run command on current line"
+                "description": "Run command on current line",
             },
             {
                 "command": "kuboja-fcs.stop",
@@ -101,21 +101,21 @@
         "menus": {
             "editor/context": [
                 {
-                    "when": "!inOutput",
+                    "when": "!inOutput && editorLangId==fcs",
                     "command": "kuboja-fcs.runLine",
                     "group": "navigation"
                 },
                 {
-                    "when": "inOutput",
+                    "when": "inOutput && editorLangId==fcs",
                     "command": "kuboja-fcs.stop",
                     "group": "stop-code-run"
                 }
             ],
             "editor/title": [
                 {
-                    "when": "config.kuboja-fcs.showRunIconInEditorTitleMenu",
+                    "when": "config.kuboja-fcs.showRunIconInEditorTitleMenu && editorLangId==fcs",
                     "command": "kuboja-fcs.runLine",
-                    "group": "navigation"
+                    "group": "navigation"                    
                 }
             ]
         },
