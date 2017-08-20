@@ -190,7 +190,7 @@ export class CodeManager {
 
         fs.access(this._fliPath, (err) => {
             if (err){
-                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru `kuboja-fcs.femcadFolder`.");
+                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
             } else  {               
                 this.getCodeFileAndExecute();
             }
