@@ -17,6 +17,9 @@
         "onCommand:kuboja-fcs.runLine"
     ],
     "main": "./out/src/extension",
+    "extensionDependencies": [
+        "json"
+    ],
     "contributes": {
         "languages": [
             {
@@ -32,26 +35,6 @@
                 "configuration": "./syntaxes/fcs-language-configuration.json"
             },
             {
-                "id": "fcsdrs",
-                "aliases": [
-                    "FemCAD file (fcsdrs)",
-                    "json"
-                ],
-                "extensions": [
-                    ".fcsdrs"
-                ]
-            },
-            {
-                "id": "fcsdrv",
-                "aliases": [
-                    "FemCAD file (fcsdrv)",
-                    "json"
-                ],
-                "extensions": [
-                    ".fcsdrv"
-                ]
-            },
-            {
                 "id": "fcsmth",
                 "aliases": [
                     "FemCAD Math Script",
@@ -61,6 +44,15 @@
                     ".fcsmth"
                 ],
                 "configuration": "./syntaxes/fcsmth-language-configuration.json"
+            },
+            {
+                "id": "json",
+                "extensions": [
+                    ".fcsdrv",
+                    ".fcsdrs",
+                    ".fcscdm",
+                    ".fcscdf"
+                ]
             }
         ],
         "grammars": [
