@@ -17,9 +17,6 @@
         "onCommand:kuboja-fcs.runLine"
     ],
     "main": "./out/src/extension",
-    "extensionDependencies": [
-        "json"
-    ],
     "contributes": {
         "languages": [
             {
@@ -91,7 +88,7 @@
             {
                 "command": "kuboja-fcs.runLine",
                 "title": "Run line",
-                "description": "Run command on current line",
+                "description": "Run command on current line"
             },
             {
                 "command": "kuboja-fcs.stop",
