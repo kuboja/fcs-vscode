@@ -67,6 +67,26 @@
                 "path": "./syntaxes/fcsmth.tmLanguage.json"
             }
         ],
+        "configurationDefaults": {
+            "[fcs]":{
+                "editor.autoIndent": true,
+                "editor.detectIndentation": false,
+                "editor.tabSize": 3,
+                "editor.insertSpaces": true
+            },
+            "[json]":{
+                "editor.autoIndent": true,
+                "editor.detectIndentation": true,
+                "editor.tabSize": 2,
+                "editor.insertSpaces": true                
+            },
+            "[fcsmth]":{
+                "editor.autoIndent": true,
+                "editor.detectIndentation": false,
+                "editor.tabSize": 3,
+                "editor.insertSpaces": true               
+            }
+        },
         "commands": [
             {
                 "command": "kuboja-fcs.runLine",
