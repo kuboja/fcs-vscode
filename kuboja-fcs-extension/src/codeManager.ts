@@ -15,22 +15,37 @@ enum OutputFunctionType {
     Json = 8,
 }
 
+class CommandProperties {
+    public tempFilePath : string;
+    public commandType : OutputFunctionType;
+    public stopText : string;
+    public commandName : string;
+}
+
 class CommandManager {
 
-    public static stopText = "--FcsScriptEnD--"
-    private static gclassName = "cls"
+    private static stopText = "--FcsScriptEnD--";
+    private static commandName = "output";
+    private static gclassName = "cls";
 
-    public static createRunScriptFile(lineCode: string, scriptFileName: string): string {
+
+
+    public static createRunScriptFile(lineCode: string, scriptFileName: string): CommandProperties {
 
         let tempDirPath = this.getTempFolderPath();
-        let tempFileContent = CommandManager.getTempFileContent(lineCode, scriptFileName);
-        let tempFilePath = this.createRandomFile(tempFileContent, tempDirPath, ".fcs");
+        let out = CommandManager.getTempFileContent(lineCode, scriptFileName);
+        let tempFilePath = this.createRandomFile(out.tempFileContent, tempDirPath, ".fcs");
 
-        return tempFilePath;
+        let outputProp = new CommandProperties();
+        outputProp.commandName = this.commandName;
+        outputProp.commandType = out.type;
+        outputProp.tempFilePath = tempFilePath;
+        outputProp.stopText = this.stopText;
+
+        return outputProp;
     }
 
-
-    private static getTempFileContent(lineCode: string, scriptFileName: string): string {
+    private static getTempFileContent(lineCode: string, scriptFileName: string): { tempFileContent: string, type: OutputFunctionType } {
 
         let rawCommand = CommandManager.getRawCommand(lineCode);
 
@@ -47,7 +62,7 @@ class CommandManager {
         fileContent += `UkoncujiciPrikaz = \"${this.stopText}\"` + eol;
         fileContent += "print UkoncujiciPrikaz" + eol;
 
-        return fileContent;
+        return { tempFileContent : fileContent, type : commandType };
     }
 
     private static getFullCommand(gclass: string, commandType: OutputFunctionType, command: string): string {
@@ -74,7 +89,7 @@ class CommandManager {
                 break;
         }
 
-        return `${beforeVariable} ${gclass}.${command} ${afterVariable}`;
+        return `${this.commandName} = ${beforeVariable} ${gclass}.${command} ${afterVariable}`;
     }
 
     private static getCommandType(rawCommand: string): OutputFunctionType {
@@ -158,6 +173,7 @@ export class CodeManager {
     private _showExecutionMessage: boolean;
     private _startTime: Date;
     private _codeFile: string;
+    private _fileStopText: string;
     private _femCadFolder: string;
     private _fliPath: string;
     private _femcadPath: string;
@@ -245,7 +261,11 @@ export class CodeManager {
         let lineNumber = this._editor.selection.active.line;
 
         let lineText = this.getLineFromScript(lineNumber);
-        this._codeFile = CommandManager.createRunScriptFile(lineText, fcsFile);
+        let commandFile = CommandManager.createRunScriptFile(lineText, fcsFile);
+
+        this._codeFile = commandFile.tempFilePath;
+        this._fileStopText = commandFile.stopText;
+        
 
         let command = `cmd /c chcp 65001 >nul && ${this.quoteFileName(this._fliPath)} ${this.quoteFileName(this._codeFile)}`;
 
@@ -342,7 +362,7 @@ export class CodeManager {
                 }
             }
 
-            if (line.includes(CommandManager.stopText)) {
+            if (line.includes(this._fileStopText)) {
                 this.killProcess();
                 return;
             }
