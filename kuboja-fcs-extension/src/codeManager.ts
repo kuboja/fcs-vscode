@@ -2,6 +2,7 @@
 
 import * as fs from "fs";
 import * as os from "os";
+import { exec } from "child_process";
 import { dirname, join } from "path";
 import * as kill from "tree-kill";
 import * as vscode from "vscode";
@@ -41,7 +42,7 @@ class CommandManager {
         const eol = require('os').EOL;
 
         let fileContent = "";
-        fileContent += `gclass {${this.gclassName}} filename (\"${scriptFileName}\")` + eol;
+        fileContent += `gclass {${this.gclassName}} filename (\"${scriptFileName.replace("\\", "/")}\")` + eol;
         fileContent += fullCommand + eol;
         fileContent += `UkoncujiciPrikaz = \"${this.stopText}\"` + eol;
         fileContent += "print UkoncujiciPrikaz" + eol;
@@ -162,7 +163,7 @@ export class CodeManager {
 
     constructor(context: vscode.ExtensionContext) {
         this._context = context;
-        this._outputChannel = vscode.window.createOutputChannel("fcs");
+        this._outputChannel = vscode.window.createOutputChannel("fcsoutput");
 
         this._appInsightsClient = new AppInsightsClient();
         this._appInsightsClient.sendEvent("Startup");
@@ -171,39 +172,46 @@ export class CodeManager {
     public run(): void {
         this._appInsightsClient.sendEvent("Run CodeLine");
 
-        if (this._isRunning) {
-            vscode.window.showInformationMessage("Code is already running!");
-            return;
-        }
+        this.runFliCommand( () => this.getCodeFileAndExecute() );
+    }
 
+    public stop() : void {
+        this._appInsightsClient.sendEvent("stop");
+        this.killProcess();
+    }
+    }
+
+    private initializeAndCheck() : boolean {
         this._config = vscode.workspace.getConfiguration("kuboja-fcs");
         this._showExecutionMessage = this._config.get<boolean>("showExecutionMessage");
 
         this._editor = vscode.window.activeTextEditor;
         if (!this._editor) {
             vscode.window.showInformationMessage("No code found or selected.");
-            return;
+            return false;
         }
 
         this._femCadFolder = this._config.get<string>("femcadFolder");
         this._fliPath = join(this._femCadFolder, "fli.exe");
 
+        return true;
+    }
+
+    private runFliCommand( functionForExecute : () => void ) {
+        if (this._isRunning) {
+            vscode.window.showInformationMessage("Code is already running!");
+            return;
+        }
+        
+        if (!this.initializeAndCheck()) return;
+
         fs.access(this._fliPath, (err) => {
             if (err) {
                 vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
             } else {
-                this.getCodeFileAndExecute();
+                functionForExecute();
             }
         })
-    }
-
-    public stop(): void {
-        this._appInsightsClient.sendEvent("stop");
-        if (this._isRunning) {
-            this._isRunning = false;
-            const kill = require("tree-kill");
-            kill(this._process.pid);
-        }
     }
 
     private createFolderIfNotExist(dirPath: string): void {
@@ -286,8 +294,6 @@ export class CodeManager {
 
         this._outputChannel.show(this._config.get<boolean>("preserveFocus"));
 
-        const exec = require("child_process").exec;
-
         if (this._showExecutionMessage) {
             this._outputChannel.appendLine("[Running] " + command);
         }
@@ -295,7 +301,7 @@ export class CodeManager {
         this._appInsightsClient.sendEvent(command);
         this._startTime = new Date();
 
-        this._process = exec(command);
+        this._process = exec(command, () => 0 );
         this._process.stdout.setEncoding('utf8');
         this._process.stdout.on("data", (data: string) => this.onGetOutputData(data));
         this._process.stderr.on("data", (data: string) => this.onGetOutputData(data));

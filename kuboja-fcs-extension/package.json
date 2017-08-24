@@ -5,6 +5,7 @@
     "author": "Kuboja",
     "license": "MIT",
     "version": "1.1.0-alfa",
+    "version": "1.1.0-alfa2",
     "publisher": "kuboja",
     "engines": {
         "vscode": "^1.14.0"
