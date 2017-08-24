@@ -15,7 +15,8 @@
     ],
     "activationEvents": [
         "onLanguage:fcs",
-        "onCommand:kuboja-fcs.runLine"
+        "onCommand:kuboja-fcs.runLine",
+        "onCommand:kuboja-fcs.openInFemcad"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -94,6 +95,11 @@
             {
                 "command": "kuboja-fcs.stop",
                 "title": "Stop Code Run"
+            },
+            {
+                "command": "kuboja-fcs.openInFemcad",
+                "title": "Open in FemCAD",
+                "description": "Run current file in FemCAD"
             }
         ],
         "menus": {
@@ -101,6 +107,11 @@
                 {
                     "when": "!inOutput && editorLangId==fcs",
                     "command": "kuboja-fcs.runLine",
+                    "group": "navigation"
+                },
+                {
+                    "when": "!inOutput && editorLangId==fcs",
+                    "command": "kuboja-fcs.openInFemcad",
                     "group": "navigation"
                 },
                 {

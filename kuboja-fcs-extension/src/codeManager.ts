@@ -160,6 +160,7 @@ export class CodeManager {
     private _codeFile: string;
     private _femCadFolder: string;
     private _fliPath: string;
+    private _femcadPath: string;
 
     constructor(context: vscode.ExtensionContext) {
         this._context = context;
@@ -179,6 +180,23 @@ export class CodeManager {
         this._appInsightsClient.sendEvent("stop");
         this.killProcess();
     }
+
+    public openInFemcad(): void {
+        this._appInsightsClient.sendEvent("Open in FemCAD");
+
+        if (!this.initializeAndCheck()) return;
+
+        fs.access(this._femcadPath, (err) => {
+            if (err) {
+                vscode.window.showErrorMessage("Nenalezen femcad.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
+            } else {
+                let fcsFile = this._editor.document.fileName;
+                var cmdToExec = this.quoteFileName(this._femcadPath) + " " + this.quoteFileName(fcsFile);
+                console.log(cmdToExec);
+
+                exec(cmdToExec);
+            }
+        })
     }
 
     private initializeAndCheck() : boolean {
@@ -193,6 +211,7 @@ export class CodeManager {
 
         this._femCadFolder = this._config.get<string>("femcadFolder");
         this._fliPath = join(this._femCadFolder, "fli.exe");
+        this._femcadPath = join(this._femCadFolder, "femcad.exe");
 
         return true;
     }

@@ -24,8 +24,13 @@ function registerCodeRunner(context: vscode.ExtensionContext) {
         codeManager.stop();
     });
 
+    const open = vscode.commands.registerCommand("kuboja-fcs.openInFemcad", () => {
+        codeManager.openInFemcad();
+    });
+
     context.subscriptions.push(run);
     context.subscriptions.push(stop);
+    context.subscriptions.push(open);
 }
 
 function registerSymbolManager(context: vscode.ExtensionContext) {
