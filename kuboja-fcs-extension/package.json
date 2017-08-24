@@ -4,7 +4,6 @@
     "description": "Femcad Script for Visual Studio Code.",
     "author": "Kuboja",
     "license": "MIT",
-    "version": "1.1.0-alfa",
     "version": "1.1.0-alfa2",
     "publisher": "kuboja",
     "engines": {
@@ -34,6 +33,16 @@
                 "configuration": "./syntaxes/fcs-language-configuration.json"
             },
             {
+                "id": "fcsoutput",
+                "aliases": [
+                    "FemCAD fcsoutput"
+                ],
+                "configuration": "./syntaxes/fcs-language-configuration.json",
+                "mimetypes": [
+                    "text/x-code-output"
+                ]
+            },
+            {
                 "id": "fcsmth",
                 "aliases": [
                     "FemCAD Math Script",
@@ -57,6 +66,11 @@
         "grammars": [
             {
                 "language": "fcs",
+                "scopeName": "source.fcs",
+                "path": "./syntaxes/fcs.tmLanguage.json"
+            },
+            {
+                "language": "fcsoutput",
                 "scopeName": "source.fcs",
                 "path": "./syntaxes/fcs.tmLanguage.json"
             },
