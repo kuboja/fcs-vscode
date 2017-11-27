@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.1.2] - 2017-11-27
+## [1.1.3] - 2017-11-27
 
 ### Added
 - Script line runner. Set a path to the FemCAD instaltion folder in the settings file. 
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Change
 - Syntax highlighting of all fcs-json-like files to vs code JSON syntax.
 
-## Removed
+### Removed
 - C# runner.
 - Fcs-json-like syntax.
 
