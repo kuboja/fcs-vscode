@@ -1,43 +1,49 @@
-'use strict';
+"use strict";
 
 import * as vscode from "vscode";
-import { FcsExplorerProvider } from './fcsExplorer';
-import { FcsSymbolProvider } from './fcsSymbolUtil';
-import { FcsCommandService } from './fcsCommands';
-import { CodeManager } from "./codeManager";
 
-export function activate(context: vscode.ExtensionContext) {
+import { ExtensionData } from "./extensionData";
+import { FliCommandRunner, OpenFileInFemCAD } from "./commandManager";
+import { FcsSymbolProvider } from "./fcsSymbolUtil";
 
-    registerSymbolManager(context);
-    registerCodeRunner(context);
 
+export function activate(context: vscode.ExtensionContext): void {
+
+    let extData: ExtensionData = new ExtensionData(context);
+
+    registerSymbolManager(extData.context);
+    registerCommand(extData);
 }
 
-function registerCodeRunner(context: vscode.ExtensionContext) {
-    const codeManager = new CodeManager(context);
 
-    const run = vscode.commands.registerCommand("kuboja-fcs.runLine", () => {
-        codeManager.run();
+function registerCommand(extData: ExtensionData): void {
+
+    const codeManager: FliCommandRunner = new FliCommandRunner(extData);
+
+    const run: vscode.Disposable = vscode.commands.registerCommand("kuboja-fcs.runLine", () => {
+        codeManager.runLineCommand();
     });
 
-    const stop = vscode.commands.registerCommand("kuboja-fcs.stop", () => {
-        codeManager.stop();
+    const stop: vscode.Disposable = vscode.commands.registerCommand("kuboja-fcs.stop", () => {
+        codeManager.stopCommand();
     });
 
-    const open = vscode.commands.registerCommand("kuboja-fcs.openInFemcad", () => {
-        codeManager.openInFemcad();
+
+    const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
+
+    const open: vscode.Disposable = vscode.commands.registerCommand("kuboja-fcs.openInFemcad", () => {
+        openFcs.openInFemcad();
     });
 
-    context.subscriptions.push(run);
-    context.subscriptions.push(stop);
-    context.subscriptions.push(open);
+    extData.context.subscriptions.push(run);
+    extData.context.subscriptions.push(stop);
+    extData.context.subscriptions.push(open);
 }
 
-function registerSymbolManager(context: vscode.ExtensionContext) {
+
+function registerSymbolManager(context: vscode.ExtensionContext): void {
+
     context.subscriptions.push(
-        vscode.languages.registerDocumentSymbolProvider('fcs', new FcsSymbolProvider())
+        vscode.languages.registerDocumentSymbolProvider("fcs", new FcsSymbolProvider())
     );
-}
-
-export function deactivate() {
 }

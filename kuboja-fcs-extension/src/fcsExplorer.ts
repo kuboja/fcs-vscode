@@ -1,7 +1,14 @@
-// Code from: https://github.com/patrys/vscode-code-outline  Many thanks!
+"use strict";
 
-import { Event, EventEmitter, ExtensionContext, SymbolKind, SymbolInformation, TextDocument, TextEditor, TreeDataProvider, TreeItem, TreeItemCollapsibleState, commands, window, workspace } from 'vscode';
-import * as path from 'path';
+import {
+    Event, EventEmitter, ExtensionContext, SymbolKind, SymbolInformation,
+    TextDocument, TextEditor, TreeDataProvider, TreeItem, TreeItemCollapsibleState,
+    commands, window, workspace
+} from "vscode";
+import * as path from "path";
+
+// code from: https://github.com/patrys/vscode-code-outline  Many thanks!
+
 
 export class SymbolNode {
     symbol: SymbolInformation;
@@ -28,11 +35,11 @@ export class SymbolNode {
                 return -2;
             default:
                 return 0;
-        };
+        }
     }
 
     private compareSymbols(a: SymbolNode, b: SymbolNode): number {
-        const kindOrder = this.getKindOrder(a.symbol.kind) - this.getKindOrder(b.symbol.kind);
+        const kindOrder: number = this.getKindOrder(a.symbol.kind) - this.getKindOrder(b.symbol.kind);
         if (kindOrder !== 0) {
             return kindOrder;
         }
@@ -42,15 +49,16 @@ export class SymbolNode {
         return -1;
     }
 
-    sort() {
+    public sort(): void {
         this.children.sort(this.compareSymbols.bind(this));
         this.children.forEach((child) => child.sort());
     }
 
-    addChild(child: SymbolNode) {
+    public addChild(child: SymbolNode): void {
         this.children.push(child);
     }
 }
+
 
 export class FcsExplorerProvider implements TreeDataProvider<SymbolNode> {
     private _onDidChangeTreeData: EventEmitter<SymbolNode | null> = new EventEmitter<SymbolNode | null>();
@@ -61,31 +69,31 @@ export class FcsExplorerProvider implements TreeDataProvider<SymbolNode> {
     private editor: TextEditor;
 
     private getSymbols(document: TextDocument): Thenable<SymbolInformation[]> {
-        return commands.executeCommand<SymbolInformation[]>('vscode.executeDocumentSymbolProvider', document.uri);
+        return commands.executeCommand<SymbolInformation[]>("vscode.executeDocumentSymbolProvider", document.uri);
     }
 
     private async updateSymbols(editor: TextEditor): Promise<void> {
         if (!editor) {
             return;
         }
-        const tree = new SymbolNode();
+        const tree: SymbolNode = new SymbolNode();
         this.editor = editor;
-        const symbols = await this.getSymbols(editor.document);
+        const symbols: SymbolInformation[] = await this.getSymbols(editor.document);
         symbols.reduce((knownContainerScopes, symbol) => {
             let parent: SymbolNode;
-            const node = new SymbolNode(symbol);
+            const node: SymbolNode = new SymbolNode(symbol);
             if (!(symbol.containerName in knownContainerScopes)) {
                 return knownContainerScopes;
             }
             parent = knownContainerScopes[symbol.containerName];
             parent.addChild(node);
-            return {...knownContainerScopes, [symbol.name]: node};
-        }, {'': tree});
+            return { ...knownContainerScopes, [symbol.name]: node };
+        }, { "": tree });
         tree.sort();
         this.tree = tree;
     }
 
-    constructor(context: ExtensionContext) {
+    public constructor(context: ExtensionContext) {
         this.context = context;
         window.onDidChangeActiveTextEditor(editor => {
             if (editor) {
@@ -113,56 +121,56 @@ export class FcsExplorerProvider implements TreeDataProvider<SymbolNode> {
         }
     }
 
-    private getIcon(kind: SymbolKind): {dark: string; light: string} {
+    private getIcon(kind: SymbolKind): { dark: string; light: string } {
         let icon: string;
         switch (kind) {
             case SymbolKind.Class:
-                icon = 'class';
+                icon = "class";
                 break;
             case SymbolKind.Constant:
-                icon = 'constant';
+                icon = "constant";
                 break;
             case SymbolKind.Constructor:
             case SymbolKind.Function:
             case SymbolKind.Method:
-                icon = 'function';
+                icon = "function";
                 break;
             case SymbolKind.Interface:
-                icon = 'interface';
+                icon = "interface";
             case SymbolKind.Module:
             case SymbolKind.Namespace:
             case SymbolKind.Object:
             case SymbolKind.Package:
-                icon = 'module';
+                icon = "module";
                 break;
             case SymbolKind.Property:
-                icon = 'property';
+                icon = "property";
                 break;
             default:
-                icon = 'variable';
+                icon = "variable";
                 break;
-        };
+        }
         icon = `icon-${icon}.svg`;
         return {
-            dark: this.context.asAbsolutePath(path.join('resources', 'dark', icon)),
-            light: this.context.asAbsolutePath(path.join('resources', 'light', icon))
+            dark: this.context.asAbsolutePath(path.join("resources", "dark", icon)),
+            light: this.context.asAbsolutePath(path.join("resources", "light", icon))
         };
     }
 
-    getTreeItem(node: SymbolNode): TreeItem {
+    public getTreeItem(node: SymbolNode): TreeItem {
         const { kind } = node.symbol;
-        let treeItem = new TreeItem(node.symbol.name);
+        let treeItem: TreeItem = new TreeItem(node.symbol.name);
         treeItem.collapsibleState = node.children.length ? TreeItemCollapsibleState.Collapsed : TreeItemCollapsibleState.None;
         treeItem.command = {
-            command: 'fcsExplorer.revealRange',
-            title: '',
+            command: "fcsExplorer.revealRange",
+            title: "",
             arguments: [this.editor, node.symbol.location.range]
         };
         treeItem.iconPath = this.getIcon(kind);
         return treeItem;
     }
 
-    refresh() {
+    public refresh(): void {
         this._onDidChangeTreeData.fire();
     }
 }
