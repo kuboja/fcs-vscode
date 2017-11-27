@@ -18,8 +18,8 @@ export class OpenFileInFemCAD {
     constructor(extData: ExtensionData) {
         this.extData = extData;
 
-        this.appInsightsClient = this.extData.appInsightsClient;
-        this.femcadRunner = this.extData.femcadRunner;
+        this.appInsightsClient = extData.appInsightsClient;
+        this.femcadRunner = extData.femcadRunner;
     }
 
     public openInFemcad(): void {
@@ -41,6 +41,7 @@ export class FliCommandRunner {
         this.extData = extData;
 
         this.appInsightsClient = extData.appInsightsClient;
+        this.femcadRunner = extData.femcadRunner;
     }
 
     public runLineCommand(): void {
@@ -59,6 +60,7 @@ export class FliCommandRunner {
         console.log("Line from source code: " + fcsFile.rawLineCode);
         console.log("Source file path: " + fcsFile.filePath);
 
+        this.femcadRunner = this.extData.femcadRunner;
         this.femcadRunner.executeFliCommand(fliCommand);
     }
 

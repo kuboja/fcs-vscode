@@ -16,9 +16,8 @@ export class FliCommand {
     readonly command: string;
     readonly autoStop: boolean;
     readonly stopText: string;
-    readonly afterStop: () => void;
 
-    constructor(fliCommand: string, autostop: boolean = false, stopText: string = null, afterStop: () => void = () => 0) {
+    constructor(fliCommand: string, autostop: boolean = false, stopText: string = null) {
         this.command = fliCommand;
         if (stopText == null || stopText === "") {
             this.autoStop = false;
@@ -27,8 +26,6 @@ export class FliCommand {
             this.autoStop = autostop;
             this.stopText = stopText;
         }
-
-        this.afterStop = afterStop;
     }
 }
 
@@ -37,6 +34,7 @@ export class FemcadRunner {
 
     private extData: ExtensionData;
     private appInsightsClient: AppInsightsClient;
+    private outputChannel: vscode.OutputChannel;
 
     readonly IsInitialized: boolean;
 
@@ -48,6 +46,7 @@ export class FemcadRunner {
 
         this.extData = extData;
         this.appInsightsClient = extData.appInsightsClient;
+        this.outputChannel = extData.outputChannel;
 
         let femcadFolder: string = config.get<string>("femcadFolder");
         let fliPath: string = join(femcadFolder, "fli.exe");
@@ -101,7 +100,6 @@ export class FemcadRunner {
     private isRunning: boolean;
     private lineBuffer: string;
     private outputLineCount: number;
-    private outputChannel: vscode.OutputChannel;
     private startTime: Date;
     private process: ChildProcess;
     private commandData: FliCommand;
@@ -126,11 +124,11 @@ export class FemcadRunner {
         this.outputLineCount = 0;
         this.lineBuffer = "";
 
+        this.outputChannel.show(this.extData.preserveFocusInOutput);
+
         if (this.extData.clearPreviousOutput) {
             this.outputChannel.clear();
         }
-
-        this.outputChannel.show(this.extData.preserveFocusInOutput);
 
         if (this.extData.showExecutionMessage) {
             this.outputChannel.appendLine("[Running] " + command);
@@ -144,7 +142,11 @@ export class FemcadRunner {
         console.log("Fli path: " + this.fliPath);
         console.log("Full cmd command: " + fullCommand);
 
-        this.process = exec(fullCommand, () => 0);
+        this.process = exec(fullCommand, (error, stout, stderr) => {
+            console.log(error);
+            console.log(stout);
+            console.log(stderr);
+        });
         this.process.stdout.setEncoding("utf8");
         this.process.stdout.on("data", (data: string) => this.onGetOutputData(data));
         this.process.stderr.on("data", (data: string) => this.onGetOutputData(data));
@@ -217,8 +219,6 @@ export class FemcadRunner {
             this.outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
             this.outputChannel.appendLine("");
         }
-
-        this.commandData.afterStop();
     }
 
     private killProcess(): void {

@@ -114,7 +114,7 @@ export class LineRunnerCommandCreator {
 
         let command: string = FileSystemManager.quoteFileName(this.tempFilePath);
 
-        this.fliCommand = new FliCommand(command, true, LineRunnerCommandCreator.stopText, this.afterStopExecution);
+        this.fliCommand = new FliCommand(command, true, LineRunnerCommandCreator.stopText);
     }
 
     private afterStopExecution(): void {
@@ -129,11 +129,11 @@ export class LineRunnerCommandCreator {
                 break;
 
             case OutputFunctionType.Print:
-                beforeVariable = "";
+                beforeVariable = "print";
                 break;
 
             case OutputFunctionType.Document:
-                beforeVariable = "";
+                beforeVariable = "browse_report";
                 break;
 
             case OutputFunctionType.Json:
@@ -145,7 +145,7 @@ export class LineRunnerCommandCreator {
                 break;
         }
 
-        return `${this.commandName} = ${beforeVariable} ${gclass}.${command} ${afterVariable}`;
+        return `${beforeVariable} ${gclass}.${command} ${afterVariable}`;
     }
 
     private static getTempFileContent(fcsFile: FcsFileData, scriptFileName: string): string {
