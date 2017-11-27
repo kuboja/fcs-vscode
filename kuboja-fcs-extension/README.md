@@ -1,6 +1,6 @@
 # FemCAD Script
 
-FemCAD Script language support for Visual Studio Code. 
+FemCAD Script language support for Visual Studio Code.
 
 ## Features
 
@@ -16,16 +16,16 @@ FemCAD Script language support for Visual Studio Code.
 
 This extension contributes the following settings:
 
-- `kuboja-fcs.femcadFolder`: full path do Femcad folder, must be set for Code runner
-- `kuboja-fcs.saveAllFilesBeforeRun`: enable/disable save all files before run
-- `kuboja-fcs.saveFileBeforeRun`: enable/disable save current file before run
-- and many others...
+- `fcs-vscode.femcadFolder`: full path do Femcad folder, must be set for Code runner
+- `fcs-vscode.saveAllFilesBeforeRun`: enable/disable save all files before run
+- `fcs-vscode.saveFileBeforeRun`: enable/disable save current file before run
+- and many others settings...
 
 ## Release Notes
 
-### 1.1.0-alfa
+### 1.1.2
 
-The new main feature of this version is fcs comman runner. You can start task with F5 key or click on button Run in Editor menu or in Context menu in text. For stop running task use option Stop from command menu in Output window.
+The new main feature of this version is an fcs command runner. You can start a task with the F5 key or click on button Run in Editor menu or context menu of text editor. For stop running task use option Stop from command menu in the Output window. You can open an fcs file in FemCAD via the command in the context menu of text editor.
 
 ### 1.0.4
 

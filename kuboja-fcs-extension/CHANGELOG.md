@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.1.0-alfa] - 2017-08
+## [1.1.2] - 2017-11-27
 
 ### Added
 - Script line runner. Set a path to the FemCAD instaltion folder in the settings file. 

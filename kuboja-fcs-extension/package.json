@@ -1,10 +1,10 @@
 {
-    "name": "kuboja-fcs",
+    "name": "fcs-vscode",
     "displayName": "FemCad Script",
     "description": "Femcad Script for Visual Studio Code.",
     "author": "Kuboja",
     "license": "MIT",
-    "version": "1.1.1",
+    "version": "1.1.3",
     "publisher": "kuboja",
     "engines": {
         "vscode": "^1.14.0"
@@ -14,8 +14,8 @@
     ],
     "activationEvents": [
         "onLanguage:fcs",
-        "onCommand:kuboja-fcs.runLine",
-        "onCommand:kuboja-fcs.openInFemcad"
+        "onCommand:fcs-vscode.runLine",
+        "onCommand:fcs-vscode.openInFemcad"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -102,16 +102,16 @@
         },
         "commands": [
             {
-                "command": "kuboja-fcs.runLine",
+                "command": "fcs-vscode.runLine",
                 "title": "Run line",
                 "description": "Run command on current line"
             },
             {
-                "command": "kuboja-fcs.stop",
+                "command": "fcs-vscode.stop",
                 "title": "Stop Code Run"
             },
             {
-                "command": "kuboja-fcs.openInFemcad",
+                "command": "fcs-vscode.openInFemcad",
                 "title": "Open in FemCAD",
                 "description": "Run current file in FemCAD"
             }
@@ -120,31 +120,31 @@
             "editor/context": [
                 {
                     "when": "!inOutput && editorLangId==fcs",
-                    "command": "kuboja-fcs.runLine",
+                    "command": "fcs-vscode.runLine",
                     "group": "navigation"
                 },
                 {
                     "when": "!inOutput && editorLangId==fcs",
-                    "command": "kuboja-fcs.openInFemcad",
+                    "command": "fcs-vscode.openInFemcad",
                     "group": "navigation"
                 },
                 {
                     "when": "inOutput && editorLangId==fcs",
-                    "command": "kuboja-fcs.stop",
+                    "command": "fcs-vscode.stop",
                     "group": "stop-code-run"
                 }
             ],
             "editor/title": [
                 {
-                    "when": "config.kuboja-fcs.showRunIconInEditorTitleMenu && editorLangId==fcs",
-                    "command": "kuboja-fcs.runLine",
+                    "when": "config.fcs-vscode.showRunIconInEditorTitleMenu && editorLangId==fcs",
+                    "command": "fcs-vscode.runLine",
                     "group": "navigation"
                 }
             ]
         },
         "keybindings": [
             {
-                "command": "kuboja-fcs.runLine",
+                "command": "fcs-vscode.runLine",
                 "key": "f5",
                 "when": "editorTextFocus && editorLangId==fcs"
             }
@@ -156,12 +156,12 @@
             "type": "object",
             "title": "Femcad Script Configurations",
             "properties": {
-                "kuboja-fcs.maxNumberOfProblems": {
+                "fcs-vscode.maxNumberOfProblems": {
                     "type": "number",
                     "default": 100,
                     "description": "Controls the maximum number of problems produced by the extension's server."
                 },
-                "kuboja-fcs.trace.server": {
+                "fcs-vscode.trace.server": {
                     "type": "string",
                     "enum": [
                         "off",
@@ -169,49 +169,49 @@
                         "verbose"
                     ],
                     "default": "off",
-                    "description": "Traces the communication between VSCode and the kuboja-fcs service."
+                    "description": "Traces the communication between VSCode and the fcs-vscode service."
                 },
-                "kuboja-fcs.femcadFolder": {
+                "fcs-vscode.femcadFolder": {
                     "type": "string",
                     "default": "",
                     "description": "FemCAD instalation folder."
                 },
-                "kuboja-fcs.clearPreviousOutput": {
+                "fcs-vscode.clearPreviousOutput": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to clear previous output before each run."
                 },
-                "kuboja-fcs.saveAllFilesBeforeRun": {
+                "fcs-vscode.saveAllFilesBeforeRun": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to save all files before running."
                 },
-                "kuboja-fcs.saveFileBeforeRun": {
+                "fcs-vscode.saveFileBeforeRun": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to save the current file before running."
                 },
-                "kuboja-fcs.showExecutionMessage": {
+                "fcs-vscode.showExecutionMessage": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to show extra execution message like [Running] ... and [Done] ..."
                 },
-                "kuboja-fcs.removeTraceInfo": {
+                "fcs-vscode.removeTraceInfo": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to show extra execution message like [Running] ... and [Done] ..."
                 },
-                "kuboja-fcs.preserveFocus": {
+                "fcs-vscode.preserveFocus": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to preserve focus on code editor after code run is triggered."
                 },
-                "kuboja-fcs.ignoreSelection": {
+                "fcs-vscode.ignoreSelection": {
                     "type": "boolean",
                     "default": false,
                     "description": "Whether to ignore selection to always run entire file."
                 },
-                "kuboja-fcs.showRunIconInEditorTitleMenu": {
+                "fcs-vscode.showRunIconInEditorTitleMenu": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to show 'Run Code' icon in editor title menu."
@@ -236,6 +236,7 @@
     "dependencies": {
         "applicationinsights": "^0.19.0",
         "tree-kill": "^1.1.0",
-        "vscode-languageclient": "^3.1.0"
+        "vscode-languageclient": "^3.1.0",
+        "shelljs": "^0.7.8"
     }
 }

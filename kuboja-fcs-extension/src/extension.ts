@@ -20,18 +20,18 @@ function registerCommand(extData: ExtensionData): void {
 
     const codeManager: FliCommandRunner = new FliCommandRunner(extData);
 
-    const run: vscode.Disposable = vscode.commands.registerCommand("kuboja-fcs.runLine", () => {
+    const run: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.runLine", () => {
         codeManager.runLineCommand();
     });
 
-    const stop: vscode.Disposable = vscode.commands.registerCommand("kuboja-fcs.stop", () => {
+    const stop: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.stop", () => {
         codeManager.stopCommand();
     });
 
 
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
 
-    const open: vscode.Disposable = vscode.commands.registerCommand("kuboja-fcs.openInFemcad", () => {
+    const open: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.openInFemcad", () => {
         openFcs.openInFemcad();
     });
 

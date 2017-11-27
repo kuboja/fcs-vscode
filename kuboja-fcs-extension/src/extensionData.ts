@@ -66,7 +66,7 @@ export class ExtensionData {
         this.appInsightsClient = new AppInsightsClient();
         this.appInsightsClient.sendEvent("Extension startup");
 
-        this.config = vscode.workspace.getConfiguration("kuboja-fcs");
+        this.config = vscode.workspace.getConfiguration("fcs-vscode");
 
         this.femcadRunner = new FemcadRunner(this.config, this);
 

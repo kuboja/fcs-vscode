@@ -54,7 +54,7 @@ export class FemcadRunner {
 
         // kontrola jetli je v nastevení zadán adresář femcadu
         if (!(femcadFolder)) {
-            vscode.window.showErrorMessage("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
+            vscode.window.showErrorMessage("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             return;
         }
 
@@ -65,7 +65,7 @@ export class FemcadRunner {
             if (err) {
                 isOk = false;
                 vscode.window
-                    .showErrorMessage("Nebyl nalezen FemCAD adresář. Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
+                    .showErrorMessage("Nebyl nalezen FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             }
         });
 
@@ -75,7 +75,7 @@ export class FemcadRunner {
         fs.access(femcadPath, (err) => {
             if (err) {
                 isOk = false;
-                vscode.window.showErrorMessage("Nenalezen femcad.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
+                vscode.window.showErrorMessage("Nenalezen femcad.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             }
         });
 
@@ -83,7 +83,7 @@ export class FemcadRunner {
         fs.access(fliPath, (err) => {
             if (err) {
                 isOk = false;
-                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
+                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             }
         });
 
@@ -115,7 +115,7 @@ export class FemcadRunner {
 
         fs.access(this.fliPath, (err) => {
             if (err) {
-                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
+                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
                 return;
             }
         });
@@ -237,7 +237,7 @@ export class FemcadRunner {
 
         fs.access(this.femcadPath, (err) => {
             if (err) {
-                vscode.window.showErrorMessage("Nenalezen femcad.exe! Zkontrolujte nastavení parametru 'kuboja-fcs.femcadFolder'.");
+                vscode.window.showErrorMessage("Nenalezen femcad.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             } else {
                 let femcadPath: string = FileSystemManager.quoteFileName(this.femcadPath);
                 let filePath: string = FileSystemManager.quoteFileName(fcsFilePath);

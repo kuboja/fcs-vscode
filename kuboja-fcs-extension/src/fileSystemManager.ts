@@ -9,7 +9,8 @@ export class FileSystemManager {
 
     public static createFolderIfNotExist(dirPath: string): void {
         if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath);
+            var shell: any = require("shelljs");
+            shell.mkdir("-p", dirPath);
         }
     }
 
@@ -22,7 +23,7 @@ export class FileSystemManager {
     }
 
     public static getTempFolderPath(): string {
-        let tempDir: string = join(os.tmpdir(), "kuboja-fcs", "runner");
+        let tempDir: string = join(os.tmpdir(), "fcs-vscode", "runner");
         this.createFolderIfNotExist(tempDir);
 
         return tempDir;
