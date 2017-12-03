@@ -1,33 +1,36 @@
 "use strict";
 
-import appInsights = require("applicationinsights");
+import * as appInsights from "applicationinsights";
+import * as os from "os";
 import * as vscode from "vscode";
-
-
-const compilers: string[] = ["gcc -framework Cocoa", "gcc", "g++", "javac"];
 
 
 export class AppInsightsClient {
 
-    private client;
+    private client : appInsights.TelemetryClient;
     private enableAppInsights;
 
     constructor() {
-        this.client = appInsights.getClient("6bbe422b-f6e4-46e8-85a7-ca65a09f4157");
-        const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("kuboja-fcs");
-        // this._client
-        this.enableAppInsights = true;// config.get<boolean>("enableAppInsights");
+        this.enableAppInsights = true;
+
+        appInsights.setup("6bbe422b-f6e4-46e8-85a7-ca65a09f4157")
+        //    .setAutoDependencyCorrelation(true)
+        //    .setAutoCollectRequests(true)
+            .setAutoCollectPerformance(true)
+            .setAutoCollectExceptions(true)
+        //    .setAutoCollectDependencies(true)
+            .setAutoCollectConsole(true)
+            .setUseDiskRetryCaching(true)
+            .start();
+
+        this.client = appInsights.defaultClient;
+
+        this.client.context.keys.userId = os.userInfo().username;
     }
 
     public sendEvent(eventName: string): void {
         if (this.enableAppInsights) {
-            for (const i in compilers) {
-                if (eventName.indexOf(compilers[i] + " ") >= 0) {
-                    eventName = compilers[i];
-                    break;
-                }
-            }
-            this.client.trackEvent(eventName === "" ? "bat" : eventName);
+            this.client.trackEvent({ name: eventName });
         }
     }
 }

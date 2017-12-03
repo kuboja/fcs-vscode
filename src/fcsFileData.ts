@@ -1,6 +1,7 @@
 "use strict";
 
 import * as fs from "fs";
+import * as os from "os";
 import * as vscode from "vscode";
 
 import { FileSystemManager } from "./fileSystemManager";
@@ -151,7 +152,7 @@ export class LineRunnerCommandCreator {
     private static getTempFileContent(fcsFile: FcsFileData, scriptFileName: string): string {
         let fullCommand: string = this.getTempFileCommand(this.gclassName, fcsFile.commandType, fcsFile.clearCode);
 
-        const eol: string = require("os").EOL;
+        const eol: string = os.EOL;
 
         let fileContent: string = "";
         fileContent += `gclass {${this.gclassName}} filename (\"${scriptFileName.replace("\\", "/")}\")` + eol;

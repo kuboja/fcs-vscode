@@ -1,8 +1,8 @@
 {
     "name": "fcs-vscode",
     "version": "1.1.4",
-    "displayName": "FemCad Script",
-    "description": "Femcad Script for Visual Studio Code.",
+    "displayName": "FemCAD Script",
+    "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
     "license": "MIT",
     "publisher": "kuboja",
@@ -241,16 +241,17 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.33",
-        "@types/node": "^6.0.85",
+        "@types/mocha": "^2.2.44",
+        "@types/node": "^6.0.92",
+        "@types/shelljs": "^0.7.6",
         "mocha": "^2.3.3",
         "typescript": "^2.6.1",
-        "vscode": "^1.1.6"
+        "vscode": "^1.1.9"
     },
     "dependencies": {
-        "applicationinsights": "^0.19.0",
-        "tree-kill": "^1.1.0",
-        "vscode-languageclient": "^3.1.0",
-        "shelljs": "^0.7.8"
+        "applicationinsights": "^1.0.0",
+        "shelljs": "^0.7.8",
+        "tree-kill": "^1.2.0",
+        "vscode-languageclient": "^3.5.0"
     }
 }

@@ -24,7 +24,7 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-### 1.1.3
+### 1.1.#
 
 The new main feature of this version is an fcs command runner. You can start a task with the F5 key or click on button Run in Editor menu or context menu of text editor. For stop running task use option Stop from command menu in the Output window. You can open an fcs file in FemCAD via the command in the context menu of text editor.
 

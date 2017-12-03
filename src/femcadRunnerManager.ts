@@ -134,7 +134,7 @@ export class FemcadRunner {
             this.outputChannel.appendLine("[Running] " + command);
         }
 
-        this.appInsightsClient.sendEvent(command);
+    //    this.appInsightsClient.sendEvent(command);
         this.startTime = new Date();
 
         let fullCommand: string = "cmd /c chcp 65001 >nul && " + FileSystemManager.quoteFileName(this.fliPath) + " " + command;
@@ -154,7 +154,7 @@ export class FemcadRunner {
     }
 
     public stopExecutionFliCommand(): void {
-        this.appInsightsClient.sendEvent("Stop executin fli command");
+    //    this.appInsightsClient.sendEvent("Stop executin fli command");
         this.killProcess();
     }
 
@@ -229,7 +229,7 @@ export class FemcadRunner {
     }
 
     public openInFemcad(fcsFilePath: string): void {
-        this.appInsightsClient.sendEvent("Open in FemCAD");
+    //    this.appInsightsClient.sendEvent("Open in FemCAD");
 
         if (!this.IsInitialized) {
             return;

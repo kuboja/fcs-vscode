@@ -28,7 +28,7 @@ export class OpenFileInFemCAD {
 
         let fcsFile: string = editor.document.fileName;
 
-        this.appInsightsClient.sendEvent("Run Command: Open in FemCAD");
+        this.appInsightsClient.sendEvent("Command: Open in FemCAD");
         this.femcadRunner.openInFemcad(fcsFile);
     }
 }

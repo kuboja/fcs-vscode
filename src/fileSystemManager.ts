@@ -2,6 +2,7 @@
 
 import * as fs from "fs";
 import * as os from "os";
+import * as shelljs from "shelljs";
 import { dirname, join } from "path";
 
 
@@ -9,8 +10,7 @@ export class FileSystemManager {
 
     public static createFolderIfNotExist(dirPath: string): void {
         if (!fs.existsSync(dirPath)) {
-            var shell: any = require("shelljs");
-            shell.mkdir("-p", dirPath);
+            shelljs.mkdir("-p", dirPath);
         }
     }
 
