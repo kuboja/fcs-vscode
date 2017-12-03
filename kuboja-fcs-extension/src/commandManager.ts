@@ -23,7 +23,10 @@ export class OpenFileInFemCAD {
     }
 
     public openInFemcad(): void {
-        let fcsFile: string = vscode.window.activeTextEditor.document.fileName;
+        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+        if (!this.extData.saveDocument(editor)) { return; }
+
+        let fcsFile: string = editor.document.fileName;
 
         this.appInsightsClient.sendEvent("Run Command: Open in FemCAD");
         this.femcadRunner.openInFemcad(fcsFile);
@@ -52,6 +55,8 @@ export class FliCommandRunner {
             vscode.window.showInformationMessage("No code found or selected.");
             return;
         }
+
+        if (!this.extData.saveDocument(editor)) { return; }
 
         let fcsFile: FcsFileData = this.getFcsFileData();
         let commandFile: LineRunnerCommandCreator = new LineRunnerCommandCreator(fcsFile);
