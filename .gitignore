@@ -1,1 +1,9 @@
-publish/
+out
+
+node_modules
+
+packages
+
+*.vsix
+*.vshost.*
+*.tmp

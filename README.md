@@ -7,6 +7,7 @@ FemCAD Script language support for Visual Studio Code.
 - Syntax highlighting
 - File symbols provider ( Ctrl+Shift+O )
 - Fcs command runner (F5)
+- Open .fcs files in FemCAD.
 
 ## Requirements
 
