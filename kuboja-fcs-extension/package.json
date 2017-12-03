@@ -1,23 +1,37 @@
 {
     "name": "fcs-vscode",
+    "version": "1.1.4",
     "displayName": "FemCad Script",
     "description": "Femcad Script for Visual Studio Code.",
     "author": "Kuboja",
     "license": "MIT",
-    "version": "1.1.3",
     "publisher": "kuboja",
-    "engines": {
-        "vscode": "^1.14.0"
-    },
+    "qna": false,
     "categories": [
-        "Languages"
+        "Languages",
+        "Formatters"
     ],
-    "activationEvents": [
-        "onLanguage:fcs",
-        "onCommand:fcs-vscode.runLine",
-        "onCommand:fcs-vscode.openInFemcad"
+    "keywords": [
+        "FemCAD",
+        "HiStruct"
     ],
+    "icon": "icon.png",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kuboja/fcs-vscode"
+    },
+    "bugs": {
+        "url": "https://github.com/kuboja/fcs-vscode/issues",
+        "email": "jan.kubosek@femcad.com"
+    },
+    "engines": {
+        "vscode": "^1.18.0"
+    },
+    "homepage": "https://github.com/kuboja/fcs-vscode",
     "main": "./out/src/extension",
+    "activationEvents": [
+        "onLanguage:fcs"
+    ],
     "contributes": {
         "languages": [
             {
@@ -129,15 +143,15 @@
                     "group": "navigation"
                 },
                 {
-                    "when": "inOutput && editorLangId==fcs",
+                    "when": "inOutput",
                     "command": "fcs-vscode.stop",
-                    "group": "stop-code-run"
+                    "group": "navigation"
                 }
             ],
             "editor/title": [
                 {
                     "when": "config.fcs-vscode.showRunIconInEditorTitleMenu && editorLangId==fcs",
-                    "command": "fcs-vscode.runLine",
+                    "command": "fcs-vscode.openInFemcad",
                     "group": "navigation"
                 }
             ]
@@ -173,7 +187,7 @@
                 },
                 "fcs-vscode.femcadFolder": {
                     "type": "string",
-                    "default": "",
+                    "default": "C:\\FemCAD\\Application",
                     "description": "FemCAD instalation folder."
                 },
                 "fcs-vscode.clearPreviousOutput": {
@@ -213,7 +227,7 @@
                 },
                 "fcs-vscode.showRunIconInEditorTitleMenu": {
                     "type": "boolean",
-                    "default": true,
+                    "default": false,
                     "description": "Whether to show 'Run Code' icon in editor title menu."
                 }
             }
