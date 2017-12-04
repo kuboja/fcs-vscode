@@ -30,6 +30,7 @@
     "homepage": "https://github.com/kuboja/fcs-vscode",
     "main": "./out/src/extension",
     "activationEvents": [
+        "workspaceContains:**/*.fcs",
         "onLanguage:fcs"
     ],
     "contributes": {

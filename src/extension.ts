@@ -9,6 +9,8 @@ import { FcsSymbolProvider } from "./fcsSymbolUtil";
 
 export function activate(context: vscode.ExtensionContext): void {
 
+    console.log("Activate Extension");
+
     let extData: ExtensionData = new ExtensionData(context);
 
     registerSymbolManager(extData.context);
