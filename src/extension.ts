@@ -30,6 +30,9 @@ function registerCommand(extData: ExtensionData): void {
         codeManager.stopCommand();
     });
 
+    const openFcsTerminal: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", () => {
+        codeManager.openInTerminal();
+    });
 
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
 

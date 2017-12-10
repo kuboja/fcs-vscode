@@ -126,6 +126,11 @@
                 "title": "Stop Code Run"
             },
             {
+                "command": "fcs-vscode.runFcsTerminal",
+                "title": "Open in Terminal",
+                "description": "Open current file in VS Code Terminal"
+            },
+            {
                 "command": "fcs-vscode.openInFemcad",
                 "title": "Open in FemCAD",
                 "description": "Open current file in FemCAD"
@@ -141,6 +146,11 @@
                 {
                     "when": "!inOutput && editorLangId==fcs",
                     "command": "fcs-vscode.openInFemcad",
+                    "group": "navigation"
+                },
+                {
+                    "when": "!inOutput && editorLangId==fcs",
+                    "command": "fcs-vscode.runFcsTerminal",
                     "group": "navigation"
                 },
                 {

@@ -94,6 +94,14 @@ export class FemcadRunner {
     }
 
 
+    private _terminal : vscode.Terminal;
+    private get terminal(): vscode.Terminal {
+        if (this._terminal === undefined) {
+            this._terminal = vscode.window.createTerminal("FemCAD");
+        }
+        return this._terminal;
+    }
+
     private _outputChannel : vscode.OutputChannel;
     private get outputChannel(): vscode.OutputChannel {
         if (this._outputChannel === undefined) {
@@ -267,6 +275,50 @@ export class FemcadRunner {
     private killProcessId(processId: number): void {
         if (processId) {
             spawnSync("Taskkill", ["/PID", processId.toString(), "/T", "/F"], { shell: true });
+        }
+    }
+
+    public openFcsFile(fcsPath: string): void {
+        var term: vscode.Terminal = this.terminal;
+
+        try {
+            fs.access(this.fliPath, (err) => {
+                if (err) {
+                    vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
+                    return;
+                }
+            });
+
+            var terminalCommand: string = this.fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
+
+            var processId: number;
+            term.processId.then(pid => {
+                processId = pid;
+            });
+
+            psTree(processId, (err, children) => {
+                if (children.length > 0) {
+                    for (const child of children) {
+                        this.killProcessId(child.PID);
+                    }
+                }
+
+                term.show(true);
+
+                console.log("Open terminal:");
+                console.log(terminalCommand);
+
+                if (this.extData.clearPreviousOutput) {
+                    term.sendText("cls");
+                }
+                term.sendText(terminalCommand);
+
+                vscode.commands.executeCommand("workbench.action.terminal.focus");
+            });
+
+        } catch (error) {
+            console.log("Open terminal: Error");
+            console.log(error);
         }
     }
 }

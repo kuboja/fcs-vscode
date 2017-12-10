@@ -73,6 +73,18 @@ export class FliCommandRunner {
         this.femcadRunner.stopExecutionFliCommand();
     }
 
+    public openInTerminal(): void {
+        this.appInsightsClient.sendEvent("Command: Open in terminal");
+
+        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showInformationMessage("No code found or selected.");
+            return;
+        }
+
+        this.femcadRunner.openFcsFile( editor.document.fileName );
+    }
+
     private getFcsFileData(): FcsFileData {
         let editor: vscode.TextEditor = vscode.window.activeTextEditor;
         let lineNumber: number = editor.selection.active.line;
