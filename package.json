@@ -128,7 +128,7 @@
             {
                 "command": "fcs-vscode.openInFemcad",
                 "title": "Open in FemCAD",
-                "description": "Run current file in FemCAD"
+                "description": "Open current file in FemCAD"
             }
         ],
         "menus": {
@@ -251,6 +251,7 @@
     },
     "dependencies": {
         "applicationinsights": "^1.0.0",
+        "ps-tree": "^1.1.0",
         "shelljs": "^0.7.8",
         "tree-kill": "^1.2.0",
         "vscode-languageclient": "^3.5.0"

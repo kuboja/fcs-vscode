@@ -3,9 +3,10 @@
 import * as fs from "fs";
 import * as kill from "tree-kill";
 import * as vscode from "vscode";
-import { exec, ChildProcess } from "child_process";
+import { ChildProcess, spawn, exec, spawnSync } from "child_process";
 import { join } from "path";
 import { AppInsightsClient } from "./appInsightsClient";
+import * as psTree from "ps-tree";
 
 import { FileSystemManager } from "./fileSystemManager";
 import { ExtensionData } from "./extensionData";
@@ -93,6 +94,13 @@ export class FemcadRunner {
     }
 
 
+    private _outputChannel : vscode.OutputChannel;
+    private get outputChannel(): vscode.OutputChannel {
+        if (this._outputChannel === undefined) {
+            this._outputChannel = vscode.window.createOutputChannel("FemCAD");
+        }
+        return this._outputChannel;
+    }
 
     private isRunning: boolean;
     private lineBuffer: string;
@@ -139,11 +147,7 @@ export class FemcadRunner {
         console.log("Fli path: " + this.fliPath);
         console.log("Full cmd command: " + fullCommand);
 
-        this.process = exec(fullCommand, (error, stout, stderr) => {
-            console.log(error);
-            console.log(stout);
-            console.log(stderr);
-        });
+        this.process = spawn(fullCommand, [], { shell: true });
         this.process.stdout.setEncoding("utf8");
         this.process.stdout.on("data", (data: string) => this.onGetOutputData(data));
         this.process.stderr.on("data", (data: string) => this.onGetOutputData(data));
@@ -155,19 +159,33 @@ export class FemcadRunner {
         this.killProcess();
     }
 
-    private onGetOutputData(data: string): void {
-        let lines: string[] = data.split(/\r?\n/);
-        let lineCount: number = lines.length;
+    private printOut: boolean = false;
 
-        for (var iLine: number = 0; iLine < lineCount; iLine++) {
-            var line: string = lines[iLine];
-            if (iLine !== lineCount - 1) {
-                line += "\r\n";
+    private onGetOutputData(data: string): void {
+        if (!this.isRunning) {return;}
+
+        data = this.lineBuffer + data;
+
+        let linesAll: string[] = data.split(/\r?\n/);
+        let lines: string[];
+
+        if (data.endsWith("\n")) {
+            lines = linesAll;
+            this.lineBuffer = "";
+        } else {
+            if (linesAll.length === 1) {
+                lines = [];
+                this.lineBuffer = linesAll[0];
             } else {
-                if (line.endsWith("\n")) {
-                    this.lineBuffer = line;
-                }
+                lines = linesAll.slice(0, linesAll.length - 1);
+                this.lineBuffer = linesAll[linesAll.length - 1];
             }
+        }
+
+        for (var iLine: number = 0; iLine < lines.length; iLine++) {
+            var line: string = lines[iLine];
+
+            if ( line === "" ) { continue; }
 
             if (line.includes(this.commandData.stopText)) {
                 this.killProcess();
@@ -176,18 +194,19 @@ export class FemcadRunner {
 
             if (this.extData.removeTraceInfo) {
                 this.outputLineCount++;
+
                 if (this.outputLineCount <= 4) { continue; }
 
                 let printLine: boolean = true;
 
                 const hiddingLines: string[] = [
-                    "Interpreting",
-                    "Opening",
-                    "Analysing",
+                    "Interpreting :",
+                    "Opening :",
+                    "Opening '",
+                    "Analysing :",
                     "Read+Parsing",
                     "Creating GClass",
-                    "Running",
-                    "...",
+                    "Running  :",
                 ];
 
                 for (var iHide: number = 0; iHide < hiddingLines.length; iHide++) {
@@ -196,13 +215,12 @@ export class FemcadRunner {
                         break;
                     }
                 }
-                if (!printLine) { continue; }
 
-                line = line.replace(/^(\| +)+/, "");
+                if (!printLine) { continue; }
             }
 
             if (this.isRunning) {
-                this.outputChannel.append(line);
+                this.outputChannel.append(line + "\n");
             }
         }
     }
@@ -244,5 +262,11 @@ export class FemcadRunner {
                 exec(cmdToExec);
             }
         });
+    }
+
+    private killProcessId(processId: number): void {
+        if (processId) {
+            spawnSync("Taskkill", ["/PID", processId.toString(), "/T", "/F"], { shell: true });
+        }
     }
 }
