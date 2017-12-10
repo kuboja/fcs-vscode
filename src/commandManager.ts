@@ -65,7 +65,6 @@ export class FliCommandRunner {
         console.log("Line from source code: " + fcsFile.rawLineCode);
         console.log("Source file path: " + fcsFile.filePath);
 
-        this.femcadRunner = this.extData.femcadRunner;
         this.femcadRunner.executeFliCommand(fliCommand);
     }
 

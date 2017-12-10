@@ -9,66 +9,50 @@ import { FemcadRunner } from "./femcadRunnerManager";
 export class ExtensionData {
 
     public Initialized: boolean = false;
-    public config: vscode.WorkspaceConfiguration;
     public appInsightsClient: AppInsightsClient;
     public femcadRunner: FemcadRunner;
 
     public context: vscode.ExtensionContext;
 
-    public outputChannel: vscode.OutputChannel;
+    private get config(): vscode.WorkspaceConfiguration {
+        return vscode.workspace.getConfiguration("fcs-vscode");
+    }
+
+    public get femcadFolderPath(): string {
+        return this.config.get<string>("femcadFolder");
+    }
 
     public get showExecutionMessage(): boolean {
-        if (this.Initialized) {
-            return this.config.get<boolean>("showExecutionMessage");
-        }
-        return true;
+        return this.config.get<boolean>("showExecutionMessage");
     }
 
     public get clearPreviousOutput(): boolean {
-        if (this.Initialized) {
-            return this.config.get<boolean>("clearPreviousOutput");
-        }
-        return true;
+        return this.config.get<boolean>("clearPreviousOutput");
     }
 
     public get preserveFocusInOutput(): boolean {
-        if (this.Initialized) {
-            return this.config.get<boolean>("preserveFocus");
-        }
-        return false;
+        return this.config.get<boolean>("preserveFocus");
     }
 
     public get removeTraceInfo(): boolean {
-        if (this.Initialized) {
-            return this.config.get<boolean>("removeTraceInfo");
-        }
-        return false;
+        return this.config.get<boolean>("removeTraceInfo");
     }
 
     public get saveAllFilesBeforeRun(): boolean {
-        if (this.Initialized) {
-            return this.config.get<boolean>("saveAllFilesBeforeRun");
-        }
-        return true;
+        return this.config.get<boolean>("saveAllFilesBeforeRun");
     }
 
     public get saveFileBeforeRun(): boolean {
-        if (this.Initialized) {
-            return this.config.get<boolean>("saveFileBeforeRun");
-        }
-        return true;
+        return this.config.get<boolean>("saveFileBeforeRun");
     }
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
-        this.outputChannel = vscode.window.createOutputChannel("fcsoutput");
 
         this.appInsightsClient = new AppInsightsClient();
         this.appInsightsClient.sendEvent("Extension startup");
 
-        this.config = vscode.workspace.getConfiguration("fcs-vscode");
-
-        this.femcadRunner = new FemcadRunner(this.config, this);
+        this.femcadRunner = new FemcadRunner(this);
 
         this.Initialized = true && this.femcadRunner.IsInitialized;
     }

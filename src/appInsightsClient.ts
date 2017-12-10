@@ -16,16 +16,16 @@ export class AppInsightsClient {
         appInsights.setup("6bbe422b-f6e4-46e8-85a7-ca65a09f4157")
         //    .setAutoDependencyCorrelation(true)
         //    .setAutoCollectRequests(true)
-            .setAutoCollectPerformance(true)
-            .setAutoCollectExceptions(true)
+        //    .setAutoCollectPerformance(true)
+        //    .setAutoCollectExceptions(true)
         //    .setAutoCollectDependencies(true)
-            .setAutoCollectConsole(true)
-            .setUseDiskRetryCaching(true)
+        //    .setAutoCollectConsole(true)
+        //    .setUseDiskRetryCaching(true)
             .start();
 
         this.client = appInsights.defaultClient;
 
-        this.client.context.keys.userId = os.userInfo().username;
+        this.client.context.tags[this.client.context.keys.userId] = os.userInfo().username;
     }
 
     public sendEvent(eventName: string): void {

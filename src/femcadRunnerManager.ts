@@ -34,7 +34,6 @@ export class FemcadRunner {
 
     private extData: ExtensionData;
     private appInsightsClient: AppInsightsClient;
-    private outputChannel: vscode.OutputChannel;
 
     readonly IsInitialized: boolean;
 
@@ -42,17 +41,15 @@ export class FemcadRunner {
     private femcadPath: string;
     private fliPath: string;
 
-    constructor(config: vscode.WorkspaceConfiguration, extData: ExtensionData) {
-
+    constructor(extData: ExtensionData) {
         this.extData = extData;
         this.appInsightsClient = extData.appInsightsClient;
-        this.outputChannel = extData.outputChannel;
 
-        let femcadFolder: string = config.get<string>("femcadFolder");
+        let femcadFolder: string = extData.femcadFolderPath;
         let fliPath: string = join(femcadFolder, "fli.exe");
         let femcadPath: string = join(femcadFolder, "femcad.exe");
 
-        // kontrola jetli je v nastevení zadán adresář femcadu
+        // kontrola jetli je v nastavení zadán adresář femcadu
         if (!(femcadFolder)) {
             vscode.window.showErrorMessage("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             return;
@@ -65,7 +62,7 @@ export class FemcadRunner {
             if (err) {
                 isOk = false;
                 vscode.window
-                    .showErrorMessage("Nebyl nalezen FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
+                    .showErrorMessage("Nebyl nalezen zadaný FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             }
         });
 
