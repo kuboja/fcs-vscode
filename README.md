@@ -7,7 +7,7 @@ FemCAD Script language support for Visual Studio Code. More information about [F
 - Syntax highlighting
 - File symbols provider (Ctrl+Shift+O)
 - Fcs command runner (F5)
-- Open .fcs files in FemCAD.
+- Open .fcs files in FemCAD or VS Code Terminal
 
 ## Requirements
 
@@ -24,7 +24,10 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-### 1.1.#
+### 1.2.X
+New feature is commmad for opening fcs file in VS Code Terminal (Right Click in editor -> Open in terminal).
+
+### 1.1.X
 
 The new main feature of this version is an fcs command runner. You can start a task with the F5 key or click on button Run in Editor menu or context menu of text editor. For stop running task use option Stop from command menu in the Output window. You can open an fcs file in FemCAD via the command in the context menu of text editor.
 

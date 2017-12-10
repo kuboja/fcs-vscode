@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.2.0] - 2017-12-10
+
+### Added
+- Add command for open fcs files in a terminal. (Right Click in editor -> Open in terminal)
+
+### Change
+- Fix text output and fli runner.
+
+
+
 ## [1.1.4] - 2017-12-04
 
 ### Change
