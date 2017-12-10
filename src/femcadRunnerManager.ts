@@ -87,6 +87,13 @@ export class FemcadRunner {
 
         if (!isOk) { return; }
 
+        vscode.window.onDidCloseTerminal(term => {
+            if ( term.name === "FemCAD" ) {
+                this._terminal.dispose();
+                this._terminal = undefined;
+            }
+        });
+
         this.femCadFolder = femcadFolder;
         this.fliPath = fliPath;
         this.femcadPath = femcadPath;
