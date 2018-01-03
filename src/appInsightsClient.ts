@@ -14,13 +14,11 @@ export class AppInsightsClient {
         this.enableAppInsights = true;
 
         appInsights.setup("6bbe422b-f6e4-46e8-85a7-ca65a09f4157")
-        //    .setAutoDependencyCorrelation(true)
-        //    .setAutoCollectRequests(true)
-        //    .setAutoCollectPerformance(true)
-        //    .setAutoCollectExceptions(true)
-        //    .setAutoCollectDependencies(true)
-        //    .setAutoCollectConsole(true)
-        //    .setUseDiskRetryCaching(true)
+            .setAutoDependencyCorrelation(false)
+            .setAutoCollectRequests(false)
+            .setAutoCollectPerformance(false)
+            .setAutoCollectExceptions(true)
+            .setAutoCollectDependencies(true)
             .start();
 
         this.client = appInsights.defaultClient;

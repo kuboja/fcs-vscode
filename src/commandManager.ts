@@ -82,6 +82,8 @@ export class FliCommandRunner {
             return;
         }
 
+        if (!this.extData.saveDocument(editor)) { return; }
+
         this.femcadRunner.openFcsFile( editor.document.fileName );
     }
 
