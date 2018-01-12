@@ -1,15 +1,19 @@
 # Changelog
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+## [1.3.0] - 2018-01-12
 
-## [Unreleased]
+### Added
+- Show code completion proposals for builtin FemCAD functions, properties and other objects.
+
+### Change
+- Fixed file saving when you run command Open in Terminal.
+
+
 
 ## [1.2.0] - 2017-12-10
 
 ### Added
-- Add command for open fcs files in a terminal. (Right Click in editor -> Open in terminal)
+- Add command for open fcs files in a terminal. (Right Click in editor -> Open in terminal).
 
 ### Change
 - Fix text output and fli runner.
