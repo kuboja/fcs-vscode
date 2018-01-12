@@ -5,6 +5,7 @@ import * as vscode from "vscode";
 import { ExtensionData } from "./extensionData";
 import { FliCommandRunner, OpenFileInFemCAD } from "./commandManager";
 import { FcsSymbolProvider } from "./fcsSymbolUtil";
+import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
 
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -43,7 +44,15 @@ function registerCommand(extData: ExtensionData): void {
     extData.context.subscriptions.push(run);
     extData.context.subscriptions.push(stop);
     extData.context.subscriptions.push(open);
+
+
+    const completionItemProvider: vscode.Disposable =
+        vscode.languages.registerCompletionItemProvider("fcs", new FcsCompletionItemProvider(), "." );
+    extData.context.subscriptions.push(completionItemProvider);
+
+
 }
+
 
 
 function registerSymbolManager(context: vscode.ExtensionContext): void {
