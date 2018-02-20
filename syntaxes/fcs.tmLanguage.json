@@ -32,13 +32,13 @@
             "include": "#fcsCommands"
         },
         {
-            "include": "#fcsObjectCreators"
-        },
-        {
             "include": "#fcsAnonymFunctionName"
         },
         {
             "include": "#fcsVariable"
+        },
+        {
+            "include": "#fcsObjectCreators"
         },
         {}
     ],
@@ -148,7 +148,23 @@
         "fcsObjectCreators": {
             "patterns": [
                 {
-                    "begin": "^(gclass|gblock|distribution|area|material|thickness|planestress|vertex|layer|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\b",
+                    "match": "^(gclass|vertex|gblock|layer|distribution|area|material|thickness|planestress|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)[ |\t]*(\\{?([a-zA-Z_0-9]*)\\}?)",
+                    "captures": {
+                        "1": {
+                            "name": "storage.type.class.fcs"
+                        },
+                        "2": {
+                            "name": "string.quoted.double.fcs"
+                        },
+                        "3": {
+                            "name": "entity.name.class.fcs"
+                            
+                        }
+                        
+                    }
+                },
+                {
+                    "begin": "^dfg(gclass|gblock|distribution|area|material|thickness|planestress|vertex|layer|volume|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)",
                     "beginCaptures": {
                         "1": {
                             "name": "storage.type.class.fcs"
