@@ -298,32 +298,34 @@ export class FemcadRunner {
 
             var terminalCommand: string = this.fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
 
-            var processId: number;
             term.processId.then(pid => {
-                processId = pid;
-            });
+                var processId: number = pid;
 
-            psTree(processId, (err, children) => {
-                if (children.length > 0) {
-                    for (const child of children) {
-                        this.killProcessId(child.PID);
+                psTree(processId, (err, children) => {
+                    if (children.length > 0) {
+                        for (const child of children) {
+                            this.killProcessId(child.PID);
+                        }
                     }
-                }
 
-                term.show(true);
+                    term.show(true);
 
-                console.log("Open terminal:");
-                console.log(terminalCommand);
+                    console.log("Open terminal:");
+                    console.log(terminalCommand);
 
-                if (this.extData.clearPreviousOutput) {
-                    term.sendText("cls");
-                }
-                term.sendText(terminalCommand);
+                    if (this.extData.clearPreviousOutput) {
+                        term.sendText("cls");
+                    }
+                    term.sendText(terminalCommand);
 
-                vscode.commands.executeCommand("workbench.action.terminal.focus");
+                    vscode.commands.executeCommand("workbench.action.terminal.focus");
+                });
+
             });
 
         } catch (error) {
+            vscode.window.showErrorMessage("Nastala chyba při pokusu o spuštění souboru v terminálu.");
+
             console.log("Open terminal: Error");
             console.log(error);
         }
