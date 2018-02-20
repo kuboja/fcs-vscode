@@ -19,9 +19,11 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 
+
 function registerCommand(extData: ExtensionData): void {
 
     const codeManager: FliCommandRunner = new FliCommandRunner(extData);
+
 
     const run: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.runLine", () => {
         codeManager.runLineCommand();
@@ -46,8 +48,10 @@ function registerCommand(extData: ExtensionData): void {
     extData.context.subscriptions.push(open);
 
 
+
+
     const completionItemProvider: vscode.Disposable =
-        vscode.languages.registerCompletionItemProvider("fcs", new FcsCompletionItemProvider(), "." );
+        vscode.languages.registerCompletionItemProvider("fcs", new FcsCompletionItemProvider(extData), "." );
     extData.context.subscriptions.push(completionItemProvider);
 
 
