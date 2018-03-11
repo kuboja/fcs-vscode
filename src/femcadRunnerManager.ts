@@ -144,6 +144,29 @@ export class FemcadRunner {
         this.outputLineCount = 0;
         this.lineBuffer = "";
 
+        let progressOptions : vscode.ProgressOptions = {
+            title : "Fli runner",
+            location: vscode.ProgressLocation.Window,
+        };
+
+        vscode.window.withProgress( progressOptions, p => {
+            return new Promise((resolve, reject) => {
+
+                p.report({ message: "Fli running..." });
+
+                const handle: NodeJS.Timer = setInterval(() => {
+
+                    if( !this.isRunning ) {
+                        p.report({ message: "Fli ended." });
+                        clearInterval(handle);
+                        resolve();
+                    }
+
+                }, 1000);
+
+            });
+        });
+
         this.outputChannel.show(this.extData.preserveFocusInOutput);
 
         if (this.extData.clearPreviousOutput) {
