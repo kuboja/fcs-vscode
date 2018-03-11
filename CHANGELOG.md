@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.2] - 2018-03-11
+
+### Change
+- Add better support for reporting.
+- Add command #image for creating image.
+- Fix/add some code proposals.
+- Add progress in status bar.
+
 ## [1.3.1] - 2018-03-11
 
 ### Change
