@@ -167,7 +167,7 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 1, key : "Math.Interval1D", kind : GrammarKind.Module }),
     new GrammarType({ dot : 1, key : "Math.IntervalSet", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Math.Interval1D.Intersection", kind : GrammarKind.Function }),
-    
+
     new GrammarType({ dot : 0, key : "GCS", kind : GrammarKind.Module }),
     new GrammarType({ dot : 1, key : "GCS.Rx", kind : GrammarKind.Function }),
     new GrammarType({ dot : 1, key : "GCS.Ry", kind : GrammarKind.Function }),

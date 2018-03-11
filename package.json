@@ -261,6 +261,7 @@
     },
     "dependencies": {
         "applicationinsights": "^1.0.0",
+        "opn": "^5.2.0",
         "ps-tree": "^1.1.0",
         "shelljs": "^0.7.8",
         "tree-kill": "^1.2.0",

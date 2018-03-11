@@ -29,6 +29,13 @@ export class FileSystemManager {
         return tempDir;
     }
 
+    public static getReportFolderPath(): string {
+        let tempDir: string = join(os.tmpdir(), "FcsReports");
+        this.createFolderIfNotExist(tempDir);
+
+        return tempDir;
+    }
+
     public static rndName(): string {
         return Math.random().toString(36).replace(/[^a-z]+/g, "").substr(0, 10);
     }

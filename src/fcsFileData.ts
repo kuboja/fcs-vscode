@@ -3,10 +3,11 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as vscode from "vscode";
+import * as path from "path";
+import * as opn from "opn";
 
 import { FileSystemManager } from "./fileSystemManager";
-import { FliCommand } from "./femcadRunnerManager";
-
+import { FliCommand, IFliCommandMethods } from "./femcadRunnerManager";
 
 export enum OutputFunctionType {
 
@@ -14,6 +15,13 @@ export enum OutputFunctionType {
     Print = 2,
     Document = 4,
     Json = 8,
+    Image = 16,
+}
+
+export enum ExecutionMethodType {
+
+    Straight = 1,
+    WithTempFile = 2,
 }
 
 
@@ -21,6 +29,7 @@ export class FcsFileData {
 
     readonly textDocument: vscode.TextDocument;
     readonly filePath: string;
+    readonly fileName: string;
     readonly lineNumber: number;
 
     readonly rawLineCode: string;
@@ -32,6 +41,8 @@ export class FcsFileData {
     constructor(textDocunet: vscode.TextDocument, lineNumber: number) {
         this.filePath = textDocunet.fileName;
 
+        this.fileName = path.basename(this.filePath, path.extname(this.filePath));
+
         let rawLineText: string = FcsFileData.getLineFromScript(textDocunet, lineNumber);
         let clearlineCode: string = FcsFileData.getRawCommandFromLine(rawLineText);
 
@@ -39,8 +50,9 @@ export class FcsFileData {
         this.lineNumber = lineNumber;
         this.rawLineCode = rawLineText;
         this.clearlineCode = clearlineCode;
-        this.clearCode = FcsFileData.clearRawCommand(clearlineCode);
         this.commandType = FcsFileData.getCommandType(clearlineCode);
+        this.clearCode = FcsFileData.clearRawCommand(clearlineCode, this.commandType);
+        
     }
 
     private static getRawCommandFromLine(lineText: string): string {
@@ -73,15 +85,18 @@ export class FcsFileData {
         if (textLine.startsWith("json ")) {
             return OutputFunctionType.Json;
         }
+        if (textLine.startsWith("image ")) {
+            return OutputFunctionType.Image;
+        }
 
         return OutputFunctionType.Print;
     }
 
-    private static clearRawCommand(rawCommand: string): string {
+    private static clearRawCommand(rawCommand: string, commandType: OutputFunctionType): string {
         let textLine: string = rawCommand.replace(/^#/, "");
         textLine = textLine.trim();
 
-        textLine = textLine.replace(/^#* *(print|(browse_)?report|json) +/, "");
+        textLine = textLine.replace(/^#* *(print|(browse_)?report|json|image) +/, "");
 
         return textLine;
     }
@@ -96,17 +111,35 @@ export class FcsFileData {
 }
 
 
-export class LineRunnerCommandCreator {
+
+export class LineRunnerCommandCreator implements IFliCommandMethods {
 
     private static stopText = "--FcsScriptEnD--";
     private static commandName = "output";
     private static gclassName = "cls";
 
+    readonly executionMethod: ExecutionMethodType;
     readonly fliCommand: FliCommand;
 
     private tempFilePath: string;
 
     constructor(fcsFile: FcsFileData) {
+        this.executionMethod = LineRunnerCommandCreator.getExecutionMethod(fcsFile);
+        let fliCommand : FliCommand;
+
+        switch (this.executionMethod) {
+            case ExecutionMethodType.Straight:
+                fliCommand = this.ExecuteStraight(fcsFile);
+                break;
+            case ExecutionMethodType.WithTempFile:
+                fliCommand = this.ExecuteWithTempFile(fcsFile);
+                break;
+        }
+
+        this.fliCommand = fliCommand;
+    }
+
+    private ExecuteWithTempFile(fcsFile: FcsFileData): FliCommand {
         let scriptFileName: string = fcsFile.filePath;
 
         let tempDirPath: string = FileSystemManager.getTempFolderPath();
@@ -115,11 +148,34 @@ export class LineRunnerCommandCreator {
 
         let command: string = FileSystemManager.quoteFileName(this.tempFilePath);
 
-        this.fliCommand = new FliCommand(command, true, LineRunnerCommandCreator.stopText);
+        return new FliCommand(command, true, LineRunnerCommandCreator.stopText);
     }
 
-    private afterStopExecution(): void {
-        fs.unlink(this.tempFilePath);
+    private ExecuteStraight(fcsFile: FcsFileData): FliCommand {
+        let scriptFilePath: string = fcsFile.filePath;
+
+        this.tempFilePath  = LineRunnerCommandCreator.getOutputFilePath(fcsFile.commandType, fcsFile.fileName);
+
+        let command: string = LineRunnerCommandCreator.getCommandForStraightExecution(
+            fcsFile,
+            fcsFile.clearCode,
+            this.tempFilePath );
+
+        let fli : FliCommand = new FliCommand(command);
+        fli.commandClass = this;
+
+        return fli;
+    }
+
+    public afterExit(): void {
+        switch (this.executionMethod) {
+            case ExecutionMethodType.Straight:
+                opn( this.tempFilePath );
+                break;
+            case ExecutionMethodType.WithTempFile:
+                fs.unlink(this.tempFilePath);
+                break;
+        }
     }
 
     private static getTempFileCommand(gclass: string, commandType: OutputFunctionType, command: string): string {
@@ -147,6 +203,79 @@ export class LineRunnerCommandCreator {
         }
 
         return `${beforeVariable} ${gclass}.${command} ${afterVariable}`;
+    }
+
+    private static getExecutionMethod(fcsFile: FcsFileData): ExecutionMethodType {
+        let method: ExecutionMethodType = ExecutionMethodType.WithTempFile;
+
+        switch (fcsFile.commandType) {
+            case OutputFunctionType.Document:
+                method = ExecutionMethodType.Straight;
+                break;
+
+            case OutputFunctionType.Image:
+                method = ExecutionMethodType.Straight;
+                break;
+        }
+
+        return method;
+    }
+
+    private static getOutputFilePath(commandType: OutputFunctionType, fileName: string): string {
+        let extension: string = "";
+        switch (commandType) {
+            case OutputFunctionType.Document:
+                extension = ".html";
+                break;
+
+            case OutputFunctionType.Image:
+                extension = ".png";
+                break;
+        }
+
+        let tempFolderPath: string = FileSystemManager.getReportFolderPath() + "\\";
+
+        let currentdate: Date = new Date();
+
+        var date: string = currentdate.getFullYear() + "_"
+            + ("0" + (currentdate.getMonth() + 1).toString()).slice(-2) + ""
+            + ("0" + currentdate.getDate()).slice(-2) + "_"
+            + ("0" + currentdate.getHours()).slice(-2) + ""
+            + ("0" + currentdate.getMinutes()).slice(-2) + ""
+            + ("0" + currentdate.getSeconds()).slice(-2);
+
+        let outputFilePath: string = tempFolderPath + fileName + "_" + date + extension;
+
+        return outputFilePath;
+    }
+
+    private static getCommandForStraightExecution(fcsFile: FcsFileData, command: string, outputFilePath: string): string {
+        let commandType: OutputFunctionType = fcsFile.commandType;
+        let filePathCmd: string = FileSystemManager.quoteFileName(fcsFile.filePath);
+
+        let typeCmd: string = "";
+        let outputFileCmd: string = "";
+        let cmd: string = command;
+
+        switch (commandType) {
+            case OutputFunctionType.Document:
+                typeCmd = "--t HTML";
+                break;
+
+            case OutputFunctionType.Json:
+                cmd = `Fcs.Converters.ToJson( ${command} )`;
+                break;
+
+            case OutputFunctionType.Image:
+                typeCmd = "--t PNG";
+                break;
+        }
+
+        if (typeCmd !== "") {
+            outputFileCmd = "--o " + FileSystemManager.quoteFileName(outputFilePath);
+        }
+
+        return `${filePathCmd} ${cmd} ${typeCmd} ${outputFileCmd}`;
     }
 
     private static getTempFileContent(fcsFile: FcsFileData, scriptFileName: string): string {

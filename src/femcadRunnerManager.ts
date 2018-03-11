@@ -12,11 +12,17 @@ import { FileSystemManager } from "./fileSystemManager";
 import { ExtensionData } from "./extensionData";
 
 
+export interface IFliCommandMethods {
+    afterExit(): void;
+}
+
 export class FliCommand {
 
     readonly command: string;
     readonly autoStop: boolean;
     readonly stopText: string;
+
+    public commandClass: IFliCommandMethods;
 
     constructor(fliCommand: string, autostop: boolean = false, stopText: string = null) {
         this.command = fliCommand;
@@ -26,6 +32,12 @@ export class FliCommand {
         } else {
             this.autoStop = autostop;
             this.stopText = stopText;
+        }
+    }
+
+    public afterStopExecution(): void {
+        if (this.commandClass != null) {
+            this.commandClass.afterExit();
         }
     }
 }
@@ -271,6 +283,9 @@ export class FemcadRunner {
         if (this.extData.showExecutionMessage) {
             this.outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
             this.outputChannel.appendLine("");
+        }
+        if (code === 0) {
+            this.commandData.afterStopExecution();
         }
     }
 
