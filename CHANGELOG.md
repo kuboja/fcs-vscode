@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1] - 2018-03-11
+
+### Change
+- Fix rerun fli in terminal.
+- Fix some syntax highlighting.
+- Fix/add some code proposals.
+
+
 ## [1.3.0] - 2018-01-12
 
 ### Added

@@ -188,7 +188,7 @@
                 {
                     "comment": "modifikátory za kterými musí být závorka nebo uvozovka (může být před nimi znaménko + nebo -)",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<= )(if|area|geometry|section|material|t|metadata|styles|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions)(?= +[+-]?(?:\\(|\\[|\\{|\"))"
+                    "match": "(?<= )(if|area|geometry|section|material|t|metadata|styles|fcsdrs|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions)(?= +[+-]?(?:\\(|\\[|\\{|\"))"
                 },
                 {
                     "comment": "názvy modifikátorů, které mohou být následovány číslem nebo textem (které může znamenat referenci)",
