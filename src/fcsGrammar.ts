@@ -160,11 +160,14 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 0, key : "exportesaxml", kind : GrammarKind.Order }),
 
     new GrammarType({ dot : 0, key : "Math", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 1, key : "Math.PI", kind : GrammarKind.Constant }),
+    new GrammarType({ dot : 1, key : "Math.E", kind : GrammarKind.Constant }),
     new GrammarType({ dot : 1, key : "Math.ToInteger", kind : GrammarKind.Function }),
     new GrammarType({ dot : 1, key : "Math.Interval", kind : GrammarKind.Function }),
     new GrammarType({ dot : 1, key : "Math.Interval1D", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 1, key : "Math.IntervalSet", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Math.Interval1D.Intersection", kind : GrammarKind.Function }),
-
+    
     new GrammarType({ dot : 0, key : "GCS", kind : GrammarKind.Module }),
     new GrammarType({ dot : 1, key : "GCS.Rx", kind : GrammarKind.Function }),
     new GrammarType({ dot : 1, key : "GCS.Ry", kind : GrammarKind.Function }),
@@ -210,6 +213,10 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 2, key : "Fcs.Symbol.Conditional", kind : GrammarKind.Object }),
     new GrammarType({ dot : 2, key : "Fcs.Symbol.Switch", kind : GrammarKind.Function }),
     new GrammarType({ dot : 2, key : "Fcs.Symbol.Case", kind : GrammarKind.Function }),
+
+    new GrammarType({ dot : 1, key : "Fcs.IntensitySystem", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 2, key : "Fcs.IntensitySystem.Gcs", kind : GrammarKind.Constant }),
+    new GrammarType({ dot : 2, key : "Fcs.IntensitySystem.SurfaceLcs", kind : GrammarKind.Constant }),
 
     new GrammarType({ dot : 1, key : "Fcs.EngineeringQuantity", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Fcs.EngineeringQuantity.Coefficient", description : "coefficient [-]"}),
@@ -358,9 +365,16 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 2, key : "Fcs.Geometry.Vertex3D", kind : GrammarKind.Function }),
     new GrammarType({ dot : 2, key : "Fcs.Geometry.Tools", kind : GrammarKind.Module }),
     new GrammarType({ dot : 3, key : "Fcs.Geometry.Tools.CreateDefaultLcsByTwoPoints", kind : GrammarKind.Function }),
-    new GrammarType({ dot : 3, key : "Fcs.Geometry.Tools.CreateDefaultLcsByTwoPoints", kind : GrammarKind.Function }),
     new GrammarType({ dot : 3, key : "Fcs.Geometry.Tools.GetLinesIntersection", kind : GrammarKind.Function }),
-
+    new GrammarType({ dot : 2, key : "Fcs.Geometry.Measure", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 3, key : "Fcs.Geometry.Measure.PositiveOrientedAngleOfVectors", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 2, key : "Fcs.Geometry.Point3D", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 2, key : "Fcs.Geometry.BoundingBox", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 2, key : "Fcs.Geometry.Lcs", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 2, key : "Fcs.Geometry.Matrix33", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 2, key : "Fcs.Geometry.Intersection", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 3, key : "Fcs.Geometry.Intersection.LineAndPlane", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.Geometry.Intersection.Lines2", kind : GrammarKind.Function }),
 
     new GrammarType({ dot : 1, key : "Fcs.Converters", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Fcs.Converters.StringToMd5Hash", kind : GrammarKind.Function }),
@@ -374,9 +388,10 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 2, key : "Fcs.Object.HasPropertyChainValue", kind : GrammarKind.Function }),
 
     new GrammarType({ dot : 1, key : "Fcs.Analysis", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 2, key : "Fcs.Analysis.BeamSection", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 3, key : "Fcs.Analysis.BeamSection.CharacteristicsSolver", kind : GrammarKind.Function }),
     new GrammarType({ dot : 2, key : "Fcs.Analysis.ResultCase", kind : GrammarKind.Function }),
     new GrammarType({ dot : 2, key : "Fcs.Analysis.Result", kind : GrammarKind.Module }),
-
     new GrammarType({ dot : 3, key : "Fcs.Analysis.Result.Beam", kind : GrammarKind.Module }),
 
     new GrammarType({ dot : 4, key : "Fcs.Analysis.Result.Beam.N", kind : GrammarKind.Constant }),
@@ -416,6 +431,7 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 2, key : "Fcs.Reporting.Table", kind : GrammarKind.Object }),
     new GrammarType({ dot : 2, key : "Fcs.Reporting.Table", kind : GrammarKind.Module }),
     new GrammarType({ dot : 3, key : "Fcs.Reporting.Table.Row", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.Reporting.Image", kind : GrammarKind.Object }),
 
     new GrammarType({ dot : 1, key : "Fcs.Diagnostics", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Fcs.Diagnostics.Format", kind : GrammarKind.Function }),
@@ -426,9 +442,14 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 2, key : "Fcs.Diagnostics.TraceDepth", kind : GrammarKind.Module }),
     new GrammarType({ dot : 3, key : "Fcs.Diagnostics.TraceDepth.Trace", kind : GrammarKind.Constant }),
 
+    new GrammarType({ dot : 1, key : "Fcs.Presentation", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 2, key : "Fcs.Presentation.DxfUpdateRenderer", kind : GrammarKind.Object }),
+    new GrammarType({ dot : 2, key : "Fcs.Presentation.ImageRenderer", kind : GrammarKind.Object }),
+
     new GrammarType({ dot : 1, key : "Fcs.Math", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Fcs.Math.CylinderFieldBiCubicResamplingAndInterpolation", kind : GrammarKind.Object }),
     new GrammarType({ dot : 2, key : "Fcs.Math.CylinderFieldBiCubic", kind : GrammarKind.Object }),
+    new GrammarType({ dot : 2, key : "Fcs.Math.IntervalSet", kind : GrammarKind.Function }),
 
     new GrammarType({ dot : 1, key : "Fcs.Assembly", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Fcs.Assembly.All", kind : GrammarKind.Constant }),
@@ -452,6 +473,7 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 3, key : "Fcs.Mesh.ConnectRules.HangingNodes", kind : GrammarKind.Object }),
     new GrammarType({ dot : 2, key : "Fcs.Mesh.Element", kind : GrammarKind.Module }),
     new GrammarType({ dot : 3, key : "Fcs.Mesh.Element.Quadrilateral", kind : GrammarKind.Constant }),
+    new GrammarType({ dot : 3, key : "Fcs.Mesh.Element.TrianglePair", kind : GrammarKind.Constant }),
 
     new GrammarType({ dot : 1, key : "Fcs.Parameter", kind : GrammarKind.Module }),
     new GrammarType({ dot : 2, key : "Fcs.Parameter.ListType", kind : GrammarKind.Function }),
@@ -480,7 +502,6 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : 2, key : "Fcm.ResourceReader.ReadAsBase64", kind : GrammarKind.Function }),
     new GrammarType({ dot : 2, key : "Fcm.ResourceReader.ReadJsonAsDynamicObjectArray", kind : GrammarKind.Function }),
     new GrammarType({ dot : 2, key : "Fcm.ResourceReader.ReadGridValues", kind : GrammarKind.Function }),
-    new GrammarType({ dot : 2, key : "Fcm.BomItems", kind : GrammarKind.Constant }),
 
     new GrammarType({ dot : -1, key : "ToString", kind : GrammarKind.FunctionEmpty }),
 
