@@ -10,7 +10,7 @@ import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
 
 export function activate(context: vscode.ExtensionContext): void {
 
-    console.log("Activate Extension");
+    //console.log("Activate Extension");
 
     let extData: ExtensionData = new ExtensionData(context);
 
@@ -47,13 +47,9 @@ function registerCommand(extData: ExtensionData): void {
     extData.context.subscriptions.push(stop);
     extData.context.subscriptions.push(open);
 
-
-
-
     const completionItemProvider: vscode.Disposable =
-        vscode.languages.registerCompletionItemProvider("fcs", new FcsCompletionItemProvider(extData), "." );
+        vscode.languages.registerCompletionItemProvider({ language : "fcs", scheme: "" }, new FcsCompletionItemProvider(extData), "." );
     extData.context.subscriptions.push(completionItemProvider);
-
 
 }
 
@@ -62,6 +58,6 @@ function registerCommand(extData: ExtensionData): void {
 function registerSymbolManager(context: vscode.ExtensionContext): void {
 
     context.subscriptions.push(
-        vscode.languages.registerDocumentSymbolProvider("fcs", new FcsSymbolProvider())
+        vscode.languages.registerDocumentSymbolProvider({ language : "fcs", scheme: "" }, new FcsSymbolProvider())
     );
 }

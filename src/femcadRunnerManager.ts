@@ -1,7 +1,7 @@
 "use strict";
 
 import * as fs from "fs";
-import * as kill from "tree-kill";
+import kill = require("tree-kill");
 import * as vscode from "vscode";
 import { ChildProcess, spawn, exec, spawnSync } from "child_process";
 import { join } from "path";

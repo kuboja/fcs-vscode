@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as vscode from "vscode";
 import * as path from "path";
-import * as opn from "opn";
+import opn = require("opn");
 
 import { FileSystemManager } from "./fileSystemManager";
 import { FliCommand, IFliCommandMethods } from "./femcadRunnerManager";
@@ -173,7 +173,7 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
                 opn( this.tempFilePath );
                 break;
             case ExecutionMethodType.WithTempFile:
-                fs.unlink(this.tempFilePath);
+                fs.unlinkSync(this.tempFilePath);
                 break;
         }
     }

@@ -18,7 +18,8 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
     public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
         Thenable<vscode.CompletionItem[]> {
 
-        console.log("run FcsCompletionItemProvider");
+            
+        //console.log("run FcsCompletionItemProvider");
 
         return Promise.resolve(this.getSuggestions(document, position, token));
     }
@@ -51,7 +52,7 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
             filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith( startWith ));
         }
 
-        console.log(priorWord  + " | " + currentWord + " | " + numberOfDot + " | " + filteredObjects.map(v => v.name).join(", "));
+        //console.log(priorWord  + " | " + currentWord + " | " + numberOfDot + " | " + filteredObjects.map(v => v.name).join(", "));
 
         var CompletionItems: vscode.CompletionItem[] = filteredObjects.map(v => v.GetCompletionItem());
 

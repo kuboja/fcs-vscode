@@ -8,7 +8,7 @@
     "publisher": "kuboja",
     "qna": false,
     "categories": [
-        "Languages",
+        "Programming Languages",
         "Formatters"
     ],
     "keywords": [
@@ -25,7 +25,7 @@
         "email": "jan.kubosek@femcad.com"
     },
     "engines": {
-        "vscode": "^1.20.0"
+        "vscode": "^1.22.0"
     },
     "homepage": "https://github.com/kuboja/fcs-vscode",
     "main": "./out/src/extension",
@@ -252,19 +252,20 @@
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.48",
-        "@types/node": "^6.0.101",
-        "@types/shelljs": "^0.7.8",
-        "mocha": "^2.3.3",
-        "typescript": "^2.7.2",
-        "vscode": "^1.1.10"
+        "@types/mocha": "^5.2.5",
+        "@types/node": "^10.5.2",
+        "@types/shelljs": "^0.8.0",
+        "mocha": "^5.2.0",
+        "typescript": "^2.9.2",
+        "vscode": "^1.1.18"
     },
     "dependencies": {
-        "applicationinsights": "^1.0.0",
-        "opn": "^5.2.0",
+        "@types/opn": "^5.1.0",
+        "applicationinsights": "^1.0.3",
+        "opn": "^5.3.0",
         "ps-tree": "^1.1.0",
-        "shelljs": "^0.7.8",
+        "shelljs": "^0.8.2",
         "tree-kill": "^1.2.0",
-        "vscode-languageclient": "^3.5.0"
+        "vscode-languageclient": "^4.3.0"
     }
 }
