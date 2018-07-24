@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.3] - 2018-07-24
+
+### Change
+- Packages updated.
+
 ## [1.3.2] - 2018-03-11
 
 ### Change
