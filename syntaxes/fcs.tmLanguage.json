@@ -55,7 +55,7 @@
             "patterns": [
                 {
                     "name": "entity.name.function.fcs",
-                    "match": "(?i)^(?>\\w+)\\b(?=(?> *:?=)(?>[a-z0-9_ ,]*)=>)"
+                    "match": "(?i)^(?>\\w+)\\b(?=(?>\\s*:?=)(?>[a-z0-9_ ,]*)=>)"
                 }
             ]
         },
@@ -148,7 +148,7 @@
         "fcsObjectCreators": {
             "patterns": [
                 {
-                    "match": "^(gclass|vertex|gblock|layer|load|distribution|area|material|thickness|planestress|volume|support|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)[ |\t]*(\\{?([a-zA-Z_0-9]*)\\}?)",
+                    "match": "^(gclass|vertex|gblock|layer|load|distribution|area|material|thickness|planestress|volume|support|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\s*(\\{?([a-zA-Z_0-9]*)\\}?)",
                     "captures": {
                         "1": {
                             "name": "storage.type.class.fcs"
@@ -172,7 +172,7 @@
                             "name": "storage.type.class.fcs"
                         }
                     },
-                    "end": "(?<= |\\t)(?:(?:{)([a-zA-Z_][a-zA-Z_0-9]*)(?:\\})|([1-9][0-9]*))(?= |\\t)",
+                    "end": "(?<=\\s)(?:(?:{)([a-zA-Z_][a-zA-Z_0-9]*)(?:\\})|([1-9][0-9]*))(?=\\s)",
                     "endCaptures": {
                         "1": {
                             "name": "entity.name.class.fcs"
@@ -185,27 +185,27 @@
                 {
                     "comment": "modifikátory, které jsou odděleny pouze mezerou!!",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<= )(lcs|curvelcs|xyz|color|area|arc vertex|vertex|templates)(?= )"
+                    "match": "(?<=\\s)(lcs|curvelcs|xyz|color|area|arc vertex|vertex|templates)(?=\\s)"
                 },
                 {
                     "comment": "modifikátory za kterými musí být závorka nebo uvozovka (může být před nimi znaménko + nebo -)",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<= )(if|area|geometry|section|material|t|metadata|fixed|styles|case|fcsdrs|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions)(?= +[+-]?(?:\\(|\\[|\\{|\"))"
+                    "match": "(?<=\\s)(if|area|geometry|section|material|t|metadata|fixed|styles|case|fcsdrs|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions)(?=\\s+[+-]?(?:\\(|\\[|\\{|\"))"
                 },
                 {
                     "comment": "názvy modifikátorů, které mohou být následovány číslem nebo textem (které může znamenat referenci)",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<= )(rho|alpha|lambda|c|linear E|ni|radiusmultiplier|vertexes|fillets|eccentricity|xsection|gclass|geometry_class|vertexlcs|matrix|origin|layer|curve)(?= +(?:\\(|\\[|\\{|[0-9]|[A-Za-z]))"
+                    "match": "(?<=\\s)(rho|alpha|lambda|c|linear E|ni|radiusmultiplier|vertexes|fillets|eccentricity|xsection|gclass|geometry_class|vertexlcs|matrix|origin|layer|curve)(?=\\s+(?:\\(|\\[|\\{|[0-9]|[A-Za-z]))"
                 },
                 {
                     "comment": "první slovo víceslovných modifikátorů",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<= )(transformation|specialization|repetitions|mapping|boundary|filletedpoly|type)(?= +(?:\\(|\\[|\\{|[A-Za-z]))"
+                    "match": "(?<=\\s)(transformation|specialization|repetitions|mapping|boundary|filletedpoly|type)(?=\\s+(?:\\(|\\[|\\{|[A-Za-z]))"
                 },
                 {
                     "comment": "další slova víceslovných modifikátorů",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<=[A-Za-z]) +(translation|direction|step|ithparameters|Auto|count|distance|items|Frame)"
+                    "match": "(?<=[A-Za-z])\\s+(translation|direction|step|ithparameters|Auto|count|distance|items|Frame)"
                 }
             ]
         },
@@ -310,7 +310,7 @@
         "strings": {
             "patterns": [
                 {
-                    "match": "\\bSymbol *(:?=) *(\")([^\"]*)(\")",
+                    "match": "\\bSymbol\\s*(:?=)\\s*(\")([^\"]*)(\")",
                     "captures": {
                         "1": {
                             "name": "keyword.operator.assignment.fcs"
@@ -360,7 +360,7 @@
         "fcsVariable": {
             "patterns": [
                 {
-                    "match": "^(?>[a-zA-Z][a-zA-Z0-9_]*) *(?=:?=)",
+                    "match": "^(?>[a-zA-Z][a-zA-Z0-9_]*)\\s*(?=:?=)",
                     "name": "variable.name.fcs"
                 }
             ]
