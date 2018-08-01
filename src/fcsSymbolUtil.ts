@@ -30,36 +30,57 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         const result: vscode.SymbolInformation[] = [];
         const lineCount: number = Math.min(document.lineCount, 10000);
 
+        // console.log("Start");
+        // var time = Date.now();
+        // var couter = 0;
+
+        const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(=|:=)\s*(?:\(\s*)?([a-zA-Z][a-zA-Z0-9\s,]*)=>/;
+        const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(=|:=)/;
+
         for (let line: number = 0; line < lineCount; line++) {
+            if (token.isCancellationRequested) break;
+
             const { text } = document.lineAt(line);
 
-            const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)(?= *(?:=|:=) *\(? *(?:[a-zA-Z0-9]+ *,? *)+=>)/;
-            const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+) *(?= =| :=)/;
+            if (text.length == 0 ) continue;
 
-            let name: RegExpExecArray;
+            if (text[0] == " " || text[0] == "#" || text.startsWith("gblock")) continue;
+
+            let name: string;
             let kind: vscode.SymbolKind = vscode.SymbolKind.Variable;
 
-            let functionName: RegExpExecArray = regFunctionDefinition.exec(text);
-            if (functionName != null && functionName.length > 0) {
-                name = functionName;
-                kind = vscode.SymbolKind.Function;
-            } else {
-                let variableName: RegExpExecArray = regVariableDefinition.exec(text);
-                if (variableName != null && variableName.length > 0) {
-                    name = variableName;
+            if (text.includes(":=")) {
+                let functionName: RegExpMatchArray
+
+                if (text.includes("=>")) {
+                    functionName = text.match(regFunctionDefinition);
+                }
+
+                if (functionName != null && functionName.length > 0) {
+                    name = (functionName.length > 1) ? functionName[1] : functionName[0];
+                    kind = vscode.SymbolKind.Function;
+                } else {
+                    let variableName: RegExpMatchArray = text.match(regVariableDefinition);
+                    if (variableName != null && variableName.length > 0) {
+                        name = (variableName.length > 1) ? variableName[1] : variableName[0];
+                    }
                 }
             }
 
             if (name != null) {
                 if (name.length > 0) {
                     result.push(new vscode.SymbolInformation(
-                        name[0],
+                        name,
                         kind,
                         "",
                         new vscode.Location(document.uri, new vscode.Position(line, 0))));
                 }
             }
+            // couter++;
         }
+
+        // console.log("End - Count: " + couter + " - Time: " + ( Date.now() - time ));
+
 
         return result;
     }
