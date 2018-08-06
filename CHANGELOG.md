@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.4] - 2018-08-01
+
+### Change
+- Fixes. Speed improvement of symbols provider.
+
 ## [1.3.3] - 2018-07-24
 
 ### Change
