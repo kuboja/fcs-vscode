@@ -30,26 +30,26 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         const result: vscode.SymbolInformation[] = [];
         const lineCount: number = Math.min(document.lineCount, 10000);
 
-        // console.log("Start");
-        // var time = Date.now();
-        // var couter = 0;
+        //console.log("Start");
+        //let time = Date.now();
+        //let couter = 0;
 
-        const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(=|:=)\s*(?:\(\s*)?([a-zA-Z][a-zA-Z0-9\s,]*)=>/;
-        const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(=|:=)/;
+        const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)\s*(?:\(\s*)?([a-zA-Z][a-zA-Z0-9\s,]*)=>/;
+        const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)/;
 
         for (let line: number = 0; line < lineCount; line++) {
             if (token.isCancellationRequested) break;
 
             const { text } = document.lineAt(line);
 
-            if (text.length == 0 ) continue;
+            if (text.length == 0) continue;
 
             if (text[0] == " " || text[0] == "#" || text.startsWith("gblock")) continue;
 
             let name: string;
             let kind: vscode.SymbolKind = vscode.SymbolKind.Variable;
 
-            if (text.includes(":=")) {
+            if (text.includes(":=") || text.includes("=")) {
                 let functionName: RegExpMatchArray
 
                 if (text.includes("=>")) {
@@ -69,19 +69,141 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
             if (name != null) {
                 if (name.length > 0) {
+                    let posStart = new vscode.Position(line, 0);
+                    let posEnd = this.endOfDefinition(document, line);
+                    let range = new vscode.Range(posStart, posEnd);
+
+                    line = posEnd.line;
+
                     result.push(new vscode.SymbolInformation(
                         name,
                         kind,
                         "",
-                        new vscode.Location(document.uri, new vscode.Position(line, 0))));
+                        new vscode.Location(document.uri, range)
+                    ));
                 }
             }
-            // couter++;
+            //couter++;
         }
 
-        // console.log("End - Count: " + couter + " - Time: " + ( Date.now() - time ));
-
+        //console.log("End - Count: " + couter + " - Time: " + ( Date.now() - time ));
 
         return result;
+    }
+
+    private endOfDefinition(document, startLine: number) {
+        let text: string = document.lineAt(startLine).text;
+
+        let lengthOfLine = text.length;
+        let numberOfLine = 1;
+        let endPosition: { line: number; position: number };
+        let line = startLine;
+
+        let endOfLine = text;
+        let lastPosition = 0;
+
+        while (endOfLine.includes("(") || endOfLine.includes("{") || endOfLine.includes("[")) {
+
+            let firstBracket = this.findOpeningBracket(text, lastPosition);
+
+            if (firstBracket != null) {
+                endPosition = this.findClosingBracket(document, line, firstBracket.position, firstBracket.bracket);
+
+                if (endPosition != null) {
+                    let textLine: string = text;
+                    lastPosition = endPosition.position;
+                    if (endPosition.line != line) {
+                        textLine = document.lineAt(endPosition.line).text;
+                        lastPosition = 0;
+                        text = textLine;
+                        line = endPosition.line;
+                    }
+                    endOfLine = textLine.substr(endPosition.position);
+
+                    continue;
+                }
+            }
+
+            break;
+        }
+
+        if (endPosition != null) {
+            lengthOfLine = document.lineAt(endPosition.line).text.length;
+            numberOfLine = endPosition.line - line + 1;
+        }
+
+        return new vscode.Position(line + numberOfLine - 1, lengthOfLine);
+    }
+
+    private findOpeningBracket(text: string, startPos: number): { position: number; bracket: Brackets } {
+        let posPar = text.indexOf("(", startPos);
+        let posSqr = text.indexOf("[", startPos);
+        let posCur = text.indexOf("{", startPos);
+        let max = Math.max(posPar, posSqr, posCur)
+
+        if (max == -1) return null;
+
+        switch (max) {
+            case posPar: return { position: max, bracket: Brackets.Parenthesis };
+            case posSqr: return { position: max, bracket: Brackets.SquareBracket };
+            case posCur: return { position: max, bracket: Brackets.CurlyBracket };
+        }
+    }
+
+    private findClosingBracket(document: vscode.TextDocument, startLine: number, startPosition: number, bracketType: Brackets): { line: number; position: number } {
+        const rExp = Bracket.RegExForBoth(bracketType);
+        const leftBracket = Bracket.LeftBracket(bracketType);
+
+        const lineCount: number = Math.min(document.lineCount, 10000);
+
+        rExp.lastIndex = startPosition + 1;
+
+        let deep = 1;
+        let pos: RegExpExecArray;
+
+        for (let iLine: number = startLine; iLine < lineCount; iLine++) {
+
+            let str = document.lineAt(iLine).text;
+
+            while ((pos = rExp.exec(str))) {
+                if (!(deep += str[pos.index] === leftBracket ? 1 : -1)) {
+                    return { line: iLine, position: pos.index }
+                }
+            }
+        }
+    }
+}
+
+enum Brackets {
+
+    Parenthesis,
+    SquareBracket,
+    CurlyBracket,
+}
+
+class Bracket {
+
+    public static LeftBracket(bracketType: Brackets): string {
+        switch (bracketType) {
+            case Brackets.Parenthesis: return "(";
+            case Brackets.SquareBracket: return "[";
+            case Brackets.CurlyBracket: return "{";
+        }
+    }
+
+    public static RightBracket(bracketType: Brackets): string {
+        switch (bracketType) {
+            case Brackets.Parenthesis: return ")";
+            case Brackets.SquareBracket: return "]";
+            case Brackets.CurlyBracket: return "}";
+        }
+    }
+
+    public static RegExForBoth(bracketType: Brackets): RegExp {
+        switch (bracketType) {
+            case Brackets.Parenthesis: return /\(|\)/g;
+            case Brackets.SquareBracket: return /\[|\]/g;
+            case Brackets.CurlyBracket: return /\{|\}/g;
+        }
     }
 }
