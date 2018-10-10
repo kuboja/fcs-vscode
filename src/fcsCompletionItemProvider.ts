@@ -7,11 +7,11 @@ import { ExtensionData } from "./extensionData";
 
 export class FcsCompletionItemProvider implements vscode.CompletionItemProvider {
 
-    private extData: ExtensionData;
+    //private extData: ExtensionData;
     private grammar : FcsGrammar;
 
     constructor(extData: ExtensionData) {
-        this.extData = extData;
+        //this.extData = extData;
         this.grammar = extData.grammar;
     }
 
