@@ -17,17 +17,19 @@ export enum GrammarKind {
 export class GrammarType {
     public dot: number;
     public key: string;
-    public description: string;
+    public description: string | undefined;
     public kind: GrammarKind = GrammarKind.Constant;
 
     public constructor(init?: Partial<GrammarType>) {
+        this.dot = 0;
+        this.key = "";
         Object.assign(this, init);
     }
 
-    private _completionItem: vscode.CompletionItem;
+    private _completionItem: vscode.CompletionItem | undefined;
 
     public GetCompletionItem(): vscode.CompletionItem {
-        if (this._completionItem) {
+        if (this._completionItem !== undefined) {
             return this._completionItem;
         }
 
@@ -88,7 +90,7 @@ export class GrammarType {
 
 export class FcsGrammar {
 
-    private _grammarNodes : GrammarType[];
+    private _grammarNodes : GrammarType[] | undefined;
 
     get GrammarNodes(): GrammarType[] {
         if (this._grammarNodes) {
@@ -115,19 +117,19 @@ export class FcsGrammar {
      * substring of the current line up to the current position then use a compiled
      * regular expression to match the word nearest the end.
      */
-    public priorWord(doc: vscode.TextDocument, pos: vscode.Position): string {
+    public priorWord(doc: vscode.TextDocument, pos: vscode.Position): string | undefined {
         var line: vscode.TextLine = doc.lineAt(pos.line);
         var text: string = line.text;
-        const match: RegExpExecArray = this.priorWordPattern.exec(text.substring(0, pos.character));
-        return (match && match.length > 1) ? match[1] : null;
+        const match: RegExpExecArray | null = this.priorWordPattern.exec(text.substring(0, pos.character));
+        return (match !== null && match.length > 1) ? match[1] : undefined;
     }
 
     /**
      * Get the word at the current position.
      */
-    public currentWord(doc: vscode.TextDocument, pos: vscode.Position): string {
-        const range: vscode.Range = doc.getWordRangeAtPosition(pos);
-        return (range && !range.isEmpty) ? doc.getText(range) : null;
+    public currentWord(doc: vscode.TextDocument, pos: vscode.Position): string | undefined {
+        const range: vscode.Range | undefined = doc.getWordRangeAtPosition(pos);
+        return (range !== undefined && !range.isEmpty) ? doc.getText(range) : undefined;
     }
 
 }

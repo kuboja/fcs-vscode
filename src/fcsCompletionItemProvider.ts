@@ -29,22 +29,29 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
 
         var grammar : FcsGrammar = this.grammar;
 
-        var priorWord: string = grammar.priorWord(document, position);
-        var currentWord: string = grammar.currentWord(document, position);
-        var dotBefore: boolean = grammar.dotBefore(document, position, currentWord);
+        // text, který je před kurozorem: Fcs.Action.Cl| -> "Fcs.Action.Cl"
+        var priorWord: string | undefined = grammar.priorWord(document, position);
+
+        // slovo ve kterém je kurzor: 
+        var currentWord: string | undefined = grammar.currentWord(document, position);
+
+        // je tečka před kurzorem?
+        var dotBefore: boolean = grammar.dotBefore(document, position, currentWord ? currentWord : "");
 
         var numberOfDot: number = 0;
-        var filteredObjects: GrammarType[];
+        var filteredObjects: GrammarType[] = [];
 
         if (priorWord) {
             numberOfDot = (priorWord.match(/\./g) || []).length;
         }
 
+        // pokud je před kurzor na nějaká tečka, tak se vyfiltrují vhodné položky
         if (numberOfDot > 0) {
-            filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith(priorWord));
+            filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith(priorWord ? priorWord : ""));
         }
 
-        if (!filteredObjects || filteredObjects.length === 0 ) {
+        // pokud nebyla tečka v textu před kurzorem nebo nebyl nalezen žádný vhodný node
+        if (filteredObjects.length === 0 ) {
             if ( dotBefore ) {
                 numberOfDot = -1;
             }

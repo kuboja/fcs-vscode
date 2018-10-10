@@ -46,11 +46,11 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
             if (text[0] == " " || text[0] == "#" || text.startsWith("gblock")) continue;
 
-            let name: string;
+            let name: string | null = null;
             let kind: vscode.SymbolKind = vscode.SymbolKind.Variable;
 
             if (text.includes(":=") || text.includes("=")) {
-                let functionName: RegExpMatchArray
+                let functionName: RegExpMatchArray | null = null
 
                 if (text.includes("=>")) {
                     functionName = text.match(regFunctionDefinition);
@@ -60,7 +60,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
                     name = (functionName.length > 1) ? functionName[1] : functionName[0];
                     kind = vscode.SymbolKind.Function;
                 } else {
-                    let variableName: RegExpMatchArray = text.match(regVariableDefinition);
+                    let variableName: RegExpMatchArray | null = text.match(regVariableDefinition);
                     if (variableName != null && variableName.length > 0) {
                         name = (variableName.length > 1) ? variableName[1] : variableName[0];
                     }
@@ -91,12 +91,12 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         return result;
     }
 
-    private endOfDefinition(document, startLine: number) {
+    private endOfDefinition(document: vscode.TextDocument, startLine: number) {
         let text: string = document.lineAt(startLine).text;
 
         let lengthOfLine = text.length;
         let numberOfLine = 1;
-        let endPosition: { line: number; position: number };
+        let endPosition: { line: number; position: number } | undefined;
         let line = startLine;
 
         let endOfLine = text;
@@ -106,10 +106,10 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
             let firstBracket = this.findOpeningBracket(text, lastPosition);
 
-            if (firstBracket != null) {
+            if (firstBracket != undefined) {
                 endPosition = this.findClosingBracket(document, line, firstBracket.position, firstBracket.bracket);
 
-                if (endPosition != null) {
+                if (endPosition != undefined) {
                     let textLine: string = text;
                     lastPosition = endPosition.position;
                     if (endPosition.line != line) {
@@ -127,7 +127,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
             break;
         }
 
-        if (endPosition != null) {
+        if (endPosition != undefined) {
             lengthOfLine = document.lineAt(endPosition.line).text.length;
             numberOfLine = endPosition.line - line + 1;
         }
@@ -135,22 +135,23 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         return new vscode.Position(line + numberOfLine - 1, lengthOfLine);
     }
 
-    private findOpeningBracket(text: string, startPos: number): { position: number; bracket: Brackets } {
+    private findOpeningBracket(text: string, startPos: number): { position: number; bracket: Brackets } | undefined {
         let posPar = text.indexOf("(", startPos);
         let posSqr = text.indexOf("[", startPos);
         let posCur = text.indexOf("{", startPos);
         let max = Math.max(posPar, posSqr, posCur)
 
-        if (max == -1) return null;
+        if (max == -1) return undefined;
 
         switch (max) {
             case posPar: return { position: max, bracket: Brackets.Parenthesis };
             case posSqr: return { position: max, bracket: Brackets.SquareBracket };
             case posCur: return { position: max, bracket: Brackets.CurlyBracket };
+            default: return undefined;
         }
     }
 
-    private findClosingBracket(document: vscode.TextDocument, startLine: number, startPosition: number, bracketType: Brackets): { line: number; position: number } {
+    private findClosingBracket(document: vscode.TextDocument, startLine: number, startPosition: number, bracketType: Brackets): { line: number; position: number } | undefined {
         const rExp = Bracket.RegExForBoth(bracketType);
         const leftBracket = Bracket.LeftBracket(bracketType);
 
@@ -159,7 +160,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         rExp.lastIndex = startPosition + 1;
 
         let deep = 1;
-        let pos: RegExpExecArray;
+        let pos: RegExpExecArray | null;
 
         for (let iLine: number = startLine; iLine < lineCount; iLine++) {
 
@@ -171,6 +172,8 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
                 }
             }
         }
+
+        return undefined;
     }
 }
 
