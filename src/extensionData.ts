@@ -20,32 +20,52 @@ export class ExtensionData {
         return vscode.workspace.getConfiguration("fcs-vscode");
     }
 
+    private GetBooleanValue(name: string, defaultValue: boolean): boolean {
+        var settingsValue = this.config.get<boolean>(name);
+        if (settingsValue === undefined) {
+            return defaultValue;
+        }
+        else {
+            return settingsValue;
+        }
+    }
+
+    private GetStringValue(name: string, defaultValue: string): string {
+        var settingsValue = this.config.get<string>(name);
+        if (settingsValue === undefined) {
+            return defaultValue;
+        }
+        else {
+            return settingsValue;
+        }
+    }
+
     public get femcadFolderPath(): string {
-        return this.config.get<string>("femcadFolder");
+        return this.GetStringValue("femcadFolder", "C:\\FemCad\\Application");
     }
 
     public get showExecutionMessage(): boolean {
-        return this.config.get<boolean>("showExecutionMessage");
+        return this.GetBooleanValue("showExecutionMessage", true);
     }
 
     public get clearPreviousOutput(): boolean {
-        return this.config.get<boolean>("clearPreviousOutput");
+        return this.GetBooleanValue("clearPreviousOutput", true);
     }
 
     public get preserveFocusInOutput(): boolean {
-        return this.config.get<boolean>("preserveFocus");
+        return this.GetBooleanValue("preserveFocus", true);
     }
 
     public get removeTraceInfo(): boolean {
-        return this.config.get<boolean>("removeTraceInfo");
+        return this.GetBooleanValue("removeTraceInfo", true);
     }
 
     public get saveAllFilesBeforeRun(): boolean {
-        return this.config.get<boolean>("saveAllFilesBeforeRun");
+        return this.GetBooleanValue("saveAllFilesBeforeRun", true);
     }
 
     public get saveFileBeforeRun(): boolean {
-        return this.config.get<boolean>("saveFileBeforeRun");
+        return this.GetBooleanValue("saveFileBeforeRun", true);
     }
 
     constructor(context: vscode.ExtensionContext) {
