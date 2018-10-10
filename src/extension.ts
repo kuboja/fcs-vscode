@@ -46,6 +46,7 @@ function registerCommand(extData: ExtensionData): void {
     extData.context.subscriptions.push(run);
     extData.context.subscriptions.push(stop);
     extData.context.subscriptions.push(open);
+    extData.context.subscriptions.push(openFcsTerminal);
 
     const completionItemProvider: vscode.Disposable =
         vscode.languages.registerCompletionItemProvider({ language : "fcs", scheme: "" }, new FcsCompletionItemProvider(extData), "." );
