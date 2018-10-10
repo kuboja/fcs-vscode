@@ -52,20 +52,23 @@ export class FcsFileData {
         this.clearlineCode = clearlineCode;
         this.commandType = FcsFileData.getCommandType(clearlineCode);
         this.clearCode = FcsFileData.clearRawCommand(clearlineCode, this.commandType);
-        
     }
 
     private static getRawCommandFromLine(lineText: string): string {
         let rawCommand: string = "";
 
         let symbolReg: RegExp = /^([#a-zA-Z][\w\.\(\)\[\] ]*)/;
-        let matches: RegExpMatchArray = lineText.match(symbolReg);
+        let matches: RegExpMatchArray | null = lineText.match(symbolReg);
+
+        if (matches === null) { 
+            return "";
+        }
+
         if (matches.length >= 1) {
             rawCommand = matches[0];
         }
 
         // remove comment
-        let prvniZnak: string = rawCommand.charAt(0);
         if (rawCommand.startsWith("#")) {
             rawCommand = rawCommand.replace("#", "");
         }
@@ -115,36 +118,50 @@ export class FcsFileData {
 export class LineRunnerCommandCreator implements IFliCommandMethods {
 
     private static stopText = "--FcsScriptEnD--";
-    private static commandName = "output";
     private static gclassName = "cls";
 
-    readonly executionMethod: ExecutionMethodType;
-    readonly fliCommand: FliCommand;
-
     private tempFilePath: string;
+    private fcsFile: FcsFileData;
+
+    private executionMethod: ExecutionMethodType | undefined;
+    private fliCommand: FliCommand | undefined;
 
     constructor(fcsFile: FcsFileData) {
-        this.executionMethod = LineRunnerCommandCreator.getExecutionMethod(fcsFile);
-        let fliCommand : FliCommand;
+        this.fcsFile = fcsFile;
+        
+        let tempDirPath: string = FileSystemManager.getTempFolderPath();
+        this.tempFilePath = FileSystemManager.getRandomTempName(tempDirPath, ".fcs")
+    }
 
+    public getFliCommand(): FliCommand {
+        if (this.fliCommand){
+            return this.fliCommand
+        }
+
+        this.executionMethod = LineRunnerCommandCreator.getExecutionMethod(this.fcsFile);
+
+        let fliCommand : FliCommand;
         switch (this.executionMethod) {
             case ExecutionMethodType.Straight:
-                fliCommand = this.ExecuteStraight(fcsFile);
+                fliCommand = this.ExecuteStraight(this.fcsFile);
                 break;
             case ExecutionMethodType.WithTempFile:
-                fliCommand = this.ExecuteWithTempFile(fcsFile);
+                fliCommand = this.ExecuteWithTempFile(this.fcsFile);
+                break;
+            default:
+                fliCommand = this.ExecuteWithTempFile(this.fcsFile);
                 break;
         }
 
         this.fliCommand = fliCommand;
+        return fliCommand;
     }
 
     private ExecuteWithTempFile(fcsFile: FcsFileData): FliCommand {
         let scriptFileName: string = fcsFile.filePath;
 
-        let tempDirPath: string = FileSystemManager.getTempFolderPath();
         let tempFileContent: string = LineRunnerCommandCreator.getTempFileContent(fcsFile, scriptFileName);
-        this.tempFilePath = FileSystemManager.createRandomNameTextFile(tempFileContent, tempDirPath, ".fcs");
+        FileSystemManager.createAndSaveTextFile(tempFileContent, this.tempFilePath);
 
         let command: string = FileSystemManager.quoteFileName(this.tempFilePath);
 
@@ -152,8 +169,6 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
     }
 
     private ExecuteStraight(fcsFile: FcsFileData): FliCommand {
-        let scriptFilePath: string = fcsFile.filePath;
-
         this.tempFilePath  = LineRunnerCommandCreator.getOutputFilePath(fcsFile.commandType, fcsFile.fileName);
 
         let command: string = LineRunnerCommandCreator.getCommandForStraightExecution(

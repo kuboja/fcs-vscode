@@ -20,15 +20,15 @@ export class FliCommand {
 
     readonly command: string;
     readonly autoStop: boolean;
-    readonly stopText: string;
+    readonly stopText: string | undefined;
 
-    public commandClass: IFliCommandMethods;
+    public commandClass: IFliCommandMethods | undefined;
 
-    constructor(fliCommand: string, autostop: boolean = false, stopText: string = null) {
+    constructor(fliCommand: string, autostop: boolean = false, stopText: string = "") {
         this.command = fliCommand;
-        if (stopText == null || stopText === "") {
+        if (stopText === "") {
             this.autoStop = false;
-            this.stopText = null;
+            this.stopText = undefined;
         } else {
             this.autoStop = autostop;
             this.stopText = stopText;
@@ -36,7 +36,7 @@ export class FliCommand {
     }
 
     public afterStopExecution(): void {
-        if (this.commandClass != null) {
+        if (this.commandClass != undefined) {
             this.commandClass.afterExit();
         }
     }
@@ -50,17 +50,20 @@ export class FemcadRunner {
 
     readonly IsInitialized: boolean;
 
-    private femCadFolder: string;
-    private femcadPath: string;
-    private fliPath: string;
+    private femcadPath: string | undefined;
+    private fliPath: string | undefined;
 
     constructor(extData: ExtensionData) {
+        this.IsInitialized = false;
         this.extData = extData;
         this.appInsightsClient = extData.appInsightsClient;
 
         let femcadFolder: string = extData.femcadFolderPath;
         let fliPath: string = join(femcadFolder, "fli.exe");
         let femcadPath: string = join(femcadFolder, "femcad.exe");
+
+        this.outputLineCount = 0;
+        this.startTime = new Date();
 
         // kontrola jetli je v nastavení zadán adresář femcadu
         if (!(femcadFolder)) {
@@ -101,19 +104,16 @@ export class FemcadRunner {
 
         vscode.window.onDidCloseTerminal(term => {
             if ( term.name === "FemCAD" ) {
-                this._terminal.dispose();
-                this._terminal = undefined;
+                this.disposeTerminal();
             }
         });
 
-        this.femCadFolder = femcadFolder;
         this.fliPath = fliPath;
         this.femcadPath = femcadPath;
         this.IsInitialized = true;
     }
 
-
-    private _terminal : vscode.Terminal;
+    private _terminal : vscode.Terminal | undefined;
     private get terminal(): vscode.Terminal {
         if (this._terminal === undefined) {
             this._terminal = vscode.window.createTerminal("FemCAD");
@@ -121,7 +121,14 @@ export class FemcadRunner {
         return this._terminal;
     }
 
-    private _outputChannel : vscode.OutputChannel;
+    private disposeTerminal() {
+        if (this._terminal) {
+            this._terminal.dispose();
+            this._terminal = undefined;
+        }
+    }
+
+    private _outputChannel : vscode.OutputChannel | undefined;
     private get outputChannel(): vscode.OutputChannel {
         if (this._outputChannel === undefined) {
             this._outputChannel = vscode.window.createOutputChannel("FemCAD");
@@ -129,28 +136,26 @@ export class FemcadRunner {
         return this._outputChannel;
     }
 
-    private isRunning: boolean;
-    private lineBuffer: string;
+    private isRunning?: boolean;
+    private lineBuffer?: string;
     private outputLineCount: number;
     private startTime: Date;
-    private process: ChildProcess;
-    private commandData: FliCommand;
+    private process?: ChildProcess;
+    private commandData?: FliCommand;
 
     public executeFliCommand(commandData: FliCommand): void {
         this.commandData = commandData;
         let command: string = commandData.command;
 
         if (this.isRunning) {
-            vscode.window.showInformationMessage("Code is already running!");
+            vscode.window.showInformationMessage("Fli is already running!");
             return;
         }
 
-        fs.access(this.fliPath, (err) => {
-            if (err) {
-                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-                return;
-            }
-        });
+        if (!this.fliPath || ( this.fliPath && fs.accessSync(this.fliPath))) {
+            vscode.window.showErrorMessage("Fli (fli.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
+            return;
+        }
 
         this.isRunning = true;
         this.outputLineCount = 0;
@@ -158,14 +163,17 @@ export class FemcadRunner {
 
         let progressOptions : vscode.ProgressOptions = {
             title : "Fli runner",
-            location: vscode.ProgressLocation.Window,
+            location: vscode.ProgressLocation.Notification,
+            cancellable: true,
         };
 
-        vscode.window.withProgress( progressOptions, p => {
-            return new Promise((resolve, reject) => {
+        vscode.window.withProgress( progressOptions, async (p, calcelationToken) => {
+            return new Promise((resolve, _) => {
 
                 p.report({ message: "Fli running..." });
 
+                calcelationToken.onCancellationRequested(() => this.killProcess());
+  
                 const handle: NodeJS.Timer = setInterval(() => {
 
                     if( !this.isRunning ) {
@@ -173,7 +181,6 @@ export class FemcadRunner {
                         clearInterval(handle);
                         resolve();
                     }
-
                 }, 1000);
 
             });
@@ -209,8 +216,6 @@ export class FemcadRunner {
         this.killProcess();
     }
 
-    private printOut: boolean = false;
-
     private onGetOutputData(data: string): void {
         if (!this.isRunning) {return;}
 
@@ -237,7 +242,7 @@ export class FemcadRunner {
 
             if ( line === "" ) { continue; }
 
-            if (line.includes(this.commandData.stopText)) {
+            if (this.commandData && this.commandData.stopText && line.includes(this.commandData.stopText)) {
                 this.killProcess();
                 return;
             }
@@ -245,7 +250,7 @@ export class FemcadRunner {
             if (this.extData.removeTraceInfo) {
                 this.outputLineCount++;
 
-                if (this.outputLineCount <= 4) { continue; }
+                if (this.outputLineCount <= 2) { continue; }
 
                 let printLine: boolean = true;
 
@@ -280,33 +285,39 @@ export class FemcadRunner {
         const endTime: Date = new Date();
         const elapsedTime: number = (endTime.getTime() - this.startTime.getTime()) / 1000;
         this.outputChannel.appendLine("");
+
         if (this.extData.showExecutionMessage) {
             this.outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
             this.outputChannel.appendLine("");
         }
-        if (code === 0) {
+        if (code === 0 && this.commandData) {
             this.commandData.afterStopExecution();
         }
     }
 
     private killProcess(): void {
-        if (this.isRunning) {
+        if (this.process && this.isRunning) {
             this.isRunning = false;
             kill(this.process.pid);
         }
     }
 
     public openInFemcad(fcsFilePath: string): void {
-    //    this.appInsightsClient.sendEvent("Open in FemCAD");
+        this.appInsightsClient.sendEvent("Open in FemCAD");
 
         if (!this.IsInitialized) {
             return;
         }
 
+        if (!this.femcadPath) {
+            vscode.window.showErrorMessage("FemCAD (femcad.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
+            return;
+        }
+
         fs.access(this.femcadPath, (err) => {
             if (err) {
-                vscode.window.showErrorMessage("Nenalezen femcad.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-            } else {
+                vscode.window.showErrorMessage("FemCAD (femcad.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
+            } else if (this.femcadPath) {
                 let femcadPath: string = FileSystemManager.quoteFileName(this.femcadPath);
                 let filePath: string = FileSystemManager.quoteFileName(fcsFilePath);
                 let cmdToExec: string = femcadPath + " " + filePath;
@@ -327,12 +338,10 @@ export class FemcadRunner {
         var term: vscode.Terminal = this.terminal;
 
         try {
-            fs.access(this.fliPath, (err) => {
-                if (err) {
-                    vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-                    return;
-                }
-            });
+            if (!this.fliPath || ( this.fliPath && fs.accessSync(this.fliPath))) {
+                vscode.window.showErrorMessage("Fli (fli.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
+                return;
+            }
 
             var terminalCommand: string = this.fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
 
@@ -342,7 +351,8 @@ export class FemcadRunner {
                 psTree(processId, (err, children) => {
                     if (children.length > 0) {
                         for (const child of children) {
-                            this.killProcessId(child.PID);
+                            if (child)
+                                this.killProcessId(parseInt(child.PID));
                         }
                     }
 

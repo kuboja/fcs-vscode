@@ -1,6 +1,5 @@
 "use strict";
 
-import * as fs from "fs";
 import * as vscode from "vscode";
 import { AppInsightsClient } from "./appInsightsClient";
 
@@ -23,7 +22,12 @@ export class OpenFileInFemCAD {
     }
 
     public openInFemcad(): void {
-        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+        if (vscode.window.activeTextEditor === undefined) {
+            return;
+        }
+
+        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
+     
         if (!this.extData.saveDocument(editor)) { return; }
 
         let fcsFile: string = editor.document.fileName;
@@ -50,17 +54,18 @@ export class FliCommandRunner {
     public runLineCommand(): void {
         this.appInsightsClient.sendEvent("Command: Run line");
 
-        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
-        if (!editor) {
+        if (vscode.window.activeTextEditor === undefined) {
             vscode.window.showInformationMessage("No code found or selected.");
             return;
         }
 
+        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
+
         if (!this.extData.saveDocument(editor)) { return; }
 
-        let fcsFile: FcsFileData = this.getFcsFileData();
+        let fcsFile: FcsFileData = this.getFcsFileData(editor);
         let commandFile: LineRunnerCommandCreator = new LineRunnerCommandCreator(fcsFile);
-        let fliCommand: FliCommand = commandFile.fliCommand;
+        let fliCommand: FliCommand = commandFile.getFliCommand();
 
         console.log("Line from source code: " + fcsFile.rawLineCode);
         console.log("Source file path: " + fcsFile.filePath);
@@ -76,19 +81,19 @@ export class FliCommandRunner {
     public openInTerminal(): void {
         this.appInsightsClient.sendEvent("Command: Open in terminal");
 
-        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
-        if (!editor) {
+        if (vscode.window.activeTextEditor === undefined) {
             vscode.window.showInformationMessage("No code found or selected.");
             return;
         }
 
+        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
+        
         if (!this.extData.saveDocument(editor)) { return; }
 
         this.femcadRunner.openFcsFile( editor.document.fileName );
     }
 
-    private getFcsFileData(): FcsFileData {
-        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+    private getFcsFileData(editor: vscode.TextEditor): FcsFileData {
         let lineNumber: number = editor.selection.active.line;
 
         return new FcsFileData(editor.document, lineNumber);

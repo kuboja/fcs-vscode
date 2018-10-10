@@ -2,13 +2,12 @@
 
 import * as appInsights from "applicationinsights";
 import * as os from "os";
-import * as vscode from "vscode";
 
 
 export class AppInsightsClient {
 
     private client : appInsights.TelemetryClient;
-    private enableAppInsights;
+    private enableAppInsights: boolean;
 
     constructor() {
         this.enableAppInsights = true;

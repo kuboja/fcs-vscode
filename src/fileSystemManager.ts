@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as os from "os";
 import * as shelljs from "shelljs";
-import { dirname, join } from "path";
+import { join } from "path";
 
 
 export class FileSystemManager {
@@ -14,12 +14,12 @@ export class FileSystemManager {
         }
     }
 
-    public static createRandomNameTextFile(content: string, folder: string, fileExtension: string): string {
-        const tmpFileName: string = "temp_" + this.rndName() + fileExtension;
-        let fullPath: string = join(folder, tmpFileName);
-        fs.writeFileSync(fullPath, content);
+    public static getRandomTempName(folder: string, fileExtension: string): string {
+        return join(folder, "temp_" + this.rndName() + fileExtension );
+    }
 
-        return fullPath;
+    public static createAndSaveTextFile(content: string, fullPath: string) {
+        fs.writeFileSync(fullPath, content);
     }
 
     public static getTempFolderPath(): string {
