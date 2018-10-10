@@ -80,8 +80,11 @@ export class GrammarType {
 
     public get name(): string {
         var nodes: string[] = this.key.split(".");
-        if (nodes && nodes.length > 0) {
-            return nodes[nodes.length - 1];
+        if (this.dot > 0 && nodes && nodes.length > 0) {
+            let name: string = "";
+            for ( var i = this.dot; i < nodes.length; i++ )
+                name += ( i > this.dot ? "." : "" ) + nodes[i];
+            return name;
         } else {
             return this.key;
         }
@@ -655,5 +658,43 @@ const grammarNodes : GrammarType[] = [
     new GrammarType({ dot : -1, key : "PadLeft", kind : GrammarKind.Function, description : "String function" }),
     new GrammarType({ dot : -1, key : "PadRight", kind : GrammarKind.Function, description : "String function" }),
     new GrammarType({ dot : -1, key : "Length", kind : GrammarKind.Constant, description : "String function" }),
+
+
+    new GrammarType({ dot : 1, key : "Fcs.SteelLib", kind : GrammarKind.Module }),
+
+    new GrammarType({ dot : 2, key : "Fcs.SteelLib.Design", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Tension.RunTensionCheck", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Compression.RunCompressionCheck", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Moment.RunMomentAxisCheck", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Moment.RunMomentCheck", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Shear.RunShearCheckY", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Shear.RunShearCheckZ", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.BendingAxial.RunBendingAxialCheck", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Buckling.RunBucklingCheckY", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Design.Buckling.RunBucklingCheckZ", kind : GrammarKind.Function }),
+
+    new GrammarType({ dot : 2, key : "Fcs.SteelLib.Sections", kind : GrammarKind.Module }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Materials.CreateNormalMaterialProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Properties.ByName", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.CircleSection.GetProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.CircleSection.GetPropertiesTube", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Csection.GetProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.IpeSection.GetProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.RectangleSection.GetProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.RibSection.GetProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.RibSection.GetPropertiesWithZet", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Shape.GetZet", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Usection.GetProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Zsection.GetProperties", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Zsection.GetPropertiesLaminate", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.Zsection.GetSection", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetPropertiesLee", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetPropertiesRhs", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetPropertiesRhsCustomMaterial", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetSectionStiffener", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetPropertiesStiffener", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetPropertiesStiffenerLam", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetPropertiesCC12", kind : GrammarKind.Function }),
+    new GrammarType({ dot : 3, key : "Fcs.SteelLib.Sections.UniversalThinSection.GetPropertiesCC30", kind : GrammarKind.Constant }),
 
 ];
