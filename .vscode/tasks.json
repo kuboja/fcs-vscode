@@ -17,14 +17,17 @@
             }
         },
         {
-            "label": "Package",
+            "label": "Package current version",
             "type": "shell",
             "command": "vsce package",
-            "isBackground": false,
+            "isBackground": true,
             "presentation": {
                 "reveal": "never"
             },
-            "group": "build"
-        }
+            "group": "build",
+            "problemMatcher": [
+                "$tsc-watch"
+            ]
+        },
     ]
 }
