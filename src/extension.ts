@@ -6,6 +6,7 @@ import { ExtensionData } from "./extensionData";
 import { FliCommandRunner, OpenFileInFemCAD } from "./commandManager";
 import { FcsSymbolProvider } from "./fcsSymbolUtil";
 import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
+import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
 
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -14,51 +15,40 @@ export function activate(context: vscode.ExtensionContext): void {
 
     let extData: ExtensionData = new ExtensionData(context);
 
-    registerSymbolManager(extData.context);
-    registerCommand(extData);
+    registerSymbolManager(extData.context, extData);
+    registerCommands(extData.context, extData);
 }
 
 
-
-function registerCommand(extData: ExtensionData): void {
+function registerCommands(context: vscode.ExtensionContext, extData: ExtensionData): void {
 
     const codeManager: FliCommandRunner = new FliCommandRunner(extData);
-
-
-    const run: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.runLine", () => {
-        codeManager.runLineCommand();
-    });
-
-    const stop: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.stop", () => {
-        codeManager.stopCommand();
-    });
-
-    const openFcsTerminal: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", () => {
-        codeManager.openInTerminal();
-    });
-
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
 
-    const open: vscode.Disposable = vscode.commands.registerCommand("fcs-vscode.openInFemcad", () => {
-        openFcs.openInFemcad();
-    });
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.runLine", codeManager.runLineCommand));
 
-    extData.context.subscriptions.push(run);
-    extData.context.subscriptions.push(stop);
-    extData.context.subscriptions.push(open);
-    extData.context.subscriptions.push(openFcsTerminal);
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.stop", codeManager.stopCommand));
 
-    const completionItemProvider: vscode.Disposable =
-        vscode.languages.registerCompletionItemProvider({ language : "fcs", scheme: "" }, new FcsCompletionItemProvider(extData), "." );
-    extData.context.subscriptions.push(completionItemProvider);
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", codeManager.openInTerminal));
 
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.openInFemcad", openFcs.openInFemcad));
 }
 
 
+function registerSymbolManager(context: vscode.ExtensionContext, extData: ExtensionData): void {
 
-function registerSymbolManager(context: vscode.ExtensionContext): void {
+    let fcsLang = { language: "fcs", scheme: "" };
 
     context.subscriptions.push(
-        vscode.languages.registerDocumentSymbolProvider({ language : "fcs", scheme: "" }, new FcsSymbolProvider())
+        vscode.languages.registerCompletionItemProvider(fcsLang, new FcsCompletionItemProvider(extData), ".")
     );
+
+    context.subscriptions.push(
+        vscode.languages.registerDocumentSymbolProvider(fcsLang, new FcsSymbolProvider())
+    );
+
 }
