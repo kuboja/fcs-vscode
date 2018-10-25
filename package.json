@@ -152,11 +152,6 @@
                     "when": "!inOutput && editorLangId==fcs",
                     "command": "fcs-vscode.runFcsTerminal",
                     "group": "navigation"
-                },
-                {
-                    "when": "inOutput",
-                    "command": "fcs-vscode.stop",
-                    "group": "navigation"
                 }
             ],
             "editor/title": [
@@ -174,9 +169,6 @@
                 "when": "editorTextFocus && editorLangId==fcs"
             }
         ],
-        "capabilities": {
-            "documentSymbolProvider": "true"
-        },
         "configuration": {
             "type": "object",
             "title": "Femcad Script Configurations",
