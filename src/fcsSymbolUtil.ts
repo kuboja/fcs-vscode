@@ -27,6 +27,10 @@ export class FcsSymbolInformation extends vscode.SymbolInformation {
 export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
     public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
+        return FcsSymbolProvider.getSymbolsInDocumet(document, token);
+    }
+
+    public static getSymbolsInDocumet(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
         const result: vscode.SymbolInformation[] = [];
         const lineCount: number = Math.min(document.lineCount, 10000);
 
@@ -36,18 +40,28 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
         const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)\s*(?:\(\s*)?([a-zA-Z][a-zA-Z0-9\s,]*)=>/;
         const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)/;
+        const regGnameDefinition: RegExp = / *{([a-zA-Z][a-zA-Z0-9_]+)} *filename/;
 
         for (let line: number = 0; line < lineCount; line++) {
             if (token.isCancellationRequested) break;
 
             const { text } = document.lineAt(line);
 
-            if (text.length == 0) continue;
-
-            if (text[0] == " " || text[0] == "#" || text.startsWith("gblock")) continue;
+            if (text.length == 0 || text[0] == " " || text[0] == "#") continue;
 
             let name: string | null = null;
             let kind: vscode.SymbolKind = vscode.SymbolKind.Variable;
+
+            if (text.startsWith("gblock ") || text.startsWith("gclass ")) {
+                let gname: RegExpMatchArray | null = text.match(regGnameDefinition);
+                if (gname != null && gname.length > 0) {
+                    name = (gname.length > 1) ? gname[1] : gname[0];
+                    if (text.startsWith("gblock "))
+                        kind = vscode.SymbolKind.Object;
+                    else
+                        kind = vscode.SymbolKind.Class;
+                }
+            }
 
             if (text.includes(":=") || text.includes("=")) {
                 let functionName: RegExpMatchArray | null = null
@@ -87,11 +101,25 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         }
 
         //console.log("End - Count: " + couter + " - Time: " + ( Date.now() - time ));
-
+        //let sorted= result.sort(((s1, s2) => FcsSymbolProvider.copmareStrings(s1.name, s2.name)));
         return result;
     }
 
-    private endOfDefinition(document: vscode.TextDocument, startLine: number) {
+    public static copmareStrings(a: string, b: string): number {
+        let nameA = a.toUpperCase(); // ignore upper and lowercase
+        let nameB = b.toUpperCase(); // ignore upper and lowercase
+        if (nameA < nameB) {
+            return -1;
+        }
+        if (nameA > nameB) {
+            return 1;
+        }
+
+        // names must be equal
+        return 0;
+    }
+
+    private static endOfDefinition(document: vscode.TextDocument, startLine: number) {
         let text: string = document.lineAt(startLine).text;
 
         let lengthOfLine = text.length;
@@ -135,7 +163,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         return new vscode.Position(line + numberOfLine - 1, lengthOfLine);
     }
 
-    private findOpeningBracket(text: string, startPos: number): { position: number; bracket: Brackets } | undefined {
+    private static findOpeningBracket(text: string, startPos: number): { position: number; bracket: Brackets } | undefined {
         let posPar = text.indexOf("(", startPos);
         let posSqr = text.indexOf("[", startPos);
         let posCur = text.indexOf("{", startPos);
@@ -151,7 +179,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         }
     }
 
-    private findClosingBracket(document: vscode.TextDocument, startLine: number, startPosition: number, bracketType: Brackets): { line: number; position: number } | undefined {
+    private static findClosingBracket(document: vscode.TextDocument, startLine: number, startPosition: number, bracketType: Brackets): { line: number; position: number } | undefined {
         const rExp = Bracket.RegExForBoth(bracketType);
         const leftBracket = Bracket.LeftBracket(bracketType);
 
