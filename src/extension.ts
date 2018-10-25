@@ -26,16 +26,16 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.runLine", codeManager.runLineCommand));
+        vscode.commands.registerCommand("fcs-vscode.runLine", () => { codeManager.runLineCommand(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.stop", codeManager.stopCommand));
+        vscode.commands.registerCommand("fcs-vscode.stop", () => { codeManager.stopCommand(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", codeManager.openInTerminal));
+        vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", () => { codeManager.openInTerminal(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.openInFemcad", openFcs.openInFemcad));
+        vscode.commands.registerCommand("fcs-vscode.openInFemcad", () => { openFcs.openInFemcad(); }));
 }
 
 
