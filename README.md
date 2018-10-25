@@ -25,6 +25,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 1.4.x
+New feature is goto symbol definition.
+
 ### 1.3.x
 New feature is show code completion proposals for builtin FemCAD functions, properties and other objects.
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0] - 2018-10-25
+
+### Added
+- Add firts version of definition provider - only for navigation in document.
+
+### Change
+- Add gclass and gblock to symbol provider.
+- Add new steelib grammar.
+
 ## [1.3.4] - 2018-08-01
 
 ### Change
