@@ -205,14 +205,35 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
     }
 }
 
-enum Brackets {
+export enum Brackets {
 
     Parenthesis,
     SquareBracket,
     CurlyBracket,
 }
 
-class Bracket {
+export class Bracket {
+
+    public static isAnyLeftBracket(char: string): boolean {
+        if (char == undefined || char.length == 0) return false;
+        return char[0] == "(" || char[0] == "[" || char[0] == "{";
+    }
+
+    public static isAnyRightBracket(char: string): boolean {
+        if (char == undefined || char.length == 0) return false;
+        return char[0] == ")" || char[0] == "]" || char[0] == "}";
+    }
+
+    public static charToBracket(char: string): Brackets | undefined {
+        if(char.length <= 0) return;
+        
+        switch (char[0]) {
+            case "(": case ")": return Brackets.Parenthesis;
+            case "[": case "]": return Brackets.SquareBracket;
+            case "{": case "}": return Brackets.CurlyBracket;
+            default: return;
+        }
+    }
 
     public static LeftBracket(bracketType: Brackets): string {
         switch (bracketType) {
