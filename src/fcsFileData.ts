@@ -95,7 +95,7 @@ export class FcsFileData {
         return OutputFunctionType.Print;
     }
 
-    private static clearRawCommand(rawCommand: string, commandType: OutputFunctionType): string {
+    private static clearRawCommand(rawCommand: string, _commandType: OutputFunctionType): string {
         let textLine: string = rawCommand.replace(/^#/, "");
         textLine = textLine.trim();
 

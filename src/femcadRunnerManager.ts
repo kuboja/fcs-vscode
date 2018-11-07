@@ -348,7 +348,7 @@ export class FemcadRunner {
             term.processId.then(pid => {
                 var processId: number = pid;
 
-                psTree(processId, (err, children) => {
+                psTree(processId, (_err, children) => {
                     if (children.length > 0) {
                         for (const child of children) {
                             if (child)
