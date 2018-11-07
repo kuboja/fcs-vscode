@@ -15,17 +15,17 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
         this.grammar = extData.grammar;
     }
 
-    public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
-        Thenable<vscode.CompletionItem[]> {
+    public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
+        Promise<vscode.CompletionItem[] | undefined> {
 
             
         //console.log("run FcsCompletionItemProvider");
 
-        return Promise.resolve(this.getSuggestions(document, position, token));
+        return this.getSuggestions(document, position, token);
     }
 
-    private getSuggestions(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
-    Promise<vscode.CompletionItem[]> {
+    private async getSuggestions(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
+    Promise<vscode.CompletionItem[] | undefined> {
 
         var grammar : FcsGrammar = this.grammar;
 
@@ -45,10 +45,14 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
             numberOfDot = (priorWord.match(/\./g) || []).length;
         }
 
+        if (token.isCancellationRequested) return;
+
         // pokud je před kurzor na nějaká tečka, tak se vyfiltrují vhodné položky
         if (numberOfDot > 0) {
             filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith(priorWord ? priorWord : ""));
         }
+
+        if (token.isCancellationRequested) return;
 
         // pokud nebyla tečka v textu před kurzorem nebo nebyl nalezen žádný vhodný node
         if (filteredObjects.length === 0 ) {
@@ -59,10 +63,12 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
             filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith( startWith ));
         }
 
+        if (token.isCancellationRequested) return;
+
         //console.log(priorWord  + " | " + currentWord + " | " + numberOfDot + " | " + filteredObjects.map(v => v.name).join(", "));
 
         var CompletionItems: vscode.CompletionItem[] = filteredObjects.map(v => v.GetCompletionItem());
 
-        return Promise.resolve(CompletionItems);
+        return CompletionItems;
     }
 }
