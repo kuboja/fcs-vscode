@@ -97,7 +97,20 @@ suite("Extension Tests", () => {
         assert.equal(position ? position.character : undefined, 113, "3rd: end line");
     })
 
+    test("Caller tags under position", async () => {
+        let doc = await vscode.workspace.openTextDocument({content: "asd asd{saa\nsd{asd\nasd}dasd}.sddfas"});
+        let position = WordTools.getParts(doc, 0, 4);
+        assert.equal(position ? position.length : undefined, 2, "1st: count");
+      //  assert.equal(position ? position.character : undefined, 14, "1st: end character");
 
+        doc = await vscode.workspace.openTextDocument({content: "GetNmax   := selector, loadCase => Analysis.GetExtremes( loadCase, Fcs.Analysis.Result.Beam.N,      selector ).Max"});
+        position = WordTools.getParts(doc, 0, 35);
+        assert.equal(position ? position.length : undefined, 3, "2st: count");
+
+        doc = await vscode.workspace.openTextDocument({content: "GetNmax   := selector, loadCase => Analysis.GetExtremes( loadCase, Fcs.Analysis.Result.Beam.N,      selector )"});
+        position = WordTools.getParts(doc, 0, 35);
+        assert.equal(position ? position.length : undefined, 2, "3rd: count");
+    })
 
 
     test("Word under cursor", async () => {

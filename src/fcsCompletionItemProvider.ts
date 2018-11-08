@@ -27,8 +27,141 @@ import { Bracket, Brackets } from "./fcsSymbolUtil";
 
 // }
 
+export enum FcsCallerType {
+
+    Class = 1,
+    Function,
+    Array,
+    Property,
+}
+
+class CallerProperties {
+
+    public range : vscode.Range
+    public text : string
+
+    constructor(startLine : number, startChar : number, endLine : number, endChar : number, text : string) {
+        this.range = new vscode.Range(startLine, startChar, endLine, endChar);
+        this.text = text;
+    }
+}
+
+export class FcsCaller {
+
+    public type: FcsCallerType;
+    public tag : CallerProperties;
+    public content : CallerProperties | undefined;
+
+    constructor(type: FcsCallerType, tag : CallerProperties, content : CallerProperties | undefined = undefined) {
+        this.type = type;
+        this.tag = tag;
+        this.content = content;
+    }
+
+    public getHover(){
+        let type = "";
+        switch (this.type) {
+            case FcsCallerType.Class: type = "(class)"; break;
+            case FcsCallerType.Function: type = "(function)"; break;
+            case FcsCallerType.Array: type = "(array)"; break;
+            case FcsCallerType.Property: type = "(property)"; break;
+        }
+
+        return this.tag.text + " " + type;
+    }
+}
+
 export class WordTools{
-    
+
+    public static getCallerTypeFromBracket( bracketChar : string ) : FcsCallerType {
+        if(bracketChar.length <= 0) return FcsCallerType.Property;
+        
+        switch (bracketChar[0]) {
+            case "(": case ")": return FcsCallerType.Function;
+            case "[": case "]": return FcsCallerType.Array;
+            case "{": case "}": return FcsCallerType.Class;
+            default: return FcsCallerType.Property;
+        }
+    }
+
+    public static getParts(doc: vscode.TextDocument, cursorLine: number, cursorChar: number) : FcsCaller[] | undefined{
+
+        const startPos = this.getWordStartPosition(doc, cursorLine, cursorChar);
+        const endPos = this.getWordEndPosition(doc, cursorLine, cursorChar);
+
+        if (!startPos || !endPos) {
+            return;
+        }
+
+        // pokud není prvním znakem povolený znak, nejedná se o "řetězec" -> nemá smysl popkračovat
+        if (!this.isAllowableNameChar(doc.lineAt(startPos.line).text[startPos.character]))
+            return;
+
+        let callerPath : FcsCaller [] = [];
+
+        let iChar = startPos.character;
+        let tagChar = iChar;
+        let tagLine = startPos.line;
+        for (let iLine = startPos.line; iLine < endPos.line+1; iLine++) {
+            let textline = doc.lineAt(iLine).text;
+            let endChar = iLine == endPos.line ? endPos.character : textline.length - 1;
+            
+            for (iChar; iChar < endChar+1; iChar++){
+                let char = textline[iChar];
+
+                if (Bracket.isAnyLeftBracket(char)) {
+
+                    const endPosBracket = this.findAnyEndingBracket(doc, iLine, iChar, char);
+                    if (!endPosBracket) // pokud nebyla nalezena konečná závorka -> chyba v syntaxi -> nemá smysl pokračovat
+                        return;
+
+                    
+                    let charNext = doc.lineAt(endPosBracket.line).text[endPosBracket.character+1];
+
+                    // buď je pozice konce závorky rovna konci "řetězce" nebo musí být závorka následována ".", jinak -> chyba v syntaxi -> nemá smysl pokračovat
+                    if (!(endPosBracket.compareTo( endPos ) == 0 || charNext == "."))
+                        return;
+
+                    let tag = new CallerProperties(tagLine, tagChar, iLine, iChar - 1, doc.getText( new vscode.Range(tagLine, tagChar, iLine, iChar) ));
+                    let content = new CallerProperties(iLine, iChar, endPosBracket.line, endPosBracket.character, doc.getText( new vscode.Range(iLine, iChar, endPosBracket.line, endPosBracket.character) ));               
+                    let type = this.getCallerTypeFromBracket(char);
+                    
+                    let caller = new FcsCaller(type, tag, content);
+                    callerPath.push(caller)
+
+                    if (endPosBracket.line != iLine) {
+                        iLine = endPosBracket.line;
+                        textline = doc.lineAt(iLine).text;
+                        endChar = iLine == endPos.line ? endPos.character : textline.length - 1;
+                    }
+                    
+                    iChar = endPosBracket.character;
+                    char = textline[iChar];
+
+                    tagLine = iLine;
+                    tagChar = iChar + 2;
+                    iChar++;
+
+                } else if (char == "."){
+                    let tag = new CallerProperties(tagLine, tagChar, iLine, iChar - 1, doc.getText( new vscode.Range(tagLine, tagChar, iLine, iChar) ));
+                    let caller = new FcsCaller(FcsCallerType.Property, tag);
+                    callerPath.push(caller)
+
+                    tagChar = iChar + 1;
+                }
+            }
+        }
+
+        let endchar = doc.lineAt(endPos.line).text[endPos.character]
+        if (!Bracket.isAnyRightBracket(endchar)){
+            let tag = new CallerProperties(tagLine, tagChar, endPos.line, endPos.character, doc.getText( new vscode.Range(tagLine, tagChar, endPos.line, endPos.character+1) ));
+            let caller = new FcsCaller(FcsCallerType.Property, tag);
+            callerPath.push(caller)
+        }
+
+        return callerPath;
+    }
+
     public static getWordStartPosition(doc: vscode.TextDocument, startLine: number, startChar: number): vscode.Position | undefined {
 
         let iLine = startLine;
