@@ -206,8 +206,8 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 }
 
 export enum Brackets {
-
-    Parenthesis,
+    
+    Parenthesis = 1,
     SquareBracket,
     CurlyBracket,
 }

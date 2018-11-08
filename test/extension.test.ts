@@ -91,6 +91,10 @@ suite("Extension Tests", () => {
         position = WordTools.getWordEndPosition(doc, 0, 8);
         assert.equal(position ? position.line : undefined, 4, "2st: end line");
         assert.equal(position ? position.character : undefined, 11, "2st: end character");
+
+        doc = await vscode.workspace.openTextDocument({content: "GetNmax   := selector, loadCase => Analysis.GetExtremes( loadCase, Fcs.Analysis.Result.Beam.N,      selector ).Max"});
+        position = WordTools.getWordEndPosition(doc, 0, 35);
+        assert.equal(position ? position.character : undefined, 113, "3rd: end line");
     })
 
 
