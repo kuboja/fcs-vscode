@@ -96,7 +96,7 @@ export class WordTools{
             if (text[curPos] == " ") {
                 break;
             }
-            console.log( text[curPos] + " " + curPos)
+            //console.log( text[curPos] + " " + curPos)
         }
 
         return;
