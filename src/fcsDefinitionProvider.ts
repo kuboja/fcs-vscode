@@ -24,14 +24,14 @@ export class FcsDefinitionProvider implements vscode.DefinitionProvider, vscode.
 
         let word = document.getText(wordRange);
 
-        if ( word == undefined ) {
+        if ( word === undefined ) {
             return;
         }
 
-        let lacation : vscode.Location | undefined
+        let lacation : vscode.Location | undefined;
 
         for (const sym of symbolsInDoc) {
-            if (sym.name == word) {
+            if (sym.name === word) {
                 lacation = sym.location;
                 break;
             }

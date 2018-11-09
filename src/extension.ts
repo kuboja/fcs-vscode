@@ -51,15 +51,15 @@ function registerSymbolManager(context: vscode.ExtensionContext, extData: Extens
         vscode.languages.registerDocumentSymbolProvider(fcsLang, new FcsSymbolProvider())
     );
 
-    let defProv = new FcsDefinitionProvider()
+    let defProv = new FcsDefinitionProvider();
     context.subscriptions.push(defProv);
 
     context.subscriptions.push(
         vscode.languages.registerDefinitionProvider(fcsLang, defProv)
-    )
+    );
 
     context.subscriptions.push(
         vscode.languages.registerHoverProvider(fcsLang, defProv)
-    )
+    );
 
 }

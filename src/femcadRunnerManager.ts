@@ -36,7 +36,7 @@ export class FliCommand {
     }
 
     public afterStopExecution(): void {
-        if (this.commandClass != undefined) {
+        if (this.commandClass !== undefined) {
             this.commandClass.afterExit();
         }
     }
@@ -351,8 +351,9 @@ export class FemcadRunner {
                 psTree(processId, (_err, children) => {
                     if (children.length > 0) {
                         for (const child of children) {
-                            if (child)
+                            if (child) {
                                 this.killProcessId(parseInt(child.PID));
+                            }
                         }
                     }
 

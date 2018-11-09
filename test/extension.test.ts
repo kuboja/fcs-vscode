@@ -25,7 +25,7 @@ suite("Extension Tests", () => {
     test("DocumentWord", async () => {
         let doc = await vscode.workspace.openTextDocument({content: "asdasda"});
         assert.equal(doc.getText(), "asdasda");
-    })
+    });
 
     test("Bracket find close", async () => {
         let doc = await vscode.workspace.openTextDocument({content: "asd asd{saasd{asdasd}dasd}sddfas"});
@@ -46,7 +46,7 @@ suite("Extension Tests", () => {
         position = WordTools.findClosingBracket(doc, 1, 2, Brackets.CurlyBracket);
         assert.equal(position ? position.line : undefined, 2, "3rd: line");
         assert.equal(position ? position.character : undefined, 3, "3rd: end character");
-    })
+    });
 
     test("Bracket find open", async () => {
         let doc = await vscode.workspace.openTextDocument({content: "asd asd{saasd{asdasd}dasd}sddfas"});
@@ -67,7 +67,7 @@ suite("Extension Tests", () => {
         position = WordTools.findStaringBracket(doc, 2, 3, Brackets.CurlyBracket);
         assert.equal(position ? position.line : undefined, 1, "3rd: line");
         assert.equal(position ? position.character : undefined, 2, "3rd: start character");
-    })
+    });
 
     test("Position of expresion start", async () => {
         let doc = await vscode.workspace.openTextDocument({content: "asd asd{saa\nsd{asd\nasd}dasd}sddfas"});
@@ -79,7 +79,7 @@ suite("Extension Tests", () => {
         position = WordTools.getWordStartPosition(doc, 4, 8);
         assert.equal(position ? position.line : undefined, 0, "2st: start line");
         assert.equal(position ? position.character : undefined, 7, "2st: start character");
-    })
+    });
 
     test("Position of expresion end", async () => {
         let doc = await vscode.workspace.openTextDocument({content: "asd asd{saa\nsd{asd\nasd}dasd}sddfas"});
@@ -95,7 +95,7 @@ suite("Extension Tests", () => {
         doc = await vscode.workspace.openTextDocument({content: "GetNmax   := selector, loadCase => Analysis.GetExtremes( loadCase, Fcs.Analysis.Result.Beam.N,      selector ).Max"});
         position = WordTools.getWordEndPosition(doc, 0, 35);
         assert.equal(position ? position.character : undefined, 113, "3rd: end line");
-    })
+    });
 
     test("Caller tags under position", async () => {
         let doc = await vscode.workspace.openTextDocument({content: "asd asd{saa\nsd{asd\nasd}dasd}.sddfas"});
@@ -110,7 +110,7 @@ suite("Extension Tests", () => {
         doc = await vscode.workspace.openTextDocument({content: "GetNmax   := selector, loadCase => Analysis.GetExtremes( loadCase, Fcs.Analysis.Result.Beam.N,      selector )"});
         position = WordTools.getParts(doc, 0, 35);
         assert.equal(position ? position.length : undefined, 2, "3rd: count");
-    })
+    });
 
 
     test("Word under cursor", async () => {
@@ -120,5 +120,5 @@ suite("Extension Tests", () => {
         let word = WordTools.lookWordStart(doc, pos);
 
         assert.equal(word, undefined);
-    })
+    });
 });

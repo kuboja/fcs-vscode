@@ -37,8 +37,8 @@ export enum FcsCallerType {
 
 class CallerProperties {
 
-    public range : vscode.Range
-    public text : string
+    public range : vscode.Range;
+    public text : string;
 
     constructor(startLine : number, startChar : number, endLine : number, endChar : number, text : string) {
         this.range = new vscode.Range(startLine, startChar, endLine, endChar);
@@ -74,7 +74,7 @@ export class FcsCaller {
 export class WordTools{
 
     public static getCallerTypeFromBracket( bracketChar : string ) : FcsCallerType {
-        if(bracketChar.length <= 0) return FcsCallerType.Property;
+        if(bracketChar.length <= 0) { return FcsCallerType.Property; }
         
         switch (bracketChar[0]) {
             case "(": case ")": return FcsCallerType.Function;
@@ -94,8 +94,9 @@ export class WordTools{
         }
 
         // pokud není prvním znakem povolený znak, nejedná se o "řetězec" -> nemá smysl popkračovat
-        if (!this.isAllowableNameChar(doc.lineAt(startPos.line).text[startPos.character]))
+        if (!this.isAllowableNameChar(doc.lineAt(startPos.line).text[startPos.character])) {
             return;
+        }
 
         let callerPath : FcsCaller [] = [];
 
@@ -104,7 +105,7 @@ export class WordTools{
         let tagLine = startPos.line;
         for (let iLine = startPos.line; iLine < endPos.line+1; iLine++) {
             let textline = doc.lineAt(iLine).text;
-            let endChar = iLine == endPos.line ? endPos.character : textline.length - 1;
+            let endChar = iLine === endPos.line ? endPos.character : textline.length - 1;
             
             for (iChar; iChar < endChar+1; iChar++){
                 let char = textline[iChar];
@@ -112,27 +113,29 @@ export class WordTools{
                 if (Bracket.isAnyLeftBracket(char)) {
 
                     const endPosBracket = this.findAnyEndingBracket(doc, iLine, iChar, char);
-                    if (!endPosBracket) // pokud nebyla nalezena konečná závorka -> chyba v syntaxi -> nemá smysl pokračovat
+                    if (!endPosBracket) { // pokud nebyla nalezena konečná závorka -> chyba v syntaxi -> nemá smysl pokračovat
                         return;
+                    }
 
                     
                     let charNext = doc.lineAt(endPosBracket.line).text[endPosBracket.character+1];
 
                     // buď je pozice konce závorky rovna konci "řetězce" nebo musí být závorka následována ".", jinak -> chyba v syntaxi -> nemá smysl pokračovat
-                    if (!(endPosBracket.compareTo( endPos ) == 0 || charNext == "."))
+                    if (!(endPosBracket.compareTo( endPos ) === 0 || charNext === ".")) {
                         return;
+                    }
 
                     let tag = new CallerProperties(tagLine, tagChar, iLine, iChar - 1, doc.getText( new vscode.Range(tagLine, tagChar, iLine, iChar) ));
                     let content = new CallerProperties(iLine, iChar, endPosBracket.line, endPosBracket.character, doc.getText( new vscode.Range(iLine, iChar, endPosBracket.line, endPosBracket.character) ));               
                     let type = this.getCallerTypeFromBracket(char);
                     
                     let caller = new FcsCaller(type, tag, content);
-                    callerPath.push(caller)
+                    callerPath.push(caller);
 
-                    if (endPosBracket.line != iLine) {
+                    if (endPosBracket.line !== iLine) {
                         iLine = endPosBracket.line;
                         textline = doc.lineAt(iLine).text;
-                        endChar = iLine == endPos.line ? endPos.character : textline.length - 1;
+                        endChar = iLine === endPos.line ? endPos.character : textline.length - 1;
                     }
                     
                     iChar = endPosBracket.character;
@@ -142,21 +145,21 @@ export class WordTools{
                     tagChar = iChar + 2;
                     iChar++;
 
-                } else if (char == "."){
+                } else if (char === "."){
                     let tag = new CallerProperties(tagLine, tagChar, iLine, iChar - 1, doc.getText( new vscode.Range(tagLine, tagChar, iLine, iChar) ));
                     let caller = new FcsCaller(FcsCallerType.Property, tag);
-                    callerPath.push(caller)
+                    callerPath.push(caller);
 
                     tagChar = iChar + 1;
                 }
             }
         }
 
-        let endchar = doc.lineAt(endPos.line).text[endPos.character]
+        let endchar = doc.lineAt(endPos.line).text[endPos.character];
         if (!Bracket.isAnyRightBracket(endchar)){
             let tag = new CallerProperties(tagLine, tagChar, endPos.line, endPos.character, doc.getText( new vscode.Range(tagLine, tagChar, endPos.line, endPos.character+1) ));
             let caller = new FcsCaller(FcsCallerType.Property, tag);
-            callerPath.push(caller)
+            callerPath.push(caller);
         }
 
         return callerPath;
@@ -172,11 +175,11 @@ export class WordTools{
             let char = textline[iChar];
             if (Bracket.isAnyRightBracket(char)) {
                 const newPos = this.findAnyStartingBracket(doc, iLine, iChar, char);
-                if (!newPos) continue;
+                if (!newPos) { continue; }
                 textline = doc.lineAt(newPos.line).text;
                 iLine = newPos.line;
                 iChar = newPos.character;
-            } else if (char == ".") {
+            } else if (char === ".") {
                 continue;
             } else if (!this.isAllowableNameChar(char)) {
                 return new vscode.Position(iLine, iChar + 1);
@@ -196,11 +199,11 @@ export class WordTools{
             let char = textline[iChar];
             if (Bracket.isAnyLeftBracket(char)) {
                 const newPos = this.findAnyEndingBracket(doc, iLine, iChar, char);
-                if (!newPos) continue;
+                if (!newPos) { continue; }
                 textline = doc.lineAt(newPos.line).text;
                 iLine = newPos.line;
                 iChar = newPos.character;
-            } else if (char == "."){
+            } else if (char === "."){
                 continue;
             } else if (!this.isAllowableNameChar(char)) {
                 return new vscode.Position(iLine, iChar - 1);
@@ -223,10 +226,10 @@ export class WordTools{
 
         var text: string = line.text;
         
-        if (text == undefined || text.length == 0) return;
+        if (text === undefined || text.length === 0) { return; }
 
         for (let curPos = pos.character; curPos > 0; curPos--) {
-            if (text[curPos] == " ") {
+            if (text[curPos] === " ") {
                 break;
             }
             //console.log( text[curPos] + " " + curPos)
@@ -244,7 +247,7 @@ export class WordTools{
         }
 
         let bracket = Bracket.charToBracket(char);
-        if (!bracket) return;
+        if (!bracket) { return; }
 
         return this.findStaringBracket(doc, startLine, startPosition, bracket);
     }
@@ -258,14 +261,13 @@ export class WordTools{
         }
 
         let bracket = Bracket.charToBracket(char);
-        if (!bracket) return;
+        if (!bracket) { return; }
 
         return this.findClosingBracket(doc, startLine, startPosition, bracket);
     }
 
     public static findStaringBracket(document: vscode.TextDocument, startLine: number, startPosition: number, bracketType: Brackets): vscode.Position | undefined {
-        if (startLine >= document.lineCount)
-            return;
+        if (startLine >= document.lineCount) { return; }
         
         const rExp = Bracket.RegExForBoth(bracketType);
         const leftBracket = Bracket.LeftBracket(bracketType);
@@ -276,9 +278,10 @@ export class WordTools{
 
             let str = document.lineAt(iLine).text;
 
-            if (iLine == startLine) {
-                if (startPosition >= str.length)
+            if (iLine === startLine) {
+                if (startPosition >= str.length) {
                     return;
+                }
                 str = str.substring(0, startPosition + 1);
             }
 
@@ -314,8 +317,9 @@ export class WordTools{
     }
 
     public static findClosingBracket(document: vscode.TextDocument, startLine: number, startPosition: number, bracketType: Brackets): vscode.Position | undefined {
-        if (startLine >= document.lineCount)
+        if (startLine >= document.lineCount) {
             return;
+        }
         
         const rExp = Bracket.RegExForBoth(bracketType);
         const leftBracket = Bracket.LeftBracket(bracketType);
@@ -382,14 +386,14 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
             numberOfDot = (priorWord.match(/\./g) || []).length;
         }
 
-        if (token.isCancellationRequested) return;
+        if (token.isCancellationRequested) { return; }
 
         // pokud je před kurzor na nějaká tečka, tak se vyfiltrují vhodné položky
         if (numberOfDot > 0) {
             filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith(priorWord ? priorWord : ""));
         }
 
-        if (token.isCancellationRequested) return;
+        if (token.isCancellationRequested) { return; }
 
         // pokud nebyla tečka v textu před kurzorem nebo nebyl nalezen žádný vhodný node
         if (filteredObjects.length === 0 ) {
@@ -400,7 +404,7 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
             filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith( startWith ));
         }
 
-        if (token.isCancellationRequested) return;
+        if (token.isCancellationRequested) { return; }
 
         //console.log(priorWord  + " | " + currentWord + " | " + numberOfDot + " | " + filteredObjects.map(v => v.name).join(", "));
 

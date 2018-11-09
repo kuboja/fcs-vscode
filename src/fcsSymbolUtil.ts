@@ -43,45 +43,47 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         const regGnameDefinition: RegExp = / *{([a-zA-Z][a-zA-Z0-9_]+)} *filename/;
 
         for (let line: number = 0; line < lineCount; line++) {
-            if (token.isCancellationRequested) break;
+            if (token.isCancellationRequested) { break; }
 
             const { text } = document.lineAt(line);
 
-            if (text.length == 0 || text[0] == " " || text[0] == "#") continue;
+            if (text.length === 0 || text[0] === " " || text[0] === "#") { continue; }
 
             let name: string | null = null;
             let kind: vscode.SymbolKind = vscode.SymbolKind.Variable;
 
             if (text.startsWith("gblock ") || text.startsWith("gclass ")) {
                 let gname: RegExpMatchArray | null = text.match(regGnameDefinition);
-                if (gname != null && gname.length > 0) {
+                if (gname !== null && gname.length > 0) {
                     name = (gname.length > 1) ? gname[1] : gname[0];
-                    if (text.startsWith("gblock "))
+                    if (text.startsWith("gblock ")) {
                         kind = vscode.SymbolKind.Object;
-                    else
+                    }
+                    else {
                         kind = vscode.SymbolKind.Class;
+                    }
                 }
             }
 
             if (text.includes(":=") || text.includes("=")) {
-                let functionName: RegExpMatchArray | null = null
+                let functionName: RegExpMatchArray | null = null;
 
                 if (text.includes("=>")) {
                     functionName = text.match(regFunctionDefinition);
                 }
 
-                if (functionName != null && functionName.length > 0) {
+                if (functionName !== null && functionName.length > 0) {
                     name = (functionName.length > 1) ? functionName[1] : functionName[0];
                     kind = vscode.SymbolKind.Function;
                 } else {
                     let variableName: RegExpMatchArray | null = text.match(regVariableDefinition);
-                    if (variableName != null && variableName.length > 0) {
+                    if (variableName !== null && variableName.length > 0) {
                         name = (variableName.length > 1) ? variableName[1] : variableName[0];
                     }
                 }
             }
 
-            if (name != null) {
+            if (name !== null) {
                 if (name.length > 0) {
                     let posStart = new vscode.Position(line, 0);
                     let posEnd = this.endOfDefinition(document, line);
@@ -134,13 +136,13 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
             let firstBracket = this.findOpeningBracket(text, lastPosition);
 
-            if (firstBracket != undefined) {
+            if (firstBracket !== undefined) {
                 endPosition = this.findClosingBracket(document, line, firstBracket.position, firstBracket.bracket);
 
-                if (endPosition != undefined) {
+                if (endPosition !== undefined) {
                     let textLine: string = text;
                     lastPosition = endPosition.position;
-                    if (endPosition.line != line) {
+                    if (endPosition.line !== line) {
                         textLine = document.lineAt(endPosition.line).text;
                         lastPosition = 0;
                         text = textLine;
@@ -155,7 +157,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
             break;
         }
 
-        if (endPosition != undefined) {
+        if (endPosition !== undefined) {
             lengthOfLine = document.lineAt(endPosition.line).text.length;
             numberOfLine = endPosition.line - line + 1;
         }
@@ -167,9 +169,9 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         let posPar = text.indexOf("(", startPos);
         let posSqr = text.indexOf("[", startPos);
         let posCur = text.indexOf("{", startPos);
-        let max = Math.max(posPar, posSqr, posCur)
+        let max = Math.max(posPar, posSqr, posCur);
 
-        if (max == -1) return undefined;
+        if (max === -1) { return undefined; }
 
         switch (max) {
             case posPar: return { position: max, bracket: Brackets.Parenthesis };
@@ -196,7 +198,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
             while ((pos = rExp.exec(str))) {
                 if (!(deep += str[pos.index] === leftBracket ? 1 : -1)) {
-                    return { line: iLine, position: pos.index }
+                    return { line: iLine, position: pos.index };
                 }
             }
         }
@@ -215,17 +217,17 @@ export enum Brackets {
 export class Bracket {
 
     public static isAnyLeftBracket(char: string): boolean {
-        if (char == undefined || char.length == 0) return false;
-        return char[0] == "(" || char[0] == "[" || char[0] == "{";
+        if (char === undefined || char.length === 0) { return false; }
+        return char[0] === "(" || char[0] === "[" || char[0] === "{";
     }
 
     public static isAnyRightBracket(char: string): boolean {
-        if (char == undefined || char.length == 0) return false;
-        return char[0] == ")" || char[0] == "]" || char[0] == "}";
+        if (char === undefined || char.length === 0) { return false; }
+        return char[0] === ")" || char[0] === "]" || char[0] === "}";
     }
 
     public static charToBracket(char: string): Brackets | undefined {
-        if(char.length <= 0) return;
+        if(char.length <= 0) { return; }
         
         switch (char[0]) {
             case "(": case ")": return Brackets.Parenthesis;

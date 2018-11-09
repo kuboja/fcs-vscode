@@ -130,12 +130,12 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
         this.fcsFile = fcsFile;
         
         let tempDirPath: string = FileSystemManager.getTempFolderPath();
-        this.tempFilePath = FileSystemManager.getRandomTempName(tempDirPath, ".fcs")
+        this.tempFilePath = FileSystemManager.getRandomTempName(tempDirPath, ".fcs");
     }
 
     public getFliCommand(): FliCommand {
         if (this.fliCommand){
-            return this.fliCommand
+            return this.fliCommand;
         }
 
         this.executionMethod = LineRunnerCommandCreator.getExecutionMethod(this.fcsFile);
