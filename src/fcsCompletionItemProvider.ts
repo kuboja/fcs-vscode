@@ -1,6 +1,8 @@
 "use strict";
 
 import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
 import { FcsGrammar, GrammarType } from "./fcsGrammar";
 import { ExtensionData } from "./extensionData";
 import { Bracket, Brackets } from "./fcsSymbolUtil";
@@ -27,6 +29,12 @@ import { Bracket, Brackets } from "./fcsSymbolUtil";
 
 // }
 
+export class GClass{
+    public name? : string;
+    public filename? : string;
+    public parameters? : string;
+}
+
 export enum FcsCallerType {
 
     Class = 1,
@@ -43,6 +51,46 @@ class CallerProperties {
     constructor(startLine : number, startChar : number, endLine : number, endChar : number, text : string) {
         this.range = new vscode.Range(startLine, startChar, endLine, endChar);
         this.text = text;
+    }
+}
+
+class TargetProperties {
+
+    public range : vscode.Range;
+    public text : string;
+
+    constructor(startLine : number, startChar : number, endLine : number, endChar : number, text : string) {
+        this.range = new vscode.Range(startLine, startChar, endLine, endChar);
+        this.text = text;
+    }
+}
+
+enum FcsTargetType{
+    Unknown = 1,
+    FileConstant,
+    FileProperty,
+    ClassConstant,
+    ClassProperty,
+    Function,
+    FunctionParameter,
+    GClass,
+    OtherObject,
+
+}
+
+export class FcsTarget {
+    public type: FcsTargetType;
+    public tag: TargetProperties;
+    public content : TargetProperties | undefined;
+
+    public otherType? : string;
+
+    public filename? : string;
+
+    constructor(type: FcsTargetType, tag : TargetProperties, content : TargetProperties | undefined = undefined) {
+        this.type = type;
+        this.tag = tag;
+        this.content = content;
     }
 }
 
@@ -73,6 +121,10 @@ export class FcsCaller {
 
 export class WordTools{
 
+    public static parseFunction(_doc: vscode.TextDocument, _caller : FcsCaller){
+
+    }
+
     public static getCallerTypeFromBracket( bracketChar : string ) : FcsCallerType {
         if(bracketChar.length <= 0) { return FcsCallerType.Property; }
         
@@ -82,6 +134,169 @@ export class WordTools{
             case "{": case "}": return FcsCallerType.Class;
             default: return FcsCallerType.Property;
         }
+    }
+
+    public static getFileClasses(doc: vscode.TextDocument): string[] | undefined {
+        if (doc.uri.scheme === "file") {
+            let filePath = doc.uri.fsPath;
+            let dir = path.dirname(filePath);
+
+            if (dir) {
+                return WordTools.getFileClassInFolder(dir);
+            }
+        }
+
+        return;
+    }
+
+    public static getFileClassInFolder(folder: string): string[] {
+        let names: string[] = [];
+
+        fs.readdirSync(folder).forEach(file => {
+            try {
+                const typ: fs.Stats = fs.statSync(path.join(folder, file));
+                if (typ && typ.isFile() && file.endsWith(".fcs")) {
+                    names.push(file.substr(0, file.length - 4));
+                }
+            } catch { }
+        });
+
+        return names;
+    }
+
+    public static getDocTargets(doc: vscode.TextDocument, token: vscode.CancellationToken): FcsTarget[] | undefined {
+        
+        const result: FcsTarget[] = [];
+        const lineCount: number = Math.min(doc.lineCount, 10000);
+
+        //console.log("Start");
+        //let time = Date.now();
+        //let couter = 0;
+
+        const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)\s*(?:\(\s*)?([a-zA-Z][a-zA-Z0-9\s,]*)=>/;
+        const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)/;
+        const regGnameDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s+{([a-zA-Z][a-zA-Z0-9_]+)}\s+/;
+
+        for (let line: number = 0; line < lineCount; line++) {
+            if (token.isCancellationRequested) { break; }
+
+            const { text } = doc.lineAt(line);
+
+            if (text.length === 0 || text[0] === " " || text[0] === "#") { continue; }
+
+            let name: string = "";
+            let kind: FcsTargetType = FcsTargetType.Unknown;
+            let filename: string | undefined;
+            let otherType: string = "";
+
+            let gname: RegExpMatchArray | null = text.match(regGnameDefinition);
+            if (gname !== null && gname.length > 0) {
+                name = (gname.length > 1) ? gname[2] : gname[0];
+
+                if (name.startsWith("{")) {
+                    name = name.substr(1, name.length - 2);
+                }
+
+                if (text.startsWith("gclass")) {
+                    kind = FcsTargetType.GClass;
+
+                    const fileNameReg = /\s+filename\s+\(?"(.+)"\)?\s+/;
+                    let filenameResult: RegExpMatchArray | null = text.match(fileNameReg);
+                    if (filenameResult && filenameResult.length > 0){
+                        filename = filenameResult[1];
+                    }
+                }
+                else {
+                    kind = FcsTargetType.OtherObject;
+                    otherType = gname[1];
+                }
+            }
+
+            if (text.includes(":=") || text.includes("=")) {
+                let functionName: RegExpMatchArray | null = null;
+
+                if (text.includes("=>")) {
+                    functionName = text.match(regFunctionDefinition);
+                }
+
+                if (functionName !== null && functionName.length > 0) {
+                    name = (functionName.length > 1) ? functionName[1] : functionName[0];
+                    kind = FcsTargetType.FunctionParameter;
+                } else {
+                    let variableName: RegExpMatchArray | null = text.match(regVariableDefinition);
+                    if (variableName !== null && variableName.length > 0) {
+                        name = (variableName.length > 1) ? variableName[1] : variableName[0];
+                    }
+                }
+            }
+
+            if (name !== null) {
+                if (name.length > 0) {
+                    let posStart = new vscode.Position(line, 0);
+                    let posEnd = this.getEndOfDefinition(doc, line);
+                    //let range = new vscode.Range(posStart, posEnd);
+
+                    line = posEnd.line;
+
+                    let prop = new TargetProperties(posStart.line, posStart.character, posEnd.line, posEnd.character, name);
+                    let ta = new FcsTarget(kind, prop);
+                    ta.filename = filename;
+                    ta.otherType = otherType;
+
+                    result.push(ta);
+                }
+            }
+            //couter++;
+        }
+
+        //console.log("End - Count: " + couter + " - Time: " + ( Date.now() - time ));
+        //let sorted= result.sort(((s1, s2) => FcsSymbolProvider.copmareStrings(s1.name, s2.name)));
+
+        return result;
+    }
+
+    private static getEndOfDefinition(document: vscode.TextDocument, startLine: number) {
+        let text: string = document.lineAt(startLine).text;
+
+        let lengthOfLine = text.length;
+        let numberOfLine = 1;
+        let endPosition: vscode.Position | undefined;
+        let line = startLine;
+
+        let endOfLine = text;
+        let lastPosition = 0;
+
+        while (endOfLine.includes("(") || endOfLine.includes("{") || endOfLine.includes("[")) {
+
+            let firstBracket = this.findOpeningBracket(text, lastPosition);
+
+            if (firstBracket !== undefined) {
+                endPosition = this.findClosingBracket(document, line, firstBracket.position, firstBracket.bracket);
+
+                if (endPosition !== undefined) {
+                    let textLine: string = text;
+                    lastPosition = endPosition.character;
+                    if (endPosition.line !== line) {
+                        textLine = document.lineAt(endPosition.line).text;
+                        lastPosition = 0;
+                        text = textLine;
+                        line = endPosition.line;
+                    }
+                    endOfLine = textLine.substr(endPosition.character);
+
+                    continue;
+                }
+            }
+
+            break;
+        }
+
+        if (endPosition !== undefined) {
+            lengthOfLine = document.lineAt(endPosition.line).text.length;
+            numberOfLine = endPosition.line - line + 1;
+        }
+
+        return new vscode.Position(line + numberOfLine - 1, lengthOfLine);
     }
 
     public static getParts(doc: vscode.TextDocument, cursorLine: number, cursorChar: number) : FcsCaller[] | undefined{
@@ -298,6 +513,23 @@ export class WordTools{
         return;
     }
 
+    private static findOpeningBracket(text: string, startPos: number): { position: number; bracket: Brackets } | undefined {
+        let posPar = text.indexOf("(", startPos);
+        let posSqr = text.indexOf("[", startPos);
+        let posCur = text.indexOf("{", startPos);
+        let max = Math.max(posPar, posSqr, posCur);
+
+        if (max === -1) { return undefined; }
+
+        switch (max) {
+            case posPar: return { position: max, bracket: Brackets.Parenthesis };
+            case posSqr: return { position: max, bracket: Brackets.SquareBracket };
+            case posCur: return { position: max, bracket: Brackets.CurlyBracket };
+            default: return undefined;
+        }
+    }
+
+
     public static getAllMatches(regex: RegExp, text: string): RegExpExecArray[] {
         var res: RegExpExecArray[] = [];
         var match: RegExpExecArray | null = null;
@@ -373,7 +605,7 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
         // text, který je před kurozorem: Fcs.Action.Cl| -> "Fcs.Action.Cl"
         var priorWord: string | undefined = grammar.priorWord(document, position);
 
-        // slovo ve kterém je kurzor: 
+        // slovo ve kterém je kurzor
         var currentWord: string | undefined = grammar.currentWord(document, position);
 
         // je tečka před kurzorem?

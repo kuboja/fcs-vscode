@@ -1,6 +1,8 @@
 "use strict";
 
 import * as vscode from "vscode";
+import * as path from "path";
+import { WordTools } from "./fcsCompletionItemProvider";
 
 
 export enum fcsSymbolType {
@@ -16,6 +18,7 @@ export enum fcsSymbolType {
 export class FcsSymbolInformation extends vscode.SymbolInformation {
 
     public name: string = "";
+    public type?: string;
     public kspSymbolType: fcsSymbolType = fcsSymbolType.Unknown;
     public isConst: boolean = false;
     public description: string = "";
@@ -27,10 +30,31 @@ export class FcsSymbolInformation extends vscode.SymbolInformation {
 export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
     public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
-        return FcsSymbolProvider.getSymbolsInDocumet(document, token);
+
+        let symbs = FcsSymbolProvider.getSymbolsInDocument(document, token);
+
+
+
+        if (document.uri.scheme === "file") {
+            let filePath = document.uri.fsPath;
+            let dir = path.dirname(filePath);
+
+            let clss = WordTools.getFileClasses(document);
+
+            if (clss) {
+                clss.forEach(name => {
+                    const uri = vscode.Uri.file(path.join(dir, name + ".fcs"));
+                    const loc = new vscode.Location(uri, new vscode.Position(0, 0));
+                    symbs.push(new vscode.SymbolInformation(name, vscode.SymbolKind.File, "folder", loc));
+                });
+            }
+
+        }
+
+        return symbs;
     }
 
-    public static getSymbolsInDocumet(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
+    public static getSymbolsInDocument(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
         const result: vscode.SymbolInformation[] = [];
         const lineCount: number = Math.min(document.lineCount, 10000);
 
@@ -40,7 +64,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
         const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)\s*(?:\(\s*)?([a-zA-Z][a-zA-Z0-9\s,]*)=>/;
         const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)/;
-        const regGnameDefinition: RegExp = / *{([a-zA-Z][a-zA-Z0-9_]+)} *filename/;
+        const regGnameDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s+({[a-zA-Z][a-zA-Z0-9_]+}|[0-9]+)\s+/;
 
         for (let line: number = 0; line < lineCount; line++) {
             if (token.isCancellationRequested) { break; }
@@ -51,19 +75,26 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
             let name: string | null = null;
             let kind: vscode.SymbolKind = vscode.SymbolKind.Variable;
+            let type: string = "";
 
-            if (text.startsWith("gblock ") || text.startsWith("gclass ")) {
-                let gname: RegExpMatchArray | null = text.match(regGnameDefinition);
-                if (gname !== null && gname.length > 0) {
-                    name = (gname.length > 1) ? gname[1] : gname[0];
-                    if (text.startsWith("gblock ")) {
-                        kind = vscode.SymbolKind.Object;
-                    }
-                    else {
-                        kind = vscode.SymbolKind.Class;
-                    }
+            let gname: RegExpMatchArray | null = text.match(regGnameDefinition);
+            if (gname !== null && gname.length > 0) {
+                name = (gname.length > 1) ? gname[2] : gname[0];
+
+                if (name.startsWith("{")) {
+                    name = name.substr(1, name.length - 2);
+                }
+
+                if (text.startsWith("gclass")) {
+                    kind = vscode.SymbolKind.Class;
+                    type = gname[1];
+                }
+                else {
+                    kind = vscode.SymbolKind.Object;
+                    type = gname[1];
                 }
             }
+
 
             if (text.includes(":=") || text.includes("=")) {
                 let functionName: RegExpMatchArray | null = null;
@@ -94,7 +125,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
                     result.push(new vscode.SymbolInformation(
                         name,
                         kind,
-                        "",
+                        type,
                         new vscode.Location(document.uri, range)
                     ));
                 }

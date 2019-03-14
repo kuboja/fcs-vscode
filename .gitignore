@@ -7,3 +7,5 @@ packages
 *.vsix
 *.vshost.*
 *.tmp
+
+server

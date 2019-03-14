@@ -20,7 +20,7 @@ export class FcsDefinitionProvider implements vscode.DefinitionProvider, vscode.
             return;
         }
 
-        let symbolsInDoc = FcsSymbolProvider.getSymbolsInDocumet(document, token);
+        let symbolsInDoc = FcsSymbolProvider.getSymbolsInDocument(document, token);
 
         let word = document.getText(wordRange);
 
