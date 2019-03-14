@@ -53,5 +53,5 @@ function registerSymbolManager(context: vscode.ExtensionContext, extData: Extens
 
     context.subscriptions.push(
         vscode.languages.registerDefinitionProvider(fcsLang, new FcsDefinitionProvider())
-    )
+    );
 }
