@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.4.2",
+    "version": "1.4.3",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
