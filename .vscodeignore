@@ -6,3 +6,10 @@ src/**
 **/*.map
 .gitignore
 tsconfig.json
+
+node_modules
+out/
+tslint.json
+webpack.config.json
+webpack.config.js
+copyNewServer.bat

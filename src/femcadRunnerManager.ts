@@ -50,22 +50,13 @@ export class FemcadRunner {
 
     readonly IsInitialized: boolean;
 
-    private femcadPath: string | undefined;
-    private fliPath: string | undefined;
+    private getFemcadFolder() : string {
+        return this.extData.femcadFolderPath;
+    }
 
-    constructor(extData: ExtensionData) {
-        this.IsInitialized = false;
-        this.extData = extData;
-        this.appInsightsClient = extData.appInsightsClient;
+    private getFemcadFilepath(fileName: string, quiteFile : boolean = false): string | undefined {
+        let femcadFolder: string = this.getFemcadFolder();
 
-        let femcadFolder: string = extData.femcadFolderPath;
-        let fliPath: string = join(femcadFolder, "fli.exe");
-        let femcadPath: string = join(femcadFolder, "femcad.exe");
-
-        this.outputLineCount = 0;
-        this.startTime = new Date();
-
-        // kontrola jetli je v nastavení zadán adresář femcadu
         if (!(femcadFolder)) {
             vscode.window.showErrorMessage("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             return;
@@ -82,25 +73,41 @@ export class FemcadRunner {
             }
         });
 
+        let filePath = join(femcadFolder, fileName);
         if (!isOk) { return; }
 
-        // kontrola jestli je v adresáři femcad dostupný soubor femcad.exe
-        fs.access(femcadPath, (err) => {
-            if (err) {
+        // kontrola jestli je v adresáři femcad dostupný soubor
+        fs.access(filePath, (err) => {
+            if (err && !quiteFile) {
                 isOk = false;
-                vscode.window.showErrorMessage("Nenalezen femcad.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-            }
-        });
-
-        // kontrola jestli je v adresáři femcad dostupný soubor fli.exe
-        fs.access(fliPath, (err) => {
-            if (err) {
-                isOk = false;
-                vscode.window.showErrorMessage("Nenalezen fli.exe! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
+                vscode.window.showErrorMessage("Nenalezen " + filePath + "! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
             }
         });
 
         if (!isOk) { return; }
+
+        return filePath;
+    }
+
+    private getFliPath(): string | undefined {
+        var fliPath = this.getFemcadFilepath("fliw.exe", true);
+        if (!fliPath) {
+            fliPath = this.getFemcadFilepath("fli.exe");
+        }
+        return fliPath;
+    }
+
+    private getFemcadPath(): string | undefined {
+        return this.getFemcadFilepath("femcad.exe");
+    }
+
+    constructor(extData: ExtensionData) {
+        this.IsInitialized = false;
+        this.extData = extData;
+        this.appInsightsClient = extData.appInsightsClient;
+
+        this.outputLineCount = 0;
+        this.startTime = new Date();
 
         vscode.window.onDidCloseTerminal(term => {
             if ( term.name === "FemCAD" ) {
@@ -108,8 +115,6 @@ export class FemcadRunner {
             }
         });
 
-        this.fliPath = fliPath;
-        this.femcadPath = femcadPath;
         this.IsInitialized = true;
     }
 
@@ -152,8 +157,9 @@ export class FemcadRunner {
             return;
         }
 
-        if (!this.fliPath || ( this.fliPath && fs.accessSync(this.fliPath))) {
-            vscode.window.showErrorMessage("Fli (fli.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
+        let fliPath = this.getFliPath();
+
+        if (!fliPath) {
             return;
         }
 
@@ -199,9 +205,9 @@ export class FemcadRunner {
     //    this.appInsightsClient.sendEvent(command);
         this.startTime = new Date();
 
-        let fullCommand: string = "cmd /c chcp 65001 >nul && " + FileSystemManager.quoteFileName(this.fliPath) + " " + command;
+        let fullCommand: string = "cmd /c chcp 65001 >nul && " + FileSystemManager.quoteFileName(fliPath) + " " + command;
 
-        console.log("Fli path: " + this.fliPath);
+        console.log("Fli path: " + fliPath);
         console.log("Full cmd command: " + fullCommand);
 
         this.process = spawn(fullCommand, [], { shell: true });
@@ -309,23 +315,16 @@ export class FemcadRunner {
             return;
         }
 
-        if (!this.femcadPath) {
-            vscode.window.showErrorMessage("FemCAD (femcad.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
-            return;
+        let femcadPath = this.getFemcadPath();
+
+        if (femcadPath) {
+            let femcadPathqQuoted: string = FileSystemManager.quoteFileName(femcadPath);
+            let filePath: string = FileSystemManager.quoteFileName(fcsFilePath);
+            let cmdToExec: string = femcadPathqQuoted + " " + filePath;
+            console.log(cmdToExec);
+
+            exec(cmdToExec);
         }
-
-        fs.access(this.femcadPath, (err) => {
-            if (err) {
-                vscode.window.showErrorMessage("FemCAD (femcad.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
-            } else if (this.femcadPath) {
-                let femcadPath: string = FileSystemManager.quoteFileName(this.femcadPath);
-                let filePath: string = FileSystemManager.quoteFileName(fcsFilePath);
-                let cmdToExec: string = femcadPath + " " + filePath;
-                console.log(cmdToExec);
-
-                exec(cmdToExec);
-            }
-        });
     }
 
     private killProcessId(processId: number): void {
@@ -338,12 +337,13 @@ export class FemcadRunner {
         var term: vscode.Terminal = this.terminal;
 
         try {
-            if (!this.fliPath || ( this.fliPath && fs.accessSync(this.fliPath))) {
-                vscode.window.showErrorMessage("Fli (fli.exe) is not found! Check 'fcs-vscode.femcadFolder' option in Settings.");
+            let fliPath = this.getFliPath();
+
+            if (!fliPath) {
                 return;
             }
 
-            var terminalCommand: string = this.fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
+            var terminalCommand: string = fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
 
             term.processId.then(pid => {
                 var processId: number = pid;
