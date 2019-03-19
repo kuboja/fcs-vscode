@@ -263,10 +263,10 @@
     },
     "dependencies": {
         "applicationinsights": "^1.2.0",
-        "opn": "^5.4.0",
+        "opn": "^5.5.0",
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
-        "tree-kill": "^1.2.0",
+        "tree-kill": "^1.2.1",
         "vscode-languageclient": "^5.2.1"
     }
 }
