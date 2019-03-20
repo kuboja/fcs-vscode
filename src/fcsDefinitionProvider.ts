@@ -1,9 +1,6 @@
 "use strict";
 
 import * as vscode from "vscode";
-
-//import { stat } from "fs";
-//import { promisify } from "util";
 import { FcsSymbolProvider } from "./fcsSymbolUtil";
 import { WordTools } from "./fcsCompletionItemProvider";
 
@@ -35,8 +32,6 @@ export class FcsDefinitionProvider implements vscode.DefinitionProvider, vscode.
                 lacation = sym.location;
                 break;
             }
-
-
         }
 
         return lacation;

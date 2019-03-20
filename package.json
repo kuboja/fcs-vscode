@@ -250,23 +250,19 @@
     },
     "devDependencies": {
         "@types/mocha": "^5.2.6",
-        "@types/node": "^8.10.44",
-        "@types/opn": "^5.1.0",
+        "@types/node": "^10.14.1",
         "@types/ps-tree": "^1.1.0",
-        "@types/shelljs": "^0.8.3",
         "mocha": "^5.2.0",
         "ts-loader": "^5.3.3",
-        "typescript": "^3.3.3333",
-        "vscode": "^1.1.30",
+        "typescript": "^3.3.4000",
+        "vscode": "^1.1.32",
         "webpack": "^4.29.6",
         "webpack-cli": "^3.3.0"
     },
     "dependencies": {
         "applicationinsights": "^1.2.0",
-        "opn": "^5.5.0",
         "ps-tree": "^1.2.0",
-        "shelljs": "^0.8.3",
-        "tree-kill": "^1.2.1",
+        "tree-kill": "^1.2.0",
         "vscode-languageclient": "^5.2.1"
     }
 }
