@@ -1,13 +1,12 @@
 "use strict";
 
 import * as fs from "fs";
-import kill = require("tree-kill");
-import * as vscode from "vscode";
-import { ChildProcess, spawn, exec, spawnSync } from "child_process";
 import { join } from "path";
-import { AppInsightsClient } from "./appInsightsClient";
+import * as vscode from "vscode";
+import * as treekill from "tree-kill";
 import * as psTree from "ps-tree";
-
+import { ChildProcess, spawn, exec } from "child_process";
+import { AppInsightsClient } from "./appInsightsClient";
 import { FileSystemManager } from "./fileSystemManager";
 import { ExtensionData } from "./extensionData";
 
@@ -301,10 +300,17 @@ export class FemcadRunner {
         }
     }
 
+    private killProcessId(processId: number): void {
+        if (processId) {
+            treekill(processId);
+            //spawnSync("Taskkill", ["/PID", processId.toString(), "/T", "/F"], { shell: true });
+        }
+    }
+
     private killProcess(): void {
         if (this.process && this.isRunning) {
             this.isRunning = false;
-            kill(this.process.pid);
+            this.killProcessId(this.process.pid);
         }
     }
 
@@ -324,12 +330,6 @@ export class FemcadRunner {
             console.log(cmdToExec);
 
             exec(cmdToExec);
-        }
-    }
-
-    private killProcessId(processId: number): void {
-        if (processId) {
-            spawnSync("Taskkill", ["/PID", processId.toString(), "/T", "/F"], { shell: true });
         }
     }
 

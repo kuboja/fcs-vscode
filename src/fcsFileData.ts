@@ -4,8 +4,6 @@ import * as fs from "fs";
 import * as os from "os";
 import * as vscode from "vscode";
 import * as path from "path";
-import opn = require("opn");
-
 import { FileSystemManager } from "./fileSystemManager";
 import { FliCommand, IFliCommandMethods } from "./femcadRunnerManager";
 
@@ -185,7 +183,7 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
     public afterExit(): void {
         switch (this.executionMethod) {
             case ExecutionMethodType.Straight:
-                opn( this.tempFilePath );
+                vscode.env.openExternal( vscode.Uri.parse( this.tempFilePath ) );
                 break;
             case ExecutionMethodType.WithTempFile:
                 fs.unlinkSync(this.tempFilePath);

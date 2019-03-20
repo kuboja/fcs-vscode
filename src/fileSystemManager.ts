@@ -1,8 +1,7 @@
 "use strict";
 
 import * as fs from "fs";
-import * as os from "os";
-import * as shelljs from "shelljs";
+import { tmpdir } from "os";
 import { join } from "path";
 
 
@@ -10,7 +9,7 @@ export class FileSystemManager {
 
     public static createFolderIfNotExist(dirPath: string): void {
         if (!fs.existsSync(dirPath)) {
-            shelljs.mkdir("-p", dirPath);
+            fs.mkdirSync(dirPath)
         }
     }
 
@@ -23,14 +22,14 @@ export class FileSystemManager {
     }
 
     public static getTempFolderPath(): string {
-        let tempDir: string = join(os.tmpdir(), "fcs-vscode", "runner");
+        let tempDir: string = join(tmpdir(), "fcs-vscode", "runner");
         this.createFolderIfNotExist(tempDir);
 
         return tempDir;
     }
 
     public static getReportFolderPath(): string {
-        let tempDir: string = join(os.tmpdir(), "FcsReports");
+        let tempDir: string = join(tmpdir(), "FcsReports");
         this.createFolderIfNotExist(tempDir);
 
         return tempDir;
