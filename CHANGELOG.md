@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.5] - 2019-04-04
+
+### Added
+- New beam hinge api.
+
 ## [1.4.0] - 2018-10-25
 
 ### Added
