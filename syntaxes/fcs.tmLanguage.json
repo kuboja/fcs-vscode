@@ -190,7 +190,7 @@
                 {
                     "comment": "modifikátory za kterými musí být závorka nebo uvozovka (může být před nimi znaménko + nebo -)",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<=\\s)(if|area|geometry|section|material|t|metadata|fixed|styles|case|fcsdrs|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions)(?=\\s+[+-]?(?:\\(|\\[|\\{|\"))"
+                    "match": "(?<=\\s)(if|area|geometry|section|material|t|metadata|fixed|styles|case|fcsdrs|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions|hinges)(?=\\s+[+-]?(?:\\(|\\[|\\{|\"))"
                 },
                 {
                     "comment": "názvy modifikátorů, které mohou být následovány číslem nebo textem (které může znamenat referenci)",
