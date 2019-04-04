@@ -1,6 +1,7 @@
 "use strict";
 
 import * as fs from "fs";
+import * as shelljs from "shelljs";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -9,7 +10,7 @@ export class FileSystemManager {
 
     public static createFolderIfNotExist(dirPath: string): void {
         if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath)
+            shelljs.mkdir("-p", dirPath);
         }
     }
 
