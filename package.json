@@ -147,9 +147,14 @@
                 "description": "Resolve current in Tree"
             },
             {
-                "command": "fcs-vscode.startTreeFli",
-                "title": "Start",
-                "description": "Start fli in Tree"
+                "command": "fcs-vscode.intOpen",
+                "title": "Open",
+                "description": "Open current file in Tree"
+            },
+            {
+                "command": "fcs-vscode.intClose",
+                "title": "Close",
+                "description": "Close file"
             }
         ],
         "menus": {
@@ -185,13 +190,18 @@
             "view/item/context": [
                 {
                     "command": "fcs-vscode.treeitemResolve",
-                    "when": "viewItem == notUpdated",
+                    "when": "view == fcstree && viewItem == notUpdated && false",
+                    "group": "inline"
+                },
+                {
+                    "command": "fcs-vscode.intClose",
+                    "when": "view == fcstree && viewItem == root",
                     "group": "inline"
                 }
             ],
             "view/title": [
                 {
-                    "command": "fcs-vscode.startTreeFli",
+                    "command": "fcs-vscode.intOpen",
                     "when": "view == fcstree",
                     "group": "navigation"
                 }
