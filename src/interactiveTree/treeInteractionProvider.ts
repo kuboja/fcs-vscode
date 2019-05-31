@@ -9,7 +9,7 @@ import { InteractiveManager, BitCategory, Bit } from "./interactiveManager";
 export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
     private context: vscode.ExtensionContext;
     private _onDidChangeTreeData: vscode.EventEmitter<Entry>;
-    private managers : {[index: string]: InteractiveManager | undefined}= {};
+    private managers: { [index: string]: InteractiveManager | undefined } = {};
     private roots: Entry[] = [];
 
     public constructor(context: vscode.ExtensionContext) {
@@ -21,27 +21,27 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
     /// TreeDataProvider
 
     public get onDidChangeTreeData(): vscode.Event<Entry | undefined> {
-		return this._onDidChangeTreeData.event;
+        return this._onDidChangeTreeData.event;
     }
-    
-    public async getChildren(element?: Entry): Promise<Entry[]| undefined> {
-        if (!element){
+
+    public async getChildren(element?: Entry): Promise<Entry[] | undefined> {
+        if (!element) {
             return this.roots;
         }
 
         let man = await this.getManager(element);
-        if (!man){
+        if (!man) {
             return;
         }
 
         let fcsPath = element ? element.path : "";
         let data = await man.getList(fcsPath);
 
-        if (!data) { 
+        if (!data) {
             return;
         }
 
-        if (element && element.category !== BitCategory.RootFile){
+        if (element && element.category !== BitCategory.RootFile) {
             let elementChanged = false;
 
             if (element.category !== data.Category) {
@@ -53,7 +53,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
                 element.value = data.Value ? data.Value : "";
                 elementChanged = true;
             }
-        
+
             if (elementChanged) {
                 this._onDidChangeTreeData.fire(element);
                 return;
@@ -61,7 +61,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
         }
 
         if (data.Items && data.Items.length > 0) {
-            let items = data.Items.map( b => this.bitToEntry(element, b));
+            let items = data.Items.map(b => this.bitToEntry(element, b));
             return items;
         }
     }
@@ -74,8 +74,8 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
 
     public getTreeItem(element: Entry): vscode.TreeItem {
         const treeItem = new vscode.TreeItem(element.name);
-        
-        treeItem.id = element.rootId +":>>"+ element.path;
+
+        treeItem.id = element.rootId + ":>>" + element.path;
         treeItem.description = (element.value ? "" + element.value : "");
         treeItem.label = element.name;
         treeItem.collapsibleState = this.getElementState(element);
@@ -87,7 +87,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
             "\nCategory: " + BitCategory[element.category] +
             "\nContex: " + treeItem.contextValue;
 
-		return treeItem;
+        return treeItem;
     }
 
     private getIconByTokenType(cat: BitCategory): ThenableTreeIconPath | undefined {
@@ -120,26 +120,29 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
 
         let normalName = name + "_16x.svg";
         let inverseName = name + "_inverse_16x.svg";
-        let lightIconPath = this.context.asAbsolutePath("media/icons/"+normalName);
-        let darkIconPath = this.context.asAbsolutePath("media/icons/"+inverseName);
-        
+        let lightIconPath = this.context.asAbsolutePath("media/icons/" + normalName);
+        let darkIconPath = this.context.asAbsolutePath("media/icons/" + inverseName);
+
         return {
             light: lightIconPath,
             dark: darkIconPath
         };
     }
 
-    private getElementState(e : Entry){
-        if (e.category === BitCategory.Sequence || e.category === BitCategory.Class || e.category === BitCategory.Any || e.category === BitCategory.RootFile ) {
-            return vscode.TreeItemCollapsibleState.Collapsed;
+    private getElementState(e: Entry) {
+        switch (e.category) {
+            case BitCategory.Sequence:
+            case BitCategory.Class:
+            case BitCategory.Any:
+            case BitCategory.RootFile:
+                return vscode.TreeItemCollapsibleState.Collapsed;
         }
-        else {
-            return vscode.TreeItemCollapsibleState.None;
-        }
+
+        return vscode.TreeItemCollapsibleState.None;
     }
 
-    private getElementContext(e: Entry){
-        if (e.category === BitCategory.RootFile){
+    private getElementContext(e: Entry) {
+        if (e.category === BitCategory.RootFile) {
             return "root";
         }
 
@@ -176,12 +179,12 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
         return entry;
     }
 
-    private createPath(parent: Entry | undefined, b: Bit){
-        if (!parent){
+    private createPath(parent: Entry | undefined, b: Bit) {
+        if (!parent) {
             return b.Name;
         }
 
-        let parentType = parent.category ? parent.category : BitCategory.Class ;
+        let parentType = parent.category ? parent.category : BitCategory.Class;
         let p = parent.path ? parent.path : "";
         let t = parentType === BitCategory.Sequence ? "" : ".";
         let n = b.Name ? b.Name : "";
@@ -192,14 +195,14 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
     /// Actions
 
     public open(filePath: string) {
-        let root = this.roots.find( r => r.filePath === filePath);
+        let root = this.roots.find(r => r.filePath === filePath);
 
-        if (!root){
+        if (!root) {
             let name = filePath.replace("\\", "//").split("//").pop();
 
             root = {
                 name: name ? name : filePath,
-                filePath, 
+                filePath,
                 path: "",
                 hasChildren: true,
                 isResolved: false,
@@ -211,15 +214,15 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
 
             this.roots.push(root);
             this._onDidChangeTreeData.fire();
-        } 
+        }
 
         return root;
     }
 
-    public async close(element: Entry){
-        if (element.category === BitCategory.RootFile){
-            if (this.roots.some( r => r.rootId === element.rootId )){
-                this.roots = this.roots.filter( r => r.rootId !== element.rootId);
+    public async close(element: Entry) {
+        if (element.category === BitCategory.RootFile) {
+            if (this.roots.some(r => r.rootId === element.rootId)) {
+                this.roots = this.roots.filter(r => r.rootId !== element.rootId);
                 await this.closeManager(element);
 
                 this._onDidChangeTreeData.fire();
@@ -249,9 +252,9 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
         return man;
     }
 
-    private async getManager(element: Entry, createIfNotexist = true){
+    private async getManager(element: Entry, createIfNotexist = true) {
         let man: InteractiveManager | undefined = this.managers[element.rootId];
-        
+
         if (createIfNotexist && !man && element.category === BitCategory.RootFile) {
             man = await this.addManager(element);
         }
@@ -259,10 +262,10 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
         return man;
     }
 
-    private async closeManager(element: Entry){
+    private async closeManager(element: Entry) {
         let man = await this.getManager(element);
 
-        if(man){
+        if (man) {
             man.dispose();
         }
 
@@ -272,7 +275,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
 
 export interface Entry {
     name: string;
-	path: string;
+    path: string;
     filePath: string;
     hasChildren: boolean;
     isResolved: boolean;

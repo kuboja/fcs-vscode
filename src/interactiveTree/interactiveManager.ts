@@ -6,28 +6,25 @@ import { ChildProcess, spawn } from "child_process";
 
 
 export class InteractiveManager implements vscode.Disposable {
-    
-    private pathFli = "C:\\GitHub\\fcs-histruct2\\bin\\FliVS\\Debug\\net47\\flivs.exe"; 
-   
+
+    private pathFli = "C:\\GitHub\\fcs-histruct2\\bin\\FliVS\\Debug\\net47\\flivs.exe";
+
     public pathFcs: string;
     private fliProcess?: ChildProcess;
     private connection?: rpc.MessageConnection;
+    private sessionStarted: boolean = false;
 
-    constructor(fcsPath:string) {
+    constructor(fcsPath: string) {
         this.pathFcs = fcsPath;
     }
 
-    private sessionStarted: boolean = false;
-
-    public canSendRequest(): boolean{
+    public canSendRequest(): boolean {
         return this.connection !== undefined && this.sessionStarted;
     }
 
     public async startConnection(): Promise<boolean> {
-
-        if (this.connection){ return this.sessionStarted; }
-        if (this.canSendRequest()) {return true;}
-
+        if (this.connection) { return this.sessionStarted; }
+        if (this.canSendRequest()) { return true; }
 
         let pipeName = rpc.generateRandomPipeName();
 
@@ -46,25 +43,28 @@ export class InteractiveManager implements vscode.Disposable {
             this.fliProcess.on("close", (code) => this.onCloseEvent(code));
 
             let [messageReader, messageWriter] = await pipe.onConnected();
-       
+
             this.connection = rpc.createMessageConnection(messageReader, messageWriter, logger);
+
             this.connection.onError((e) => {
                 console.error("Chyba ve spojení: " + e);
             });
+
             this.connection.trace(rpc.Trace.Verbose, {
                 log: (data: any, data2?: any) => {
                     console.log(data);
                     if (data2) { console.log(data2); }
                 }
             });
-            this.connection.onClose((e)=>{
-                
+
+            this.connection.onClose((e) => {
                 if (this.fliProcess) {
                     this.fliProcess.kill();
                     this.fliProcess = undefined;
                 }
                 this.sessionStarted = false;
             });
+
             this.connection.listen();
         }
         catch (error) {
@@ -73,14 +73,14 @@ export class InteractiveManager implements vscode.Disposable {
         }
 
         let response = await this.sendStartRequest();
-        if (!response){
+        if (!response) {
             this.disconect();
         }
 
         return response;
     }
 
-    disconect(){
+    disconect() {
         if (this.connection) {
             this.connection.dispose();
             this.connection = undefined;
@@ -122,29 +122,29 @@ export class InteractiveManager implements vscode.Disposable {
         this.getList("");
     }
 
-    async getList(path: string)  {
-        if (!this.connection){ return; }
+    async getList(path: string) {
+        if (!this.connection) { return; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("list");
-        let req2 = new rpc.RequestType2<string,string,Bits,any,any>("list");
-        
+        let req2 = new rpc.RequestType2<string, string, Bits, any, any>("list");
+
         try {
             return await this.connection.sendRequest(req2, path, "");
         } catch (e) {
-            console.error("Error with " + req2.method + " request: " + e );
+            console.error("Error with " + req2.method + " request: " + e);
         }
     }
 
     sendAdd(): void {
-        if (!this.connection) {return;}
+        if (!this.connection) { return; }
 
-        let req = new rpc.RequestType2<number,number,number,rpc.ResponseError<any>,any>("Add");
-        
-        this.connection.sendRequest(req,1,2)
+        let req = new rpc.RequestType2<number, number, number, rpc.ResponseError<any>, any>("Add");
+
+        this.connection.sendRequest(req, 1, 2)
             .then(
                 a => this.posRes(a),
-                 e => this.errRes(e)
-                 );
+                e => this.errRes(e)
+            );
     }
 
     posRes(a: any) {
