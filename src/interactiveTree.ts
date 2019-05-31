@@ -5,8 +5,6 @@ import * as rpc from 'vscode-jsonrpc';
 import { ChildProcess, spawn } from "child_process";
 
 import { FileSystemManager } from "./fileSystemManager";
-import { disconnect } from "cluster";
-import { AbstractMessageType } from "vscode-jsonrpc/lib/messages";
 
 
 export class InteractiveTree {
@@ -20,10 +18,10 @@ export class InteractiveTree {
         this.tree = vscode.window.createTreeView('fcstree', { treeDataProvider: this.treeDataProvider });
 
 		vscode.commands.registerCommand('fcs-vscode.startTreeFli', () => this.openFromEditor());
-		vscode.commands.registerCommand('fcs-vscode.treeitemResolve', (resource) => this.resolve(resource));
+        vscode.commands.registerCommand('fcs-vscode.treeitemResolve', (resource) => this.resolve(resource));
     }
     
-    private openFromEditor(){
+    private async openFromEditor(){
 
         let editor = vscode.window.activeTextEditor;
 
@@ -33,6 +31,7 @@ export class InteractiveTree {
         }
 
         let filePath = editor.document.uri.fsPath;
+        let name = editor.document.fileName;
         //let filePath = "C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\ExpertSystem\\Snow\\SnowAction.fcs";
 
         if (!filePath){
@@ -40,7 +39,24 @@ export class InteractiveTree {
             return;
         }
 
-        this.treeDataProvider.openFcs(filePath);
+        try {
+            
+            await this.tree.reveal({
+                name,
+                filePath, 
+                path: "",
+                hasChildren: true,
+                isResolved: false,
+                isValue: false,
+                type: "fcsFile",
+                category: BitCategory.RootFile,
+                rootId: FileSystemManager.rndName(),
+            }, {select: true, expand: false});
+        }
+        catch (e) {
+            console.error(e);    
+        }
+       // this.treeDataProvider.openFcs(filePath);
     }
 
     private async resolve(resource: Entry | undefined){
@@ -233,6 +249,7 @@ interface Bits {
 }
 
 enum BitCategory {
+    RootFile = -2,
     Any = -1,
     Error = 0,
     Value = 1,
@@ -259,7 +276,32 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
 
     private context: vscode.ExtensionContext;
     private _onDidChangeTreeData: vscode.EventEmitter<Entry>;
-    private manager?: InteractiveManager;
+    private managers : {[index: string]:  InteractiveManager}= {};
+
+    private async addManager(element: Entry) {
+        let man = this.managers[element.rootId];
+
+        if (man) { return; }
+
+        man = new InteractiveManager(element.filePath);
+
+        if (!await man.startConnection()) {
+            return;
+        }
+
+        this.managers[element.rootId] = man;
+        return man;
+    }
+
+    private async getManager(element: Entry){
+        let man: InteractiveManager | undefined = this.managers[element.rootId];
+        
+        if (!man && element.category === BitCategory.RootFile) {
+            man = await this.addManager(element);
+        }
+
+        return man;
+    }
 
     get onDidChangeTreeData(): vscode.Event<Entry | undefined> {
 		return this._onDidChangeTreeData.event;
@@ -272,7 +314,7 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
     }
 
     private getElementState(e : Entry){
-        if (e.category === BitCategory.Sequence || e.category === BitCategory.Class || e.category === BitCategory.Any ) {
+        if (e.category === BitCategory.Sequence || e.category === BitCategory.Class || e.category === BitCategory.Any || e.category === BitCategory.RootFile ) {
             return vscode.TreeItemCollapsibleState.Collapsed;
         }
         else {
@@ -280,33 +322,54 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
         }
     }
 
+    private rootLeafs: vscode.TreeItem[] = [];
+
     public getTreeItem(element: Entry): vscode.TreeItem {
+
+        let id = element.filePath +":>>"+ element.path;
+
+        if (element.category === BitCategory.RootFile){
+            let leaf = this.rootLeafs.find( r => r.id === id);
+            if (leaf){
+                return leaf;
+            }
+        }
+
         const treeItem = new vscode.TreeItem(element.name);
         
+        treeItem.id = id;
         treeItem.description = (element.value ? "" + element.value : "");
         treeItem.label = element.name;
-        treeItem.id = element.path;
-        treeItem.tooltip = element.path + "\n" + element.filePath + "\nType: " + element.type + "\nCategory: " + BitCategory[ element.category ];
+        treeItem.tooltip = "Path: " + element.path + "\nFile: " + element.filePath + "\nType: " + element.type + "\nCategory: " + BitCategory[ element.category ];
         treeItem.collapsibleState = this.getElementState( element );
         treeItem.contextValue = !element.value ? "notUpdated" : "fullResolved";
         treeItem.iconPath = this.getIconByTokenType(element.category);
-     
+        
+        if (element.category === BitCategory.RootFile){
+            this.rootLeafs.push(treeItem);
+        }
+
 		return treeItem;
     }
 
     public async getChildren(element?: Entry): Promise<Entry[]| undefined> {
-        if (!this.manager) {
-            return [];
+        if (!element){
+            return this.roots;
+        }
+
+        let man = await this.getManager(element);
+        if (!man){
+            return;
         }
 
         let fcsPath = element ? element.path : "";
-        let data = await this.manager.getList(fcsPath);
+        let data = await man.getList(fcsPath);
 
         if (!data) { 
             return;
         }
 
-        if (element){
+        if (element && element.category !== BitCategory.RootFile){
             let elementChanged = false;
 
             if (element.category !== data.Category) {
@@ -326,9 +389,22 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
         }
 
         if (data.Items && data.Items.length > 0) {
-            let type = data.Category ? data.Category : BitCategory.Class ;
             let items = data.Items.map( b => this.bitToEntry(element, b));
             return items;
+        }
+    }
+
+    private roots: Entry[] = [];
+
+    public getParent(child: Entry): Entry|undefined{
+        if (child.category === BitCategory.RootFile){
+            if (!this.roots.some( r => r.rootId === child.rootId )){
+                this.roots.push(child);
+                if (this.roots.length > 1){
+                    this._onDidChangeTreeData.fire(undefined);
+                }
+            }
+            return undefined;
         }
     }
 
@@ -353,7 +429,9 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
             value,
             type,
             category,
+            rootId: parent ? parent.rootId : "root",
         };
+
         return entry;
     }
 
@@ -385,7 +463,9 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
             case BitCategory.Any:
                 name = "Empty";
                 break;
-            
+            case BitCategory.RootFile:
+                name = "Document";
+                break;
             default:
                 name = "";
                 break;
@@ -413,17 +493,6 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
    //     }
    //     this._onDidChangeTreeData.fire(element);
     }
-
-    public async openFcs(fcsFilePath: string) {
-        if (!this.manager){
-
-            this.manager = new InteractiveManager(fcsFilePath);
-
-            if (await this.manager.startConnection()){
-                this._onDidChangeTreeData.fire();
-            }
-        }
-    }
 }
 
 export interface Entry {
@@ -436,6 +505,7 @@ export interface Entry {
     isValue: boolean;
     type?: string;
     category: BitCategory;
+    rootId: string;
 }
 
 export interface EntryEvent {
