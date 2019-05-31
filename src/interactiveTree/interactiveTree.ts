@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import * as rpc from 'vscode-jsonrpc';
 import { ChildProcess, spawn } from "child_process";
 
-import { FileSystemManager } from "./fileSystemManager";
+import { FileSystemManager } from "../fileSystemManager";
 
 
 export class InteractiveTree {
@@ -32,8 +32,6 @@ export class InteractiveTree {
         }
 
         let filePath = editor.document.uri.fsPath;
-        //let filePath = "C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\ExpertSystem\\Snow\\SnowAction.fcs";
-
         if (!filePath) {
             console.log("Soubor nemá cestu na disku!");
             return;
@@ -167,10 +165,7 @@ export class InteractiveManager implements vscode.Disposable {
         let req2 = new rpc.RequestType2<string, string, any, any, any>("start");
 
         try {
-            this.connection.inspect();
-            //"C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\ExpertSystem\\Snow\\SnowAction.fcs"
-            let response = await this.connection.sendRequest(req2, this.pathFcs, "");
-            this.sessionStarted = response;
+            this.sessionStarted = await this.connection.sendRequest(req2, this.pathFcs, "");
         } catch (error) {
             this.sessionStarted = false;
             console.error("Chyba při volání metody start: " + error);
@@ -274,87 +269,20 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
     private context: vscode.ExtensionContext;
     private _onDidChangeTreeData: vscode.EventEmitter<Entry>;
     private managers : {[index: string]: InteractiveManager | undefined}= {};
+    private roots: Entry[] = [];
 
-    private async addManager(element: Entry) {
-        let man = this.managers[element.rootId];
-
-        if (man) { return; }
-
-        man = new InteractiveManager(element.filePath);
-
-        if (!await man.startConnection()) {
-            return;
-        }
-
-        this.managers[element.rootId] = man;
-        return man;
-    }
-
-    private async getManager(element: Entry, createIfNotexist = true){
-        let man: InteractiveManager | undefined = this.managers[element.rootId];
-        
-        if (createIfNotexist && !man && element.category === BitCategory.RootFile) {
-            man = await this.addManager(element);
-        }
-
-        return man;
-    }
-
-    private async closeManager(element: Entry){
-        let man = await this.getManager(element);
-
-        if(man){
-            man.dispose();
-        }
-
-        this.managers[element.rootId] = undefined;
-    }
-
-    get onDidChangeTreeData(): vscode.Event<Entry | undefined> {
-		return this._onDidChangeTreeData.event;
-    }
-   
-    
-    constructor(context: vscode.ExtensionContext) {
+    public constructor(context: vscode.ExtensionContext) {
         this.context = context;
         this._onDidChangeTreeData = new vscode.EventEmitter<Entry>();
     }
 
-    private getElementState(e : Entry){
-        if (e.category === BitCategory.Sequence || e.category === BitCategory.Class || e.category === BitCategory.Any || e.category === BitCategory.RootFile ) {
-            return vscode.TreeItemCollapsibleState.Collapsed;
-        }
-        else {
-            return vscode.TreeItemCollapsibleState.None;
-        }
+
+    /// TreeDataProvider
+
+    public get onDidChangeTreeData(): vscode.Event<Entry | undefined> {
+		return this._onDidChangeTreeData.event;
     }
-
-    private getElementContext(e: Entry){
-        if (e.category === BitCategory.RootFile){
-            return "root";
-        }
-
-        return !e.value ? "notUpdated" : "fullResolved";
-    }
-
-    public getTreeItem(element: Entry): vscode.TreeItem {
-        const treeItem = new vscode.TreeItem(element.name);
-        
-        treeItem.id = element.rootId +":>>"+ element.path;
-        treeItem.description = (element.value ? "" + element.value : "");
-        treeItem.label = element.name;
-        treeItem.collapsibleState = this.getElementState(element);
-        treeItem.contextValue = this.getElementContext(element);
-        treeItem.iconPath = this.getIconByTokenType(element.category);
-        treeItem.tooltip = "Path: " + element.path +
-            "\nFile: " + element.filePath +
-            "\nType: " + element.type +
-            "\nCategory: " + BitCategory[element.category] +
-            "\nContex: " + treeItem.contextValue;
-
-		return treeItem;
-    }
-
+    
     public async getChildren(element?: Entry): Promise<Entry[]| undefined> {
         if (!element){
             return this.roots;
@@ -397,51 +325,28 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
         }
     }
 
-    private roots: Entry[] = [];
-
     public getParent(child: Entry): Entry | undefined {
         if (child.category === BitCategory.RootFile) {
             return undefined;
         }
     }
 
-    private bitToEntry(parent: Entry | undefined, b: Bit): Entry {
-        let value: string | undefined;
-        let type: string | undefined;
-        let category = BitCategory.Any;
+    public getTreeItem(element: Entry): vscode.TreeItem {
+        const treeItem = new vscode.TreeItem(element.name);
+        
+        treeItem.id = element.rootId +":>>"+ element.path;
+        treeItem.description = (element.value ? "" + element.value : "");
+        treeItem.label = element.name;
+        treeItem.collapsibleState = this.getElementState(element);
+        treeItem.contextValue = this.getElementContext(element);
+        treeItem.iconPath = this.getIconByTokenType(element.category);
+        treeItem.tooltip = "Path: " + element.path +
+            "\nFile: " + element.filePath +
+            "\nType: " + element.type +
+            "\nCategory: " + BitCategory[element.category] +
+            "\nContex: " + treeItem.contextValue;
 
-        if (b.Value && b.Value.Value && b.Value.Type) {
-            value = b.Value.Value.toString();
-            type = b.Value.Type;
-            category = b.Value.Category;
-        }
-
-        let entry = {
-            name: b.Name,
-            path: this.createPath(parent, b),
-            filePath: b.FilePath,
-            hasChildren: true,
-            isResolved: false,
-            isValue: value ? true : false,
-            value,
-            type,
-            category,
-            rootId: parent ? parent.rootId : "root",
-        };
-
-        return entry;
-    }
-
-    private createPath(parent: Entry | undefined, b: Bit){
-        if (!parent){
-            return b.Name;
-        }
-
-        let parentType = parent.category ? parent.category : BitCategory.Class ;
-        let p = parent.path ? parent.path : "";
-        let t = parentType === BitCategory.Sequence ? "" : ".";
-        let n = b.Name ? b.Name : "";
-        return (p === "") ? n : p + t + n;
+		return treeItem;
     }
 
     private getIconByTokenType(cat: BitCategory): ThenableTreeIconPath | undefined {
@@ -483,6 +388,68 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
         };
     }
 
+    private getElementState(e : Entry){
+        if (e.category === BitCategory.Sequence || e.category === BitCategory.Class || e.category === BitCategory.Any || e.category === BitCategory.RootFile ) {
+            return vscode.TreeItemCollapsibleState.Collapsed;
+        }
+        else {
+            return vscode.TreeItemCollapsibleState.None;
+        }
+    }
+
+    private getElementContext(e: Entry){
+        if (e.category === BitCategory.RootFile){
+            return "root";
+        }
+
+        return !e.value ? "notUpdated" : "fullResolved";
+    }
+
+
+    /// Bits
+
+    private bitToEntry(parent: Entry | undefined, b: Bit): Entry {
+        let value: string | undefined;
+        let type: string | undefined;
+        let category = BitCategory.Any;
+
+        if (b.Value && b.Value.Value && b.Value.Type) {
+            value = b.Value.Value.toString();
+            type = b.Value.Type;
+            category = b.Value.Category;
+        }
+
+        let entry = {
+            name: b.Name,
+            path: this.createPath(parent, b),
+            filePath: b.FilePath,
+            hasChildren: true,
+            isResolved: false,
+            isValue: value ? true : false,
+            value,
+            type,
+            category,
+            rootId: parent ? parent.rootId : "root",
+        };
+
+        return entry;
+    }
+
+    private createPath(parent: Entry | undefined, b: Bit){
+        if (!parent){
+            return b.Name;
+        }
+
+        let parentType = parent.category ? parent.category : BitCategory.Class ;
+        let p = parent.path ? parent.path : "";
+        let t = parentType === BitCategory.Sequence ? "" : ".";
+        let n = b.Name ? b.Name : "";
+        return (p === "") ? n : p + t + n;
+    }
+
+
+    /// Actions
+
     public open(filePath: string) {
         let root = this.roots.find( r => r.filePath === filePath);
 
@@ -520,11 +487,45 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
     }
 
     public resolve(resource: any): any {
-   //     let element = resource as Entry;
-   //     if (element){
-   //         element.isResolved = true;
-   //     }
-   //     this._onDidChangeTreeData.fire(element);
+
+    }
+
+
+    /// Managers
+
+    private async addManager(element: Entry) {
+        let man = this.managers[element.rootId];
+
+        if (man) { return; }
+
+        man = new InteractiveManager(element.filePath);
+
+        if (!await man.startConnection()) {
+            return;
+        }
+
+        this.managers[element.rootId] = man;
+        return man;
+    }
+
+    private async getManager(element: Entry, createIfNotexist = true){
+        let man: InteractiveManager | undefined = this.managers[element.rootId];
+        
+        if (createIfNotexist && !man && element.category === BitCategory.RootFile) {
+            man = await this.addManager(element);
+        }
+
+        return man;
+    }
+
+    private async closeManager(element: Entry){
+        let man = await this.getManager(element);
+
+        if(man){
+            man.dispose();
+        }
+
+        this.managers[element.rootId] = undefined;
     }
 }
 

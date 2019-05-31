@@ -7,7 +7,7 @@ import { FliCommandRunner, OpenFileInFemCAD } from "./commandManager";
 import { FcsSymbolProvider } from "./fcsSymbolUtil";
 import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
 import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
-import { InteractiveTree } from "./interactiveTree";
+import { InteractiveTree } from "./interactiveTree/interactiveTree";
 
 
 export function activate(context: vscode.ExtensionContext): void {
