@@ -26,7 +26,7 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
     const codeManager: FliCommandRunner = new FliCommandRunner(extData);
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
 
-    new InteractiveTree(context);
+    context.subscriptions.push(new InteractiveTree(context));
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.runLine", () => { codeManager.runLineCommand(); }));

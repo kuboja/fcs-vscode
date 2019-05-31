@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import { Entry, TreeInteractionProvider } from "./treeInteractionProvider";
 
 
-export class InteractiveTree {
+export class InteractiveTree implements vscode.Disposable {
     private treeDataProvider: TreeInteractionProvider;
     private tree: vscode.TreeView<Entry>;
 
@@ -52,5 +52,10 @@ export class InteractiveTree {
 
     private async resolve(resource: Entry | undefined) {
         await this.treeDataProvider.resolve(resource);
+    }
+
+    public dispose(){
+        this.treeDataProvider.dispose();
+        this.tree.dispose();
     }
 }

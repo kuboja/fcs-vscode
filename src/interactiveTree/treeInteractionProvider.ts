@@ -6,7 +6,7 @@ import { FileSystemManager } from "../fileSystemManager";
 import { InteractiveManager, BitCategory, Bit } from "./interactiveManager";
 
 
-export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
+export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, vscode.Disposable {
     private context: vscode.ExtensionContext;
     private _onDidChangeTreeData: vscode.EventEmitter<Entry>;
     private managers: { [index: string]: InteractiveManager | undefined } = {};
@@ -270,6 +270,19 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry> {
         }
 
         this.managers[element.rootId] = undefined;
+    }
+
+
+    /// Disposable
+
+    public dispose() {
+        if (this.managers) {
+            Object.values(this.managers).forEach(element => element!.dispose());
+            this.managers = {};
+        }
+        if (this.roots) {
+            this.roots = [];
+        }
     }
 }
 
