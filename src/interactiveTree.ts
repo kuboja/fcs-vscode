@@ -2,19 +2,50 @@
 
 import * as vscode from "vscode";
 import * as rpc from 'vscode-jsonrpc';
-import { ChildProcess } from "child_process";
+import { ChildProcess, spawn } from "child_process";
 
 import { FileSystemManager } from "./fileSystemManager";
+import { disconnect } from "cluster";
+import { AbstractMessageType } from "vscode-jsonrpc/lib/messages";
 
 
 export class InteractiveTree {
+
+    private treeDataProvider: ImplementationProvider;
+    private tree: vscode.TreeView<Entry>;
+
 	constructor(context: vscode.ExtensionContext) {
-		const treeDataProvider = new ImplementationProvider(context);
-        vscode.window.createTreeView('fcstree', { treeDataProvider });
-        
-		vscode.commands.registerCommand('fcs-vscode.treeitemResolve', (resource) => treeDataProvider.resolve(resource));
-		vscode.commands.registerCommand('fcs-vscode.startTreeFli', (resource) => treeDataProvider.startFli(resource));
-	}
+
+		this.treeDataProvider = new ImplementationProvider(context);
+        this.tree = vscode.window.createTreeView('fcstree', { treeDataProvider: this.treeDataProvider });
+
+		vscode.commands.registerCommand('fcs-vscode.startTreeFli', () => this.openFromEditor());
+		vscode.commands.registerCommand('fcs-vscode.treeitemResolve', (resource) => this.resolve(resource));
+    }
+    
+    private openFromEditor(){
+
+        let editor = vscode.window.activeTextEditor;
+
+        if (!editor){
+            console.log("Není otevřen žádný editor?");
+            return;
+        }
+
+        let filePath = editor.document.uri.fsPath;
+        //let filePath = "C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\ExpertSystem\\Snow\\SnowAction.fcs";
+
+        if (!filePath){
+            console.log("Soubor nemá cestu na disku!");
+            return;
+        }
+
+        this.treeDataProvider.openFcs(filePath);
+    }
+
+    private async resolve(resource: Entry | undefined){
+        await this.treeDataProvider.resolve(resource);
+    }
 }
 
 
@@ -23,7 +54,7 @@ export class InteractiveManager implements vscode.Disposable {
     private pathFli = "C:\\GitHub\\fcs-histruct2\\bin\\FliVS\\Debug\\net47\\flivs.exe"; 
    
     public pathFcs: string;
-    private process?: ChildProcess;
+    private fliProcess?: ChildProcess;
     private connection?: rpc.MessageConnection;
 
     constructor(fcsPath:string) {
@@ -32,57 +63,103 @@ export class InteractiveManager implements vscode.Disposable {
 
     private sessionStarted: boolean = false;
 
-    public canSendReques(): boolean{
+    public canSendRequest(): boolean{
         return this.connection !== undefined && this.sessionStarted;
     }
 
-    public async startFli(): Promise<boolean> {
+    public async startConnection(): Promise<boolean> {
 
         if (this.connection){ return this.sessionStarted; }
-        if (this.canSendReques()) {return true;}
+        if (this.canSendRequest()) {return true;}
 
-        let fullCommand: string = "cmd /c chcp 65001 >nul && " + FileSystemManager.quoteFileName(this.pathFli);
+
+        let pipeName = rpc.generateRandomPipeName();
 
         console.log("Fli path: " + this.pathFli);
-        console.log("Full cmd command: " + fullCommand);
+        console.log("Pipe name: " + pipeName);
 
-        //  let process = spawn(fullCommand, [], { shell: true });
+        let logger = new ConsoleLogger();
 
-        //   process.stdout.setEncoding("utf8");
-        //   process.stdout.on("data", (data: string) => this.onGetOutputData(data));
-        //   process.stderr.on("data", (data: string) => this.onGetOutputData(data));
-        //   process.on("close", (code) => this.onCloseEvent(code));
-        //     this.process = process;
-        let [messageReader, messageWriter] = rpc.createServerPipeTransport("\\\\.\\pipe\\StreamJsonRpcSamplePipe");
+        try {
+            let pipe = await rpc.createClientPipeTransport(pipeName);
 
-        this.connection = rpc.createMessageConnection( messageReader, messageWriter );
-        this.connection.listen();
+            this.fliProcess = spawn(this.pathFli, ["--c", pipeName], { shell: false, windowsHide: false });
+            this.fliProcess.stdout.setEncoding("utf8");
+            this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
+            this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
+            this.fliProcess.on("close", (code) => this.onCloseEvent(code));
 
-        return await this.sendStart();
+            let [messageReader, messageWriter] = await pipe.onConnected();
+       
+            this.connection = rpc.createMessageConnection(messageReader, messageWriter, logger);
+            this.connection.onError((e) => {
+                console.error("Chyba ve spojení: " + e);
+            });
+            this.connection.trace(rpc.Trace.Verbose, {
+                log: (data: any, data2?: any) => {
+                    console.log(data);
+                    if (data2) { console.log(data2); }
+                }
+            });
+            this.connection.onClose((e)=>{
+                
+                if (this.fliProcess) {
+                    this.fliProcess.kill();
+                    this.fliProcess = undefined;
+                }
+                this.sessionStarted = false;
+            });
+            this.connection.listen();
+        }
+        catch (error) {
+            console.error("Chyba při vytváření spojení: " + error);
+            return false;
+        }
+
+        let response = await this.sendStartRequest();
+        if (!response){
+            this.disconect();
+        }
+
+        return response;
+    }
+
+    disconect(){
+        if (this.connection) {
+            this.connection.dispose();
+            this.connection = undefined;
+        }
+        if (this.fliProcess) {
+            this.fliProcess.kill();
+            this.fliProcess = undefined;
+        }
+        this.sessionStarted = false;
     }
 
     onCloseEvent(code: number): void {
-        console.log("Error: " + code);
+        console.log("Fli was closed: " + code);
+        this.disconect();
     }
 
     onGetOutputData(data: string): void {
         console.log(data);
     }
 
-    async sendStart(): Promise<boolean>{
-        if (!this.connection){ return false; }
-        if (this.canSendReques()) {return true;}
+    async sendStartRequest(): Promise<boolean> {
+        if (!this.connection) { return false; }
+        if (this.canSendRequest()) { return true; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("start");
-        let req2 = new rpc.RequestType2<string,string,any,any,any>("start");
-        
+        let req2 = new rpc.RequestType2<string, string, any, any, any>("start");
+
         try {
-            let response = await this.connection.sendRequest(req2,"C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\ExpertSystem\\Snow\\SnowAction.fcs","");
-            this.sessionStarted = true;
-            this.posRes(response);
+            this.connection.inspect();
+            //"C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\ExpertSystem\\Snow\\SnowAction.fcs"
+            let response = await this.connection.sendRequest(req2, this.pathFcs, "");
+            this.sessionStarted = response;
         } catch (error) {
             this.sessionStarted = false;
-            console.log(error);
+            console.error("Chyba při volání metody start: " + error);
         }
 
         return this.sessionStarted;
@@ -99,13 +176,9 @@ export class InteractiveManager implements vscode.Disposable {
         let req2 = new rpc.RequestType2<string,string,Bits,any,any>("list");
         
         try {
-            let data = await this.connection.sendRequest(req2,path,"");
-            this.posRes(data);
-            console.log(data.Category === BitCategory.Class);
-            return data;
+            return await this.connection.sendRequest(req2, path, "");
         } catch (e) {
-            console.log(e);
-            
+            console.error("Error with " + req2.method + " request: " + e );
         }
     }
 
@@ -130,9 +203,24 @@ export class InteractiveManager implements vscode.Disposable {
     }
 
     dispose() {
-        if (this.process) {
-            this.process.kill();
+        if (this.fliProcess) {
+            this.fliProcess.kill();
         }
+    }
+}
+
+class ConsoleLogger implements rpc.Logger {
+    public error(message: string): void {
+        console.error(message);
+    }
+    public warn(message: string): void {
+        console.warn(message);
+    }
+    public info(message: string): void {
+        console.info(message);
+    }
+    public log(message: string): void {
+        console.log(message);
     }
 }
 
@@ -183,7 +271,6 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
         this._onDidChangeTreeData = new vscode.EventEmitter<Entry>();
     }
 
-
     private getElementState(e : Entry){
         if (e.category === BitCategory.Sequence || e.category === BitCategory.Class || e.category === BitCategory.Any ) {
             return vscode.TreeItemCollapsibleState.Collapsed;
@@ -193,15 +280,13 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
         }
     }
 
-
-    getTreeItem(element: Entry): vscode.TreeItem {
-
+    public getTreeItem(element: Entry): vscode.TreeItem {
         const treeItem = new vscode.TreeItem(element.name);
         
         treeItem.description = (element.value ? "" + element.value : "");
         treeItem.label = element.name;
         treeItem.id = element.path;
-        treeItem.tooltip = element.path + "\n" + element.filePath + "\nType: " + element.stype + "\nCategory: " + BitCategory[ element.category ];
+        treeItem.tooltip = element.path + "\n" + element.filePath + "\nType: " + element.type + "\nCategory: " + BitCategory[ element.category ];
         treeItem.collapsibleState = this.getElementState( element );
         treeItem.contextValue = !element.value ? "notUpdated" : "fullResolved";
         treeItem.iconPath = this.getIconByTokenType(element.category);
@@ -209,69 +294,82 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
 		return treeItem;
     }
 
-    async getChildren(element?: Entry): Promise<Entry[]| undefined> {
-
+    public async getChildren(element?: Entry): Promise<Entry[]| undefined> {
         if (!this.manager) {
             return [];
-        } else {
-            let a = element ? element.path : "";
-        
-            let data = await this.manager.getList(a);
-            let tre: Entry[] | undefined;
-          
-            if (data) { 
+        }
 
-                if (element){
-                    let elementChanged = false;
+        let fcsPath = element ? element.path : "";
+        let data = await this.manager.getList(fcsPath);
 
-                    if (element.category !== data.Category) {
-                        element.category = data.Category;
-                        elementChanged = true;
-                    }
-    
-                    if (!element.value) {
-                        element.value = data.Value ? data.Value : "";
-                        elementChanged = true;
-                    }
-                
-                    if (elementChanged) {
-                        this._onDidChangeTreeData.fire(element);
-                        return;
-                    }
-                }
+        if (!data) { 
+            return;
+        }
 
-                if (data.Items && data.Items.length > 0) {
-                    let type = data.Category ? data.Category : BitCategory.Class ;
-                    tre = data.Items.map( b => { 
-                        let val: string | undefined;
-                        let typ: string | undefined;
-                        let cat: BitCategory = BitCategory.Any;
-                        if (b.Value && b.Value.Value && b.Value.Type){
-                            val = b.Value.Value.toString();
-                            typ = b.Value.Type;
-                            cat = b.Value.Category;
-                        }
+        if (element){
+            let elementChanged = false;
 
-                        return {
-                        name: b.Name,
-                        path: this.namefn(a, b, type),
-                        filePath: b.FilePath,
-                        type: vscode.CompletionItemKind.Enum, 
-                        hasChildren: true,
-                        isResolved: false,
-                        isValue: val ? true : false,
-                        value: val,
-                        stype: typ,
-                        category: cat,
-                    }; } );
-                }
+            if (element.category !== data.Category) {
+                element.category = data.Category;
+                elementChanged = true;
             }
 
-            return tre;
+            if (!element.value) {
+                element.value = data.Value ? data.Value : "";
+                elementChanged = true;
+            }
+        
+            if (elementChanged) {
+                this._onDidChangeTreeData.fire(element);
+                return;
+            }
+        }
+
+        if (data.Items && data.Items.length > 0) {
+            let type = data.Category ? data.Category : BitCategory.Class ;
+            let items = data.Items.map( b => this.bitToEntry(element, b));
+            return items;
         }
     }
 
-    getIconByTokenType(cat: BitCategory): ThenableTreeIconPath | undefined {
+    private bitToEntry(parent: Entry | undefined, b: Bit): Entry {
+        let value: string | undefined;
+        let type: string | undefined;
+        let category = BitCategory.Any;
+
+        if (b.Value && b.Value.Value && b.Value.Type) {
+            value = b.Value.Value.toString();
+            type = b.Value.Type;
+            category = b.Value.Category;
+        }
+
+        let entry = {
+            name: b.Name,
+            path: this.createPath(parent, b),
+            filePath: b.FilePath,
+            hasChildren: true,
+            isResolved: false,
+            isValue: value ? true : false,
+            value,
+            type,
+            category,
+        };
+        return entry;
+    }
+
+    private createPath(parent: Entry | undefined, b: Bit){
+        if (!parent){
+            return b.Name;
+        }
+
+        let parentType = parent.category ? parent.category : BitCategory.Class ;
+        let p = parent.path ? parent.path : "";
+        let t = parentType === BitCategory.Sequence ? "" : ".";
+        let n = b.Name ? b.Name : "";
+        return (p === "") ? n : p + t + n;
+    }
+
+    private getIconByTokenType(cat: BitCategory): ThenableTreeIconPath | undefined {
         let name: string;
 
         switch (cat) {
@@ -308,14 +406,7 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
         };
     }
 
-    namefn(path: string | undefined, b: Bit, parentType: BitCategory){
-        let p = path ? path : "";
-        let t = parentType === BitCategory.Sequence ? "" : ".";
-        let n = b.Name ? b.Name : "";
-        return (p === "") ? n : p + t + n;
-    }
-
-    resolve(resource: any): any {
+    public resolve(resource: any): any {
    //     let element = resource as Entry;
    //     if (element){
    //         element.isResolved = true;
@@ -323,14 +414,12 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
    //     this._onDidChangeTreeData.fire(element);
     }
 
-    async startFli(resource: any) {
-        let editor = vscode.window.activeTextEditor;
-        if (editor && !this.manager){
-            let filePath = editor.document.uri.fsPath;
-            //let filePath = "C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\ExpertSystem\\Snow\\SnowAction.fcs";
-            this.manager = new InteractiveManager(filePath);
+    public async openFcs(fcsFilePath: string) {
+        if (!this.manager){
 
-            if (await this.manager.startFli()){
+            this.manager = new InteractiveManager(fcsFilePath);
+
+            if (await this.manager.startConnection()){
                 this._onDidChangeTreeData.fire();
             }
         }
@@ -340,13 +429,12 @@ export class ImplementationProvider implements vscode.TreeDataProvider<Entry> {
 export interface Entry {
     name: string;
 	path: string;
-    type: vscode.CompletionItemKind;
     filePath: string;
     hasChildren: boolean;
     isResolved: boolean;
     value?: string;
     isValue: boolean;
-    stype?: string;
+    type?: string;
     category: BitCategory;
 }
 
