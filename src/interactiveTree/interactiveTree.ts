@@ -11,7 +11,7 @@ export class InteractiveTree implements vscode.Disposable {
 
     constructor(context: vscode.ExtensionContext) {
         this.treeDataProvider = new TreeInteractionProvider(context);
-        this.tree = vscode.window.createTreeView('fcstree', { treeDataProvider: this.treeDataProvider });
+        this.tree = vscode.window.createTreeView('fcstree', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
 
         vscode.commands.registerCommand('fcs-vscode.intOpen', () => this.openFromEditor());
 

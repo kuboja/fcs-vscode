@@ -185,15 +185,6 @@
                     "light": "media/button/next_light.svg",
                     "dark": "media/button/next_dark.svg"
                 }
-            },
-            {
-                "command": "fcs-vscode.intCollapseAll",
-                "title": "Collapse all",
-                "description": "Collapse all",
-                "icon": { 
-                    "light": "media/button/CollapseAll_light.svg",
-                    "dark": "media/button/CollapseAll_dark.svg"
-                }
             }
         ],
         "menus": {
@@ -251,11 +242,6 @@
             "view/title": [
                 {
                     "command": "fcs-vscode.intOpen",
-                    "when": "view == fcstree",
-                    "group": "navigation"
-                },
-                {
-                    "command": "fcs-vscode.intCollapseAll",
                     "when": "view == fcstree",
                     "group": "navigation"
                 }
