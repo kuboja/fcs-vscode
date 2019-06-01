@@ -30,7 +30,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         return FcsSymbolProvider.getSymbolsInDocument(document, token);
     }
 
-    public static getSymbolsInDocument(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
+    public static getSymbolsInDocument(document: vscode.TextDocument, token?: vscode.CancellationToken): vscode.SymbolInformation[] {
         const result: vscode.SymbolInformation[] = [];
         const lineCount: number = Math.min(document.lineCount, 10000);
 
@@ -43,7 +43,7 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         const regGnameDefinition: RegExp = / *{([a-zA-Z][a-zA-Z0-9_]+)} *filename/;
 
         for (let line: number = 0; line < lineCount; line++) {
-            if (token.isCancellationRequested) { break; }
+            if (token && token.isCancellationRequested) { break; }
 
             const { text } = document.lineAt(line);
 

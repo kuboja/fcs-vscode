@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 
 import { Entry, TreeInteractionProvider } from "./treeInteractionProvider";
+import { FcsSymbolProvider } from "../fcsSymbolUtil";
 
 
 export class InteractiveTree implements vscode.Disposable {
@@ -64,7 +65,18 @@ export class InteractiveTree implements vscode.Disposable {
     }
 
     private async openSource(element: Entry | undefined) {
-       
+        if (!element) { return; }
+        try {
+            let doc = await vscode.workspace.openTextDocument(element.filePath);
+
+            let symbs = FcsSymbolProvider.getSymbolsInDocument(doc);
+            let symb = symbs.find(s => s.name === element.name);
+            let sel = symb ? symb.location.range : undefined;
+
+            await vscode.window.showTextDocument(doc, { selection: sel });
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     public dispose(){
