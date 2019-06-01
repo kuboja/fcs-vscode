@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 32 32">
+   <style>
+      .fil0 {fill:#1175B9}
+      .fil1 {fill:#95B3D7}
+      .fil2 {fill:#A6A6A6}
+   </style>
+   <circle class="fil2" r="4" cx= "7.5" cy= "7.5" />
+   <circle class="fil2" r="4" cx="16.0" cy= "7.5" />
+   <circle class="fil1" r="4" cx="16.0" cy="16.0" />
+   <circle class="fil1" r="4" cx="24.5" cy="16.0" />
+   <circle class="fil0" r="4" cx= "7.5" cy="24.5" />
+   <circle class="fil0" r="4" cx="16.0" cy="24.5" />
+</svg>
