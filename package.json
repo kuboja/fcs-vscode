@@ -145,7 +145,7 @@
                 "command": "fcs-vscode.intOpen",
                 "title": "Open",
                 "description": "Open current file in Tree",
-                "icon": { 
+                "icon": {
                     "light": "media/button/stage_light.svg",
                     "dark": "media/button/stage_dark.svg"
                 }
@@ -154,7 +154,7 @@
                 "command": "fcs-vscode.intClose",
                 "title": "Close",
                 "description": "Close file",
-                "icon": { 
+                "icon": {
                     "light": "media/button/close_light.svg",
                     "dark": "media/button/close_dark.svg"
                 }
@@ -163,7 +163,7 @@
                 "command": "fcs-vscode.intRefresh",
                 "title": "Refresh",
                 "description": "Reload values",
-                "icon": { 
+                "icon": {
                     "light": "media/button/refresh_light.svg",
                     "dark": "media/button/refresh_dark.svg"
                 }
@@ -172,7 +172,7 @@
                 "command": "fcs-vscode.intEvaluate",
                 "title": "Evaluate",
                 "description": "Get values of the element",
-                "icon": { 
+                "icon": {
                     "light": "media/button/check_light.svg",
                     "dark": "media/button/check_dark.svg"
                 }
@@ -181,7 +181,7 @@
                 "command": "fcs-vscode.intOpenSource",
                 "title": "Find in code",
                 "description": "Find in code",
-                "icon": { 
+                "icon": {
                     "light": "media/button/next_light.svg",
                     "dark": "media/button/next_dark.svg"
                 }
