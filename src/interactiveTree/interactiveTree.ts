@@ -16,9 +16,9 @@ export class InteractiveTree implements vscode.Disposable {
         vscode.commands.registerCommand('fcs-vscode.intOpen', () => this.openFromEditor());
 
         vscode.commands.registerCommand('fcs-vscode.intClose', (resource) => this.close(resource));
-        vscode.commands.registerCommand('fcs-vscode.intOpenSource', (resource) => this.resolve(resource));
+        vscode.commands.registerCommand('fcs-vscode.intOpenSource', (resource) => this.openSource(resource));
         vscode.commands.registerCommand('fcs-vscode.intRefresh', (resource) => this.refresh(resource));
-        vscode.commands.registerCommand('fcs-vscode.intResolve', (resource) => this.resolve(resource));
+        vscode.commands.registerCommand('fcs-vscode.intEvaluate', (resource) => this.evaluate(resource));
     }
 
     private async openFromEditor() {
@@ -53,9 +53,9 @@ export class InteractiveTree implements vscode.Disposable {
         await this.treeDataProvider.close(element);
     }
 
-    private async resolve(element: Entry | undefined) {
+    private async evaluate(element: Entry | undefined) {
         if (!element) { return; }
-        await this.treeDataProvider.resolve(element);
+        await this.treeDataProvider.evaluate(element);
     }
 
     private async refresh(element: Entry | undefined) {

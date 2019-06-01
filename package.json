@@ -169,8 +169,8 @@
                 }
             },
             {
-                "command": "fcs-vscode.intResolve",
-                "title": "Resolve",
+                "command": "fcs-vscode.intEvaluate",
+                "title": "Evaluate",
                 "description": "Get values of the element",
                 "icon": { 
                     "light": "media/button/check_light.svg",
@@ -243,7 +243,7 @@
                     "group": "inline"
                 },
                 {
-                    "command": "fcs-vscode.intResolve",
+                    "command": "fcs-vscode.intEvaluate",
                     "when": "view == fcstree",
                     "group": "inline"
                 }

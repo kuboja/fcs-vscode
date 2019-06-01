@@ -118,16 +118,15 @@ export class InteractiveManager implements vscode.Disposable {
         return this.sessionStarted;
     }
 
-    async getList(path: string) {
+    public async getList(path: string, forceEvaluation: boolean) {
         if (!this.connection) { return; }
 
-        //let req = new rpc.RequestType1<string,any,any,any>("list");
-        let req2 = new rpc.RequestType2<string, string, Bits, any, any>("list");
+        let req = new rpc.RequestType2<string, boolean, Bits, any, any>("list");
 
         try {
-            return await this.connection.sendRequest(req2, path, "");
+            return await this.connection.sendRequest(req, path, forceEvaluation);
         } catch (e) {
-            console.error("Error with " + req2.method + " request: " + e);
+            console.error("Error with " + req.method + " request: " + e);
         }
     }
     

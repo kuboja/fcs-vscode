@@ -35,7 +35,8 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
         }
 
         let fcsPath = element ? element.path : "";
-        let data = await man.getList(fcsPath);
+        let force = element ? element.forceEvaluation : false;
+        let data = await man.getList(fcsPath, force);
 
         if (!data) {
             return;
@@ -148,7 +149,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
             return "root";
         }
 
-        return !e.value ? "notUpdated" : "fullResolved";
+        return !e.value ? "notUpdated" : "forceEvaluated";
     }
 
 
@@ -170,7 +171,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
             path: this.createPath(parent, b),
             filePath: b.FilePath,
             hasChildren: true,
-            isResolved: false,
+            forceEvaluation: false,
             isValue: value ? true : false,
             value,
             type,
@@ -207,7 +208,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
                 filePath,
                 path: "",
                 hasChildren: true,
-                isResolved: false,
+                forceEvaluation: false,
                 isValue: false,
                 type: "fcsFile",
                 category: BitCategory.RootFile,
@@ -232,8 +233,9 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
         }
     }
 
-    public resolve(element: Entry): any {
-
+    public evaluate(element: Entry): any {
+        element.forceEvaluation = true;
+        this._onDidChangeTreeData.fire(element);
     }
 
     public refresh(element: Entry): any {
@@ -297,7 +299,7 @@ export interface Entry {
     path: string;
     filePath: string;
     hasChildren: boolean;
-    isResolved: boolean;
+    forceEvaluation: boolean;
     value?: string;
     isValue: boolean;
     type?: string;
