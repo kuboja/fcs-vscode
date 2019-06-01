@@ -61,7 +61,9 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
         }
 
         if (data.Items && data.Items.length > 0) {
-            let items = data.Items.map(b => this.bitToEntry(element, b));
+            let items = data.Items
+                .sort((a, b) => a.Name.localeCompare(b.Name))
+                .map(b => this.bitToEntry(element, b));
             return items;
         }
     }
@@ -107,7 +109,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
                 name = "Empty";
                 break;
             case BitCategory.RootFile:
-                name = "Document";
+                name = "Interface";
                 break;
             default:
                 name = "";
@@ -230,8 +232,12 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
         }
     }
 
-    public resolve(resource: any): any {
+    public resolve(element: Entry): any {
 
+    }
+
+    public refresh(element: Entry): any {
+        this._onDidChangeTreeData.fire(element);
     }
 
 

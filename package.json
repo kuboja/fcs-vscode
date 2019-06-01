@@ -15,7 +15,7 @@
         "FemCAD",
         "HiStruct"
     ],
-    "icon": "icon.png",
+    "icon": "media/icon.png",
     "repository": {
         "type": "git",
         "url": "https://github.com/kuboja/fcs-vscode"
@@ -142,19 +142,58 @@
                 "description": "Open current file in Tree"
             },
             {
-                "command": "fcs-vscode.treeitemResolve",
-                "title": "Resolve",
-                "description": "Resolve current in Tree"
-            },
-            {
                 "command": "fcs-vscode.intOpen",
                 "title": "Open",
-                "description": "Open current file in Tree"
+                "description": "Open current file in Tree",
+                "icon": { 
+                    "light": "media/button/stage_light.svg",
+                    "dark": "media/button/stage_dark.svg"
+                }
             },
             {
                 "command": "fcs-vscode.intClose",
                 "title": "Close",
-                "description": "Close file"
+                "description": "Close file",
+                "icon": { 
+                    "light": "media/button/close_light.svg",
+                    "dark": "media/button/close_dark.svg"
+                }
+            },
+            {
+                "command": "fcs-vscode.intRefresh",
+                "title": "Refresh",
+                "description": "Reload values",
+                "icon": { 
+                    "light": "media/button/refresh_light.svg",
+                    "dark": "media/button/refresh_dark.svg"
+                }
+            },
+            {
+                "command": "fcs-vscode.intResolve",
+                "title": "Resolve",
+                "description": "Get values of the element",
+                "icon": { 
+                    "light": "media/button/check_light.svg",
+                    "dark": "media/button/check_dark.svg"
+                }
+            },
+            {
+                "command": "fcs-vscode.intOpenSource",
+                "title": "Find in code",
+                "description": "Find in code",
+                "icon": { 
+                    "light": "media/button/next_light.svg",
+                    "dark": "media/button/next_dark.svg"
+                }
+            },
+            {
+                "command": "fcs-vscode.intCollapseAll",
+                "title": "Collapse all",
+                "description": "Collapse all",
+                "icon": { 
+                    "light": "media/button/CollapseAll_light.svg",
+                    "dark": "media/button/CollapseAll_dark.svg"
+                }
             }
         ],
         "menus": {
@@ -177,31 +216,46 @@
             ],
             "editor/title": [
                 {
-                    "when": "config.fcs-vscode.showRunIconInEditorTitleMenu && editorLangId==fcs",
                     "command": "fcs-vscode.openInFemcad",
+                    "when": "config.fcs-vscode.showRunIconInEditorTitleMenu && editorLangId==fcs",
                     "group": "navigation"
                 },
                 {
-                    "when": "editorLangId==fcs",
                     "command": "fcs-vscode.testTree",
+                    "when": "editorLangId==fcs",
                     "group": "femcad"
                 }
             ],
             "view/item/context": [
                 {
-                    "command": "fcs-vscode.treeitemResolve",
-                    "when": "view == fcstree && viewItem == notUpdated && false",
+                    "command": "fcs-vscode.intClose",
+                    "when": "view == fcstree && viewItem == root",
                     "group": "inline"
                 },
                 {
-                    "command": "fcs-vscode.intClose",
-                    "when": "view == fcstree && viewItem == root",
+                    "command": "fcs-vscode.intOpenSource",
+                    "when": "view == fcstree",
+                    "group": "inline"
+                },
+                {
+                    "command": "fcs-vscode.intRefresh",
+                    "when": "view == fcstree",
+                    "group": "inline"
+                },
+                {
+                    "command": "fcs-vscode.intResolve",
+                    "when": "view == fcstree",
                     "group": "inline"
                 }
             ],
             "view/title": [
                 {
                     "command": "fcs-vscode.intOpen",
+                    "when": "view == fcstree",
+                    "group": "navigation"
+                },
+                {
+                    "command": "fcs-vscode.intCollapseAll",
                     "when": "view == fcstree",
                     "group": "navigation"
                 }
@@ -293,7 +347,7 @@
                 {
                     "id": "femcad",
                     "title": "FemCAD",
-                    "icon": "media/logo6.svg"
+                    "icon": "media/iconView.svg"
                 }
             ]
         }
