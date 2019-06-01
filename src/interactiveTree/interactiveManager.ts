@@ -118,10 +118,6 @@ export class InteractiveManager implements vscode.Disposable {
         return this.sessionStarted;
     }
 
-    async sendCommand(command: string) {
-        this.getList("");
-    }
-
     async getList(path: string) {
         if (!this.connection) { return; }
 
@@ -134,27 +130,7 @@ export class InteractiveManager implements vscode.Disposable {
             console.error("Error with " + req2.method + " request: " + e);
         }
     }
-
-    sendAdd(): void {
-        if (!this.connection) { return; }
-
-        let req = new rpc.RequestType2<number, number, number, rpc.ResponseError<any>, any>("Add");
-
-        this.connection.sendRequest(req, 1, 2)
-            .then(
-                a => this.posRes(a),
-                e => this.errRes(e)
-            );
-    }
-
-    posRes(a: any) {
-        console.log(a);
-    }
-
-    errRes(e: any) {
-        console.log(e);
-    }
-
+    
     dispose() {
         if (this.fliProcess) {
             this.fliProcess.kill();
