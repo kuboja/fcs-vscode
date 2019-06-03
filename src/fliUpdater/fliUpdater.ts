@@ -8,6 +8,7 @@ import { promisify, isNumber } from "util";
 
 import { FileSystemManager } from "../fileSystemManager";
 import { ExtensionData } from "../extensionData";
+import { InteractiveManager } from "../interactiveTree/interactiveManager";
 
 const readdirAsync = promisify(fs.readdir);
 
@@ -17,7 +18,7 @@ export class FliUpdater {
     private statusItem: vscode.StatusBarItem;
 
     private localFliDirName = "fliVS";
-    private currentMainVersion = 1;
+    private currentMainVersion: number;
 
     private sourceBasePath: string;
     private sourceMainVersionPath: string;
@@ -26,6 +27,7 @@ export class FliUpdater {
         this.context = context;
         this.extData = extData;
 
+        this.currentMainVersion = InteractiveManager.currentMainVersion;
         this.sourceBasePath = this.extData.autoupdateFliVSsource;
         this.sourceMainVersionPath = path.join(this.sourceBasePath, this.numToFixLengthString(this.currentMainVersion, 2));
 
@@ -57,8 +59,16 @@ export class FliUpdater {
         return path.join(this.sourceMainVersionPath, "flivc." + mainVer + "." + this.numToFixLengthString(ver, 2) + ".zip");
     }
 
-    private async getFliDir() {
-        let dirPath = path.join(this.context.globalStoragePath, this.localFliDirName) + path.sep;
+    public getFliDir(){
+        return path.join(this.context.globalStoragePath, this.localFliDirName);
+    }
+
+    public getFliPath(){
+        return path.join( this.getFliDir(), "flivs.exe" );
+    }
+
+    private async getcreatedFliDir() {
+        let dirPath = this.getFliDir();
         try {
             // in node 10.2 resursive not working!
             fs.mkdirSync(this.context.globalStoragePath, { recursive: true });
@@ -93,6 +103,10 @@ export class FliUpdater {
     }
 
     private async updateFliVS(): Promise<boolean> {
+
+        this.statusItem.text = "FliVS updater: check current version...";
+        this.statusItem.show();
+
         let currentVersion = this.getCurrentVersion();
         let lastVersion = await this.getLastVersion();
 
@@ -109,7 +123,7 @@ export class FliUpdater {
             return true;
         }
 
-        let fliDir = await this.getFliDir();
+        let fliDir = await this.getcreatedFliDir();
         let lastVersionZip = this.getLastVersionZip(lastVersion);
 
         console.log("FliVS updater: fli dir: " + fliDir);
@@ -121,19 +135,34 @@ export class FliUpdater {
         }
 
         console.log("FliVS updater: update starting");
+        this.statusItem.text = "FliVS updater: new version - updating...";
 
         try {
-            FileSystemManager.deleteFolderRecursive(fliDir);
-            fs.mkdirSync(fliDir, { recursive: true });
-        } catch (error) {
-            console.error("FliVS updater: Removing old version failed: " + error);
-            return false;
+            fs.unlinkSync(this.getFliPath());
+
+            try {
+                FileSystemManager.deleteFolderRecursive(fliDir);
+                fs.mkdirSync(fliDir, { recursive: true });
+            } catch  {
+                // chyba při mazání souborů - moc nevadí...
+            }
+        }
+        catch (error) {
+            /// pokud je fli otevřeno - neaktualizovat, ale umožnit spouštění...
+            if ((<NodeJS.ErrnoException>error).code === "EPERM") {
+                return true;
+            }
+            /// pokud fli neexistuje, tak pokračovat dále... při jiné chybě error konec.
+            if ((<NodeJS.ErrnoException>error).code !== "ENOENT") {
+                console.error("FliVS updater: Removing old version failed: " + error);
+                return false;
+            }
         }
 
-        let zipFile = new AdmZip(lastVersionZip);
-
         try {
-            let unAll = promisify(zipFile.extractAllTo);
+            let zipFile = new AdmZip(lastVersionZip);
+
+            let unAll = promisify(zipFile.extractAllToAsync);
             await unAll(fliDir, true);
         } catch (error) {
             console.error("FliVS updater: Downloading and unzipping the zip with the new version failed: " + error);
@@ -142,7 +171,10 @@ export class FliUpdater {
 
         console.log("FliVS updater: update success.");
 
-        this.setCurrentVersion(lastVersion);
+        this.statusItem.text = "FliVS updater: update success...";
+        this.statusItem.hide();
+
+        await this.setCurrentVersion(lastVersion);
         return true;
     }
 
@@ -174,12 +206,14 @@ export class FliUpdater {
             if (await this.updateFliVS()) {
                 this.countUpdate = 0;
                 this.lastUpdateTime = Date.now();
+                this.statusItem.hide();
                 return true;
             }
         } catch (error) {
             console.error("FliVS updater: An attempt to update the fliVS failed.");
         }
 
+        this.statusItem.hide();
         return false;
     }
 }

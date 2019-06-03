@@ -19,12 +19,12 @@ export class InteractiveTree implements vscode.Disposable {
         this.treeDataProvider = new TreeInteractionProvider(context, this.fliUpdater);
         this.tree = vscode.window.createTreeView('fcstree', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
 
-        vscode.commands.registerCommand('fcs-vscode.intOpen', () => this.openFromEditor());
+        vscode.commands.registerCommand('fcs-vscode.intOpen', async () => await this.openFromEditor());
 
-        vscode.commands.registerCommand('fcs-vscode.intClose', (resource) => this.close(resource));
-        vscode.commands.registerCommand('fcs-vscode.intOpenSource', (resource) => this.openSource(resource));
-        vscode.commands.registerCommand('fcs-vscode.intRefresh', (resource) => this.refresh(resource));
-        vscode.commands.registerCommand('fcs-vscode.intEvaluate', (resource) => this.evaluate(resource));
+        vscode.commands.registerCommand('fcs-vscode.intClose', async (resource) => await this.close(resource));
+        vscode.commands.registerCommand('fcs-vscode.intOpenSource', async (resource) => await this.openSource(resource));
+        vscode.commands.registerCommand('fcs-vscode.intRefresh', async (resource) => await this.refresh(resource));
+        vscode.commands.registerCommand('fcs-vscode.intEvaluate', async (resource) => await this.evaluate(resource));
     }
 
     private async openFromEditor() {
@@ -42,6 +42,8 @@ export class InteractiveTree implements vscode.Disposable {
         }
 
         let root = await this.treeDataProvider.open(filePath);
+
+        if (!root) { return; }
 
         try {
             await this.tree.reveal(root, { select: true, expand: true, focus: true });

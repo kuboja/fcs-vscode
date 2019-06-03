@@ -7,17 +7,20 @@ import { ChildProcess, spawn } from "child_process";
 
 export class InteractiveManager implements vscode.Disposable {
 
-    private pathFli = "C:\\GitHub\\fcs-histruct2\\bin\\FliVS\\Debug\\net47\\flivs.exe";
-
+    public static currentMainVersion = 1;
+    
+    private pathFli: string;
     public pathFcs: string;
+
     private fliProcess?: ChildProcess;
     private connection?: rpc.MessageConnection;
     private sessionStarted: boolean = false;
 
-    constructor(fcsPath: string) {
+    constructor(fcsPath: string, fliPath: string) {
         this.pathFcs = fcsPath;
+        this.pathFli = fliPath;
     }
-
+    
     public canSendRequest(): boolean {
         return this.connection !== undefined && this.sessionStarted;
     }

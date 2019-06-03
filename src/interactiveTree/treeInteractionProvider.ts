@@ -202,9 +202,11 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
     /// Actions
 
     public async open(filePath: string) {
-
+        
         if (!this.managers || Object.values(this.managers).length === 0){
-            await this.fliUpdater.runUpdate()
+            if (!await this.fliUpdater.runUpdate()){
+                return;
+            }
         }
 
         let root = this.roots.find(r => r.filePath === filePath);
@@ -262,7 +264,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
 
         if (man) { return; }
 
-        man = new InteractiveManager(element.filePath);
+        man = new InteractiveManager(element.filePath, this.fliUpdater.getFliPath());
 
         if (!await man.startConnection()) {
             return;
