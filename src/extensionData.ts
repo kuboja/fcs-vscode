@@ -114,4 +114,12 @@ export class ExtensionData {
         vscode.window.showErrorMessage("Nelze spustit. Uložte nejdříve aktuální soubor, nebo povolte ukládání v nastavení.");
         return false;
     }
+
+    private _outputChannel : vscode.OutputChannel | undefined;
+    public get outputChannel(): vscode.OutputChannel {
+        if (this._outputChannel === undefined) {
+            this._outputChannel = vscode.window.createOutputChannel("FemCAD");
+        }
+        return this._outputChannel;
+    }
 }

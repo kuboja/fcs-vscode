@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import * as treekill from "tree-kill";
 import * as psTree from "ps-tree";
 import { ChildProcess, spawn, exec } from "child_process";
+
 import { AppInsightsClient } from "./appInsightsClient";
 import { FileSystemManager } from "./fileSystemManager";
 import { ExtensionData } from "./extensionData";
@@ -132,14 +133,6 @@ export class FemcadRunner {
         }
     }
 
-    private _outputChannel : vscode.OutputChannel | undefined;
-    private get outputChannel(): vscode.OutputChannel {
-        if (this._outputChannel === undefined) {
-            this._outputChannel = vscode.window.createOutputChannel("FemCAD");
-        }
-        return this._outputChannel;
-    }
-
     private isRunning?: boolean;
     private lineBuffer?: string;
     private outputLineCount: number;
@@ -191,14 +184,14 @@ export class FemcadRunner {
             });
         });
 
-        this.outputChannel.show(this.extData.preserveFocusInOutput);
+        this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
 
         if (this.extData.clearPreviousOutput) {
-            this.outputChannel.clear();
+            this.extData.outputChannel.clear();
         }
 
         if (this.extData.showExecutionMessage) {
-            this.outputChannel.appendLine("[Running] " + command);
+            this.extData.outputChannel.appendLine("[Running] " + command);
         }
 
     //    this.appInsightsClient.sendEvent(command);
@@ -280,7 +273,7 @@ export class FemcadRunner {
             }
 
             if (this.isRunning) {
-                this.outputChannel.append(line + "\n");
+                this.extData.outputChannel.append(line + "\n");
             }
         }
     }
@@ -289,16 +282,17 @@ export class FemcadRunner {
         this.isRunning = false;
         const endTime: Date = new Date();
         const elapsedTime: number = (endTime.getTime() - this.startTime.getTime()) / 1000;
-        this.outputChannel.appendLine("");
+        this.extData.outputChannel.appendLine("");
 
         if (this.extData.showExecutionMessage) {
-            this.outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
-            this.outputChannel.appendLine("");
+            this.extData.outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
+            this.extData.outputChannel.appendLine("");
         }
         if (code === 0 && this.commandData) {
             this.commandData.afterStopExecution();
         }
     }
+
 
     private killProcessId(processId: number): void {
         if (processId) {
@@ -351,8 +345,9 @@ export class FemcadRunner {
                 psTree(processId, (err, children) => {
                     if (children.length > 0) {
                         for (const child of children) {
-                            if (child)
+                            if (child) {
                                 this.killProcessId(parseInt(child.PID));
+                            }
                         }
                     }
 
