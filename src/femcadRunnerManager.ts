@@ -36,7 +36,7 @@ export class FliCommand {
     }
 
     public afterStopExecution(): void {
-        if (this.commandClass != undefined) {
+        if (this.commandClass !== undefined) {
             this.commandClass.afterExit();
         }
     }

@@ -82,8 +82,9 @@ export class GrammarType {
         var nodes: string[] = this.key.split(".");
         if (this.dot > 0 && nodes && nodes.length > 0) {
             let name: string = "";
-            for ( var i = this.dot; i < nodes.length; i++ )
+            for ( var i = this.dot; i < nodes.length; i++ ) {
                 name += ( i > this.dot ? "." : "" ) + nodes[i];
+            }
             return name;
         } else {
             return this.key;
