@@ -25,6 +25,9 @@ This extension contributes the following settings:
 
 ## Release Notes
 
+### 1.5.x
+The main new feature is interactive tree.
+
 ### 1.4.x
 New feature is goto symbol definition.
 

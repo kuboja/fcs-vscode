@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.5.0] - 2019-06-03
+
+### Added
+- New interactive tree.
+
 ## [1.4.5] - 2019-04-04
 
 ### Added
