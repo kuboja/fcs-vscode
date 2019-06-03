@@ -68,6 +68,14 @@ export class ExtensionData {
         return this.GetBooleanValue("saveFileBeforeRun", true);
     }
 
+    public get autoupdateFliVSenabled(): boolean {
+        return this.GetBooleanValue("autoupdateFliVSenabled", true);
+    }
+
+    public get autoupdateFliVSsource(): string {
+        return this.GetStringValue("autoupdateFliVSsource", "Q:\\Builds\\fliVS");
+    }
+
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
 

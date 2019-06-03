@@ -8,6 +8,7 @@ import { FcsSymbolProvider } from "./fcsSymbolUtil";
 import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
 import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
 import { InteractiveTree } from "./interactiveTree/interactiveTree";
+import { FliUpdater } from "./fliUpdater/fliUpdater";
 
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -26,7 +27,7 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
     const codeManager: FliCommandRunner = new FliCommandRunner(extData);
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
 
-    context.subscriptions.push(new InteractiveTree(context));
+    context.subscriptions.push(new InteractiveTree(context, extData));
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.runLine", () => { codeManager.runLineCommand(); }));

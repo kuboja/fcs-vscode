@@ -317,6 +317,16 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Whether to show 'Run Code' icon in editor title menu."
+                },
+                "fcs-vscode.autoupdateFliVSenabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If true, auto update is enabled before openig file in interactive tree"
+                },
+                "fcs-vscode.autoupdateFliVSsource": {
+                    "type": "string",
+                    "default": "Q:\\Builds\\fliVS",
+                    "description": "Path to source folder of FliVS."
                 }
             }
         },
@@ -350,8 +360,9 @@
         "test": "npm run test-compile && node node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/mocha": "^5.2.6",
-        "@types/node": "^10.14.7",
+        "@types/adm-zip": "^0.4.13",
+        "@types/mocha": "^5.2.7",
+        "@types/node": "^10.14.8",
         "@types/ps-tree": "^1.1.0",
         "@types/shelljs": "^0.8.5",
         "mocha": "^5.2.0",
@@ -366,6 +377,8 @@
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
         "tree-kill": "^1.2.0",
-        "vscode-languageclient": "^5.2.1"
+        "vscode-languageclient": "^5.2.1",
+        "adm-zip": "^0.4.13",
+        "original-fs": "1.0.0"
     }
 }

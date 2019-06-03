@@ -4,16 +4,20 @@ import * as vscode from "vscode";
 
 import { FileSystemManager } from "../fileSystemManager";
 import { InteractiveManager, BitCategory, Bit } from "./interactiveManager";
+import { FliUpdater } from "../fliUpdater/fliUpdater";
 
 
 export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, vscode.Disposable {
     private context: vscode.ExtensionContext;
+    private fliUpdater: FliUpdater;
+
     private _onDidChangeTreeData: vscode.EventEmitter<Entry>;
     private managers: { [index: string]: InteractiveManager | undefined } = {};
     private roots: Entry[] = [];
 
-    public constructor(context: vscode.ExtensionContext) {
+    public constructor(context: vscode.ExtensionContext, fliUpdater: FliUpdater) {
         this.context = context;
+        this.fliUpdater = fliUpdater;
         this._onDidChangeTreeData = new vscode.EventEmitter<Entry>();
     }
 
@@ -197,7 +201,12 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
 
     /// Actions
 
-    public open(filePath: string) {
+    public async open(filePath: string) {
+
+        if (!this.managers || Object.values(this.managers).length === 0){
+            await this.fliUpdater.runUpdate()
+        }
+
         let root = this.roots.find(r => r.filePath === filePath);
 
         if (!root) {
@@ -227,6 +236,9 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
             if (this.roots.some(r => r.rootId === element.rootId)) {
                 this.roots = this.roots.filter(r => r.rootId !== element.rootId);
                 await this.closeManager(element);
+                if (this.roots.length === 0){
+                    this.managers = {};
+                }
 
                 this._onDidChangeTreeData.fire();
             }
