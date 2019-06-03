@@ -18,7 +18,7 @@ export class FliUpdater {
     private statusItem: vscode.StatusBarItem;
 
     private localFliDirName = "fliVS";
-    private currentMainVersion: number;
+    private requiredMainVersion: number;
 
     private sourceBasePath: string;
     private sourceMainVersionPath: string;
@@ -27,11 +27,11 @@ export class FliUpdater {
         this.context = context;
         this.extData = extData;
 
-        this.currentMainVersion = InteractiveManager.currentMainVersion;
+        this.requiredMainVersion = InteractiveManager.currentMainVersion;
         this.sourceBasePath = this.extData.autoupdateFliVSsource;
-        this.sourceMainVersionPath = path.join(this.sourceBasePath, this.numToFixLengthString(this.currentMainVersion, 2));
+        this.sourceMainVersionPath = path.join(this.sourceBasePath, this.numToFixLengthString(this.requiredMainVersion, 2));
 
-        this.statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 2000);
+        this.statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
         this.statusItem.hide();
     }
 
@@ -40,7 +40,7 @@ export class FliUpdater {
     }
 
     private async getLastVersion() {
-        let ver = this.numToFixLengthString(this.currentMainVersion, 2);
+        let ver = this.numToFixLengthString(this.requiredMainVersion, 2);
         try {
             let versions = (await readdirAsync(this.sourceMainVersionPath))
                 .map(f => parseInt(f.replace("flivc." + ver + ".", "").replace(".zip", "")))
@@ -54,7 +54,7 @@ export class FliUpdater {
     }
 
     private getLastVersionZip(ver: number) {
-        let mainVer = this.numToFixLengthString(this.currentMainVersion, 2);
+        let mainVer = this.numToFixLengthString(this.requiredMainVersion, 2);
 
         return path.join(this.sourceMainVersionPath, "flivc." + mainVer + "." + this.numToFixLengthString(ver, 2) + ".zip");
     }
@@ -94,11 +94,19 @@ export class FliUpdater {
         if (curVer && isNumber(curVer)) {
             return curVer;
         }
+        return 0;
+    }
 
+    private getCurrentMainVersion() {
+        let curVer = this.context.globalState.get("fliVS_versionMain");
+        if (curVer && isNumber(curVer)) {
+            return curVer;
+        }
         return 0;
     }
 
     private async setCurrentVersion(version: number) {
+        await this.context.globalState.update("fliVS_versionMain", this.requiredMainVersion);
         await this.context.globalState.update("fliVS_version", version);
     }
 
@@ -108,19 +116,36 @@ export class FliUpdater {
         this.statusItem.show();
 
         let currentVersion = this.getCurrentVersion();
+        let currentMainVersion = this.getCurrentMainVersion();
         let lastVersion = await this.getLastVersion();
 
         console.log("FliVS updater: current version: " + currentVersion);
         console.log("FliVS updater: last version: " + lastVersion);
 
+        // pokud není přístup ke zdroji aktualizací -> použije se stávající instalace flivs, pokud není dostupná ani ta -> konec
         if (!lastVersion) {
-            console.error("FliVS updater: Failed to load current version information.");
-            return false;
+            vscode.window.showWarningMessage("FliVS updater: Failed to load current version information.");
+            
+            try {
+                fs.accessSync(this.getFliPath());
+            } catch (error) {
+                console.error("FliVS updater: Failed to load current version information. And flivs is not accesible.");
+                return false;
+            }
+
+            return true;
         }
 
-        if (lastVersion <= currentVersion) {
-            console.info("FliVS updater: The fliVS version is current.", lastVersion);
-            return true;
+        // test jeslti je dostupný flivs.exe -> pokud ne, tak proběhne aktulaizace vždy, jinak pouze pokud je dostupná nová verze
+        try {
+            fs.accessSync(this.getFliPath());
+
+            if (currentMainVersion === this.requiredMainVersion && lastVersion <= currentVersion) {
+                console.info("FliVS updater: The fliVS version is current.", lastVersion);
+                return true;
+            }
+        } catch (error) {
+            console.error("FliVS updater: FliVs in not currenty instaled -> will be install");
         }
 
         let fliDir = await this.getcreatedFliDir();
