@@ -16,6 +16,8 @@ export class InteractiveManager implements vscode.Disposable {
     private connection?: rpc.MessageConnection;
     private sessionStarted: boolean = false;
 
+    private showCommandPrompt = false;
+
     constructor(fcsPath: string, fliPath: string) {
         this.pathFcs = fcsPath;
         this.pathFli = fliPath;
@@ -41,8 +43,10 @@ export class InteractiveManager implements vscode.Disposable {
 
             this.fliProcess = spawn(this.pathFli, ["--c", pipeName], { shell: false, windowsHide: false });
             this.fliProcess.stdout.setEncoding("utf8");
-            this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
-            this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
+            if (this.showCommandPrompt) {
+                this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
+                this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
+            }
             this.fliProcess.on("close", (code) => this.onCloseEvent(code));
 
             let [messageReader, messageWriter] = await pipe.onConnected();
@@ -53,7 +57,7 @@ export class InteractiveManager implements vscode.Disposable {
                 console.error("Chyba ve spojení: " + e);
             });
 
-            this.connection.trace(rpc.Trace.Verbose, {
+            this.connection.trace(rpc.Trace.Messages, {
                 log: (data: any, data2?: any) => {
                     console.log(data);
                     if (data2) { console.log(data2); }
@@ -96,7 +100,7 @@ export class InteractiveManager implements vscode.Disposable {
     }
 
     onCloseEvent(code: number): void {
-        console.log("Fli was closed: " + code);
+        if (this.showCommandPrompt) { console.log("Fli was closed: " + code); }
         this.disconect();
     }
 
