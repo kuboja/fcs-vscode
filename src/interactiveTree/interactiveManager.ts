@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 import * as rpc from 'vscode-jsonrpc';
 import { ChildProcess, spawn } from "child_process";
+import { ExtensionData } from "../extensionData";
 
 
 export class InteractiveManager implements vscode.Disposable {
@@ -12,13 +13,15 @@ export class InteractiveManager implements vscode.Disposable {
     private pathFli: string;
     public pathFcs: string;
 
+    private extData: ExtensionData;
     private fliProcess?: ChildProcess;
     private connection?: rpc.MessageConnection;
     private sessionStarted: boolean = false;
 
     private showCommandPrompt = false;
 
-    constructor(fcsPath: string, fliPath: string) {
+    constructor(fcsPath: string, fliPath: string, extData: ExtensionData) {
+        this.extData = extData;
         this.pathFcs = fcsPath;
         this.pathFli = fliPath;
     }
@@ -133,6 +136,8 @@ export class InteractiveManager implements vscode.Disposable {
         try {
             return await this.connection.sendRequest(req, path, forceEvaluation);
         } catch (e) {
+            this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
+            this.extData.outputChannel.appendLine("[IntFli.Error]: " + e);
             console.error("Error with " + req.method + " request: " + e);
         }
     }
