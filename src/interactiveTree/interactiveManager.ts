@@ -18,7 +18,7 @@ export class InteractiveManager implements vscode.Disposable {
     private connection?: rpc.MessageConnection;
     private sessionStarted: boolean = false;
 
-    private showCommandPrompt = false;
+    private showOutputsFromFli = false;
 
     constructor(fcsPath: string, fliPath: string, extData: ExtensionData) {
         this.extData = extData;
@@ -46,10 +46,8 @@ export class InteractiveManager implements vscode.Disposable {
 
             this.fliProcess = spawn(this.pathFli, ["--c", pipeName], { shell: false, windowsHide: false });
             this.fliProcess.stdout.setEncoding("utf8");
-            if (this.showCommandPrompt) {
-                this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
-                this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
-            }
+            this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
+            this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
             this.fliProcess.on("close", (code) => this.onCloseEvent(code));
 
             let [messageReader, messageWriter] = await pipe.onConnected();
@@ -103,12 +101,14 @@ export class InteractiveManager implements vscode.Disposable {
     }
 
     onCloseEvent(code: number): void {
-        if (this.showCommandPrompt) { console.log("Fli was closed: " + code); }
+        if (this.showOutputsFromFli) { console.log("Fli was closed: " + code); }
         this.disconect();
     }
 
     onGetOutputData(data: string): void {
-        console.log(data);
+        if (this.showOutputsFromFli) {
+            console.log(data);
+        }
     }
 
     async sendStartRequest(): Promise<boolean> {
