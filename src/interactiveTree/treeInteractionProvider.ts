@@ -215,7 +215,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
         let root = this.roots.find(r => r.filePath === filePath);
 
         if (!root) {
-            let name = filePath.replace("\\", "//").split("//").pop();
+            let name = filePath.replace(/\\/g, "/",).split("/").pop();
 
             root = {
                 name: name ? name : filePath,
