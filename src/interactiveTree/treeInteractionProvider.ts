@@ -258,7 +258,13 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
     public refresh(element: Entry): any {
         this._onDidChangeTreeData.fire(element);
     }
+    
+    public valueToOutput(element: Entry): any {
+        if (!element || !element.value) { return; }
 
+        this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
+        this.extData.outputChannel.appendLine("[IntFli.Value]: " + element.value);
+    }
 
     /// Managers
 

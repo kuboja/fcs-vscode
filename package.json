@@ -185,6 +185,11 @@
                     "light": "media/button/next_light.svg",
                     "dark": "media/button/next_dark.svg"
                 }
+            },
+            {
+                "command": "fcs-vscode.intValueToOutput",
+                "title": "Value to output",
+                "description": "Value to output"
             }
         ],
         "menus": {
@@ -237,6 +242,11 @@
                     "command": "fcs-vscode.intEvaluate",
                     "when": "view == fcstree",
                     "group": "inline"
+                },
+                {
+                    "command": "fcs-vscode.intValueToOutput",
+                    "when": "view == fcstree && viewItem != root ",
+                    "group": "menu"
                 }
             ],
             "view/title": [
