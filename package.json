@@ -25,7 +25,7 @@
         "email": "jan.kubosek@femcad.com"
     },
     "engines": {
-        "vscode": "^1.34.0"
+        "vscode": "^1.38.0"
     },
     "homepage": "https://github.com/kuboja/fcs-vscode",
     "main": "./dist/extension",
@@ -364,32 +364,28 @@
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode development",
         "watch": "webpack --mode development --watch",
-        "postinstall": "node node_modules/vscode/bin/install",
-        "just-test": "node node_modules/vscode/bin/test",
-        "test-compile": "tsc -p ./ && npm run compile",
-        "test": "npm run test-compile && node node_modules/vscode/bin/test",
         "lint": "tslint -p ./"
     },
     "devDependencies": {
         "@types/adm-zip": "^0.4.13",
         "@types/mocha": "^5.2.7",
-        "@types/node": "^10.14.8",
+        "@types/node": "^10.14.18",
         "@types/ps-tree": "^1.1.0",
         "@types/shelljs": "^0.8.5",
-        "mocha": "^5.2.0",
-        "ts-loader": "^5.4.5",
-        "typescript": "^3.5.1",
-        "vscode": "^1.1.34",
-        "webpack": "^4.32.2",
-        "webpack-cli": "^3.3.2"
+        "@types/vscode": "^1.38.0",
+        "mocha": "^6.2.0",
+        "ts-loader": "^6.1.2",
+        "typescript": "^3.6.3",
+        "vscode-test": "^1.2.0",
+        "webpack": "^4.40.2",
+        "webpack-cli": "^3.3.9"
     },
     "dependencies": {
-        "applicationinsights": "^1.3.1",
+        "adm-zip": "^0.4.13",
+        "original-fs": "1.1.0",
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
-        "tree-kill": "^1.2.0",
-        "vscode-languageclient": "^5.2.1",
-        "adm-zip": "^0.4.13",
-        "original-fs": "1.0.0"
+        "tree-kill": "^1.2.1",
+        "vscode-languageclient": "^5.2.1"
     }
 }
