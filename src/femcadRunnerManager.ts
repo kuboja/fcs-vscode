@@ -327,6 +327,25 @@ export class FemcadRunner {
         }
     }
 
+    public openInFemcadProfiling(fcsFilePath: string): void {
+        this.appInsightsClient.sendEvent("Open in FemCAD with profiling");
+
+        if (!this.IsInitialized) {
+            return;
+        }
+
+        let femcadPath = this.getFemcadPath();
+
+        if (femcadPath) {
+            let femcadPathqQuoted: string = FileSystemManager.quoteFileName(femcadPath);
+            let filePath: string = FileSystemManager.quoteFileName(fcsFilePath);
+            let cmdToExec: string = femcadPathqQuoted + " " + filePath + " -profileExpressionsXml";
+            console.log(cmdToExec);
+
+            exec(cmdToExec);
+        }
+    }
+
     public openFcsFile(fcsPath: string): void {
         var term: vscode.Terminal = this.terminal;
 

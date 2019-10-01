@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.5.3",
+    "version": "1.5.4",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
@@ -137,6 +137,11 @@
                 "description": "Open current file in FemCAD"
             },
             {
+                "command": "fcs-vscode.openInFemcadWithProfiling",
+                "title": "Open in FemCAD with profiling",
+                "description": "Open current file in FemCAD with XML profiling"
+            },
+            {
                 "command": "fcs-vscode.testTree",
                 "title": "Test Tree",
                 "description": "Open current file in Tree"
@@ -214,7 +219,12 @@
                 {
                     "command": "fcs-vscode.openInFemcad",
                     "when": "config.fcs-vscode.showRunIconInEditorTitleMenu && editorLangId==fcs",
-                    "group": "navigation"
+                    "group": "femcad"
+                },
+                {
+                    "command": "fcs-vscode.openInFemcadWithProfiling",
+                    "when": "editorLangId==fcs",
+                    "group": "femcad"
                 },
                 {
                     "command": "fcs-vscode.testTree",
@@ -345,6 +355,10 @@
                 {
                     "id": "fcstree",
                     "name": "Fcs Tree"
+                },
+                {
+                    "id": "fcstesttree",
+                    "name": "Fcs Tests"
                 }
             ]
         },

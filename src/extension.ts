@@ -40,6 +40,9 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.openInFemcad", () => { openFcs.openInFemcad(); }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.openInFemcadWithProfiling", () => { openFcs.openInFemcadProfiling(); }));
 }
 
 

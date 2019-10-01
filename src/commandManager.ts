@@ -35,6 +35,21 @@ export class OpenFileInFemCAD {
         this.appInsightsClient.sendEvent("Command: Open in FemCAD");
         this.femcadRunner.openInFemcad(fcsFile);
     }
+
+    public openInFemcadProfiling(): void {
+        if (vscode.window.activeTextEditor === undefined) {
+            return;
+        }
+
+        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
+     
+        if (!this.extData.saveDocument(editor)) { return; }
+
+        let fcsFile: string = editor.document.fileName;
+
+        this.appInsightsClient.sendEvent("Command: Open in FemCAD with profiling");
+        this.femcadRunner.openInFemcadProfiling(fcsFile);
+    }
 }
 
 
