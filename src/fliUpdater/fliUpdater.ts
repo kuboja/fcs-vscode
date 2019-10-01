@@ -8,17 +8,17 @@ import { promisify, isNumber } from "util";
 
 import { FileSystemManager } from "../fileSystemManager";
 import { ExtensionData } from "../extensionData";
-import { InteractiveManager } from "../interactiveTree/interactiveManager";
 
 const readdirAsync = promisify(fs.readdir);
 
 export class FliUpdater {
+    readonly requiredMainVersion = 1;
+
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
     private statusItem: vscode.StatusBarItem;
 
     private localFliDirName = "fliVS";
-    private requiredMainVersion: number;
 
     private sourceBasePath: string;
     private sourceMainVersionPath: string;
@@ -27,7 +27,6 @@ export class FliUpdater {
         this.context = context;
         this.extData = extData;
 
-        this.requiredMainVersion = InteractiveManager.currentMainVersion;
         this.sourceBasePath = this.extData.autoupdateFliVSsource;
         this.sourceMainVersionPath = path.join(this.sourceBasePath, this.numToFixLengthString(this.requiredMainVersion, 2));
 

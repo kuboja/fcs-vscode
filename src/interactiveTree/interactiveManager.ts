@@ -7,9 +7,6 @@ import { ExtensionData } from "../extensionData";
 
 
 export class InteractiveManager implements vscode.Disposable {
-
-    public static currentMainVersion = 1;
-    
     private pathFli: string;
     public pathFcs: string;
 
