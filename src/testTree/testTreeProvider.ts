@@ -2,6 +2,8 @@
 
 import * as vscode from "vscode";
 import * as uuid from "uuid/v4";
+import * as fs from "fs";
+import { join } from "path";
 
 import { FileSystemManager } from "../fileSystemManager";
 import { FliUpdater } from "../fliUpdater/fliUpdater";
@@ -15,7 +17,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     private fliUpdater: FliUpdater;
 
     private _onDidChangeTreeData: vscode.EventEmitter<TestNode>;
-    private roots: TestNode[] = [];
+    private roots: TestNode[] | undefined;
 
     public constructor(context: vscode.ExtensionContext, fliUpdater: FliUpdater, extData: ExtensionData) {
         this.context = context;
@@ -65,7 +67,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         return treeItem;
     }
 
-    
+
     private getIconByTokenType(e: TestNode): ThenableTreeIconPath | undefined {
         let name: string;
 
@@ -115,25 +117,37 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     /// Test node / info
 
-    private loadRootTests(): TestNode[] {
+    private async loadRootTests(): Promise<TestNode[] | undefined> {
 
-        let roots = [
-            {
-                name: "TestSiloMain",
-                filePath: "C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\Geometry\\_Tests\\TestSiloMain.fcs",
-                tests: ["mainTestSuite"]
-            },
-            {
-                name: "TestSiloMain",
-                filePath: "C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\Geometry\\_Tests\\TestSiloMain.fcs",
-                tests: ["VolumeTestSuite", "CapacityTestSuite"]
-            },
-            {
-                name: "TestSiloMain",
-                filePath: "C:\\GitHub\\fcs-gsi\\Gsi_StorageSystems\\Silo_Round\\Geometry\\_Tests\\TestSiloMain.fcs",
-                tests: ["mainTestSuite2"]
+        let files = await vscode.workspace.findFiles("*.tests.json");
+
+        let data: TestNode[] = [];
+
+        if (files && files.length > 0) {
+            for (const fileUri of files) {
+
+                let wsFolder = vscode.workspace.getWorkspaceFolder(fileUri);
+
+                if (!wsFolder) {
+                    return;
+                }
+
+                let fileData = fs.readFileSync(fileUri.fsPath, "utf-8");
+                let jsonData: TestSetting[] = [];
+                try {
+                    jsonData = JSON.parse(fileData);
+                } catch (error) {
+                    vscode.window.showWarningMessage("Erorr in test definition file:\n" + fileUri.fsPath);
+                }
+
+                if (jsonData && jsonData.length > 0) {
+                    let maped = mapData(jsonData, wsFolder);
+                    data.push(...maped);
+                }
             }
-        ];
+
+            return data;
+        }
 
         function toTest(t: string, r: any, root: TestNode): TestNode {
             return {
@@ -141,7 +155,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                 isOk: false,
                 message: "",
                 path: t,
-                filePath: r.filePath,
+                filePath: root.filePath,
                 hasChildren: false,
                 isEvaluated: false,
                 tests: undefined,
@@ -152,25 +166,27 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             };
         }
 
-        return roots.map(r => {
-            let root: TestNode = {
-                name: r.name,
-                isOk: false,
-                message: "",
-                path: "",
-                filePath: r.filePath,
-                hasChildren: r.tests && r.tests.length > 0,
-                isEvaluated: false,
-                tests: undefined,
-                nodes: undefined,
-                type: NodeType.root,
-                root: undefined,
-                id: uuid(),
-            };
+        function mapData(rootsData: TestSetting[], wrkFolder: vscode.WorkspaceFolder): TestNode[] {
+            return rootsData.map(r => {
+                let root: TestNode = {
+                    name: r.name,
+                    isOk: false,
+                    message: "",
+                    path: "",
+                    filePath: join(wrkFolder.uri.fsPath, r.filePath),
+                    hasChildren: r.tests && r.tests.length > 0,
+                    isEvaluated: false,
+                    tests: undefined,
+                    nodes: undefined,
+                    type: NodeType.root,
+                    root: undefined,
+                    id: uuid(),
+                };
 
-            root.nodes = r.tests.map(t => toTest(t, r, root));
-            return root;
-        });
+                root.nodes = r.tests.map(t => toTest(t, r, root));
+                return root;
+            });
+        }
     }
 
     private updateRoot(element: TestNode) {
@@ -275,8 +291,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         
     }
 
-    public refreshTests(){
-        this.roots = this.loadRootTests();
+    public async refreshTests(){
+        this.roots = await this.loadRootTests();
 
         this._onDidChangeTreeData.fire();
     }
@@ -377,4 +393,10 @@ export enum NodeType {
 interface ThenableTreeIconPath {
     light: string;
     dark: string;
+}
+
+interface TestSetting {
+    name: string;
+    filePath: string;
+    tests: string[];
 }

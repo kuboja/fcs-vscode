@@ -29,12 +29,12 @@ export class TestTree implements vscode.Disposable {
      //   vscode.commands.registerCommand('fcs-vscode.intValueToOutput', async (resource) => await this.valueToOutput(resource));
     }
 
-    private evaluteTests(element: TestNode | undefined) {
-        this.treeDataProvider.evalutateTests(element);
+    private async evaluteTests(element: TestNode | undefined) {
+        await this.treeDataProvider.evalutateTests(element);
     }
 
-    private refreshTests(element: TestNode | undefined) {
-        this.treeDataProvider.refreshTests();
+    private async refreshTests(element: TestNode | undefined) {
+        await this.treeDataProvider.refreshTests();
     }
 
     public dispose(){
