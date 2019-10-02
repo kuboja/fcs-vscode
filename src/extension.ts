@@ -9,6 +9,7 @@ import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
 import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
 import { InteractiveTree } from "./interactiveTree/interactiveTree";
 import { FliUpdater } from "./fliUpdater/fliUpdater";
+import { TestTree } from "./testTree/testTree";
 
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -30,6 +31,8 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
     const fliUpdater: FliUpdater = new FliUpdater(context, extData);
 
     context.subscriptions.push(new InteractiveTree(context, extData, fliUpdater));
+
+    context.subscriptions.push(new TestTree(context, extData, fliUpdater));
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.runLine", () => { codeManager.runLineCommand(); }));

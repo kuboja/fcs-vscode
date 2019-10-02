@@ -195,6 +195,22 @@
                 "command": "fcs-vscode.intValueToOutput",
                 "title": "Value to output",
                 "description": "Value to output"
+            },
+            {
+                "command": "fcs-vscode.tesEvaluateTests",
+                "title": "Run tests",
+                "icon": {
+                    "light": "media/icons/light/start.svg",
+                    "dark": "media/icons/dark/start.svg"
+                }
+            },
+            {
+                "command": "fcs-vscode.tesReloadTests",
+                "title": "Reload tests",
+                "icon": {
+                    "light": "media/icons/light/refresh.svg",
+                    "dark": "media/icons/dark/refresh.svg"
+                }
             }
         ],
         "menus": {
@@ -257,12 +273,27 @@
                     "command": "fcs-vscode.intValueToOutput",
                     "when": "view == fcstree && viewItem != root ",
                     "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesEvaluateTests",
+                    "when": "view == fcstesttree && viewItem != test ",
+                    "group": "inline"
                 }
             ],
             "view/title": [
                 {
                     "command": "fcs-vscode.intOpen",
                     "when": "view == fcstree",
+                    "group": "navigation"
+                },
+                {
+                    "command": "fcs-vscode.tesEvaluateTests",
+                    "when": "view == fcstesttree",
+                    "group": "navigation"
+                },
+                {
+                    "command": "fcs-vscode.tesReloadTests",
+                    "when": "view == fcstesttree",
                     "group": "navigation"
                 }
             ]
@@ -386,6 +417,7 @@
         "@types/node": "^10.14.18",
         "@types/ps-tree": "^1.1.0",
         "@types/shelljs": "^0.8.5",
+        "@types/uuid": "^3.4.5",
         "@types/vscode": "^1.38.0",
         "mocha": "^6.2.0",
         "ts-loader": "^6.1.2",
@@ -400,6 +432,7 @@
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
         "tree-kill": "^1.2.1",
+        "uuid": "^3.3.3",
         "vscode-languageclient": "^5.2.1"
     }
 }

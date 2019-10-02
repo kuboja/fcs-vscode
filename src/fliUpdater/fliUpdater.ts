@@ -11,6 +11,8 @@ import { ExtensionData } from "../extensionData";
 
 const readdirAsync = promisify(fs.readdir);
 
+declare const IS_DEV_BUILD: boolean; // The value is supplied by Webpack during the build
+
 export class FliUpdater {
     readonly requiredMainVersion = 1;
 
@@ -62,8 +64,9 @@ export class FliUpdater {
         return path.join(this.context.globalStoragePath, this.localFliDirName);
     }
 
-    public getFliPath(){
-        return path.join( this.getFliDir(), "flivs.exe" );
+    public getFliPath() {
+        let folder = (IS_DEV_BUILD) ? "C:/GitHub/fcs-histruct/Apps/FCS.Apps.FliVS/bin/Debug/net472" : this.getFliDir();
+        return path.join(folder, "flivs.exe");
     }
 
     private async getcreatedFliDir() {
