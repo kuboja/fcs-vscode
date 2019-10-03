@@ -76,6 +76,10 @@ export class ExtensionData {
         return this.GetStringValue("autoupdateFliVSsource", "Q:\\Builds\\fliVS");
     }
 
+    public get collapseTestAfterRun(): boolean {
+        return this.GetBooleanValue("collapseTestAfterRun", true);
+    }
+
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
 

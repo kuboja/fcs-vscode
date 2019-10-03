@@ -5,7 +5,6 @@ import * as uuid from "uuid/v4";
 import * as fs from "fs";
 import { join } from "path";
 
-import { FileSystemManager } from "../fileSystemManager";
 import { FliUpdater } from "../fliUpdater/fliUpdater";
 import { ExtensionData } from "../extensionData";
 import { TestManager, TestInfo } from "./testManager";
@@ -15,6 +14,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
     private fliUpdater: FliUpdater;
+
+    public tree: vscode.TreeView<TestNode> | undefined;
 
     private _onDidChangeTreeData: vscode.EventEmitter<TestNode>;
     private roots: TestNode[] | undefined;
@@ -38,6 +39,15 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             return this.roots;
         }
 
+        if (element.dirty) {
+            await this.evalutateNode(element, element.root);
+            element.dirty = false;
+            if (this.extData.collapseTestAfterRun) {
+                element.id = uuid();
+            }
+            this._onDidChangeTreeData.fire(element.root);
+        }
+
         if (element.nodes && element.nodes.length > 0) {
             return element.nodes;
         }
@@ -47,7 +57,14 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     public getParent(child: TestNode): TestNode | undefined {
-        return undefined;
+        if (child.type === NodeType.root)
+        {
+            return undefined;
+        }
+
+        else {
+            return child.root;
+        }
     }
 
     public getTreeItem(element: TestNode): vscode.TreeItem {
@@ -98,10 +115,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     private getElementState(e: TestNode) {
         if (e.hasChildren) {
-            if (e.type === NodeType.root){
+            if (e.type === NodeType.root || e.dirty){
                 return vscode.TreeItemCollapsibleState.Expanded;
             }
-            return vscode.TreeItemCollapsibleState.Collapsed;
+             return vscode.TreeItemCollapsibleState.Collapsed;
         }
 
         return vscode.TreeItemCollapsibleState.None;
@@ -157,6 +174,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                 path: t,
                 filePath: root.filePath,
                 hasChildren: false,
+                dirty: false,
                 isEvaluated: false,
                 tests: undefined,
                 nodes: undefined,
@@ -175,6 +193,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                     path: "",
                     filePath: join(wrkFolder.uri.fsPath, r.filePath),
                     hasChildren: r.tests && r.tests.length > 0,
+                    dirty: false,
                     isEvaluated: false,
                     tests: undefined,
                     nodes: undefined,
@@ -227,6 +246,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             path: "",
             filePath: "",
 
+            dirty: false,
             isEvaluated: true,
 
             tests: b.Items,
@@ -276,17 +296,34 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         }
 
         else if (element.type === NodeType.root){
+            element.message = "running...";
+            element.isEvaluated = false;
+            this._onDidChangeTreeData.fire(element);
+
             if (element.nodes){
                 for (let e of element.nodes) {
-                    await this.evalutateNode(e, element);
-                    this._onDidChangeTreeData.fire(element);
+                    await this.evalutateTests(e);
                 }
             }
         }
 
         else if ( element.type === NodeType.definition ){
-            await this.evalutateNode(element, element.root);
+            element.dirty = true;
+            element.isEvaluated = false;
+            element.hasChildren = false;
+            element.message = "runnig...";
+            element.nodes = undefined;
+            element.tests = undefined;
+           // element.id = uuid();
+            element.hasChildren = true;
+            this._onDidChangeTreeData.fire(element);
             this._onDidChangeTreeData.fire(element.root);
+
+            if (this.tree){
+                await this.tree.reveal(element, { select: false, expand: true });
+            }
+
+         //   this._onDidChangeTreeData.fire(element.root);
         }
         
     }
@@ -329,7 +366,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             this.updateRoot(rootElement);
         }
 
-        this.closeManager(man);
+        await this.closeManager(man);
     }
 
     private async getManager(element: TestNode) {
@@ -370,6 +407,7 @@ export interface TestNode {
     name: string;
     isOk: boolean;
     message: string;
+    dirty: boolean;
     isEvaluated: boolean;
 
     path: string;

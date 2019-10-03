@@ -378,6 +378,11 @@
                     "type": "string",
                     "default": "Q:\\Builds\\fliVS",
                     "description": "Path to source folder of FliVS."
+                },
+                "fcs-vscode.collapseTestAfterRun": {
+                    "type": "boolean",
+                    "default": "true",
+                    "description": "Force collapse the test item after run."
                 }
             }
         },
