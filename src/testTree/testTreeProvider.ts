@@ -11,7 +11,7 @@ import { TestManager, TestInfo } from "./testManager";
 
 
 export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vscode.Disposable {
-    
+
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
     private fliUpdater: FliUpdater;
@@ -27,8 +27,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         this.fliUpdater = fliUpdater;
         this._onDidChangeTreeData = new vscode.EventEmitter<TestNode>();
 
-        if (this.tree)
-        {
+        if (this.tree) {
             this.tree.onDidExpandElement(this.expandEvent)
         }
 
@@ -41,8 +40,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     expandEvent(e: vscode.TreeViewExpansionEvent<TestNode>) {
         let element = e.element;
 
-        if (element.type === NodeType.definition){
-            this.expandedTests.push( element.id);
+        if (element.type === NodeType.definition) {
+            this.expandedTests.push(element.id);
         }
 
     }
@@ -77,8 +76,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     public getParent(child: TestNode): TestNode | undefined {
-        if (child.type === NodeType.root)
-        {
+        if (child.type === NodeType.root) {
             return undefined;
         }
 
@@ -109,10 +107,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     private getIconByTokenType(e: TestNode): ThenableTreeIconPath | undefined {
         let name: string;
 
-        if (!e.isEvaluated){
+        if (!e.isEvaluated) {
             name = "questionCircle";
         }
-        else if (e.isOk){
+        else if (e.isOk) {
             name = "checkCircle";
         }
         else {
@@ -136,10 +134,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     private getElementState(e: TestNode) {
         if (e.hasChildren) {
-            if (e.type === NodeType.root || e.dirty){
+            if (e.type === NodeType.root || e.dirty) {
                 return vscode.TreeItemCollapsibleState.Expanded;
             }
-             return vscode.TreeItemCollapsibleState.Collapsed;
+            return vscode.TreeItemCollapsibleState.Collapsed;
         }
 
         return vscode.TreeItemCollapsibleState.None;
@@ -190,7 +188,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         function toTestDefiniton(t: string | TestNamePath, root: TestNode): TestNode {
             let name = "";
             let path = "";
-            if (typeof t === "string"){
+            if (typeof t === "string") {
                 name = t;
                 path = t;
             }
@@ -236,7 +234,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                     id: uuid(),
                 };
 
-                root.nodes = r.tests.map((t : string | TestNamePath ) => toTestDefiniton(t, root));
+                root.nodes = r.tests.map((t: string | TestNamePath) => toTestDefiniton(t, root));
                 return root;
             });
         }
@@ -275,7 +273,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     private infoToNode(b: TestInfo, root: TestNode): TestNode {
-   
+
         let node: TestNode = {
             name: b.Name,
             isOk: b.IsOk,
@@ -297,7 +295,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             id: uuid(),
         };
 
-        if (b.Items && b.Items.length > 0){
+        if (b.Items && b.Items.length > 0) {
             node.hasChildren = true;
             node.message = this.getMessage(b);
         }
@@ -305,24 +303,24 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         return node;
     }
 
-    private getDeepCount(tests: TestInfo[]): { ok: number; fail: number}{
-        if ( !tests || (tests && tests.length === 0) ){
-            return { ok: 0, fail: 0};
+    private getDeepCount(tests: TestInfo[]): { ok: number; fail: number } {
+        if (!tests || (tests && tests.length === 0)) {
+            return { ok: 0, fail: 0 };
         }
 
-        let child = tests.filter(t =>t.Items && t.Items.length > 0).map(t => this.getDeepCount(t.Items));
+        let child = tests.filter(t => t.Items && t.Items.length > 0).map(t => this.getDeepCount(t.Items));
 
-        let reduced = (child && child.length > 0) ? child.reduce((t1, t2) => { return { ok : t1.ok + t2.ok, fail: t1.fail + t2.fail };}) : { ok : 0, fail: 0 };
+        let reduced = (child && child.length > 0) ? child.reduce((t1, t2) => { return { ok: t1.ok + t2.ok, fail: t1.fail + t2.fail }; }) : { ok: 0, fail: 0 };
 
-        let ok = tests.filter(t => (!t.Items || (t.Items && t.Items.length === 0)) && t.IsOk ).length + reduced.ok;
-        let fail = tests.filter(t => (!t.Items || (t.Items && t.Items.length === 0)) && !t.IsOk ).length + reduced.fail;
+        let ok = tests.filter(t => (!t.Items || (t.Items && t.Items.length === 0)) && t.IsOk).length + reduced.ok;
+        let fail = tests.filter(t => (!t.Items || (t.Items && t.Items.length === 0)) && !t.IsOk).length + reduced.fail;
 
-        return { ok, fail};
+        return { ok, fail };
     }
 
     /// Actions
 
-    public async evalutateTests(element: TestNode | undefined){
+    public async evalutateTests(element: TestNode | undefined) {
 
         if (!element) {
             if (!this.roots) {
@@ -334,40 +332,40 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             }
         }
 
-        else if (element.type === NodeType.root){
+        else if (element.type === NodeType.root) {
             element.message = "running...";
             element.isEvaluated = false;
             this._onDidChangeTreeData.fire(element);
 
-            if (element.nodes){
+            if (element.nodes) {
                 for (let e of element.nodes) {
                     await this.evalutateTests(e);
                 }
             }
         }
 
-        else if ( element.type === NodeType.definition ){
+        else if (element.type === NodeType.definition) {
             element.dirty = true;
             element.isEvaluated = false;
             element.hasChildren = false;
             element.message = "runnig...";
             element.nodes = undefined;
             element.tests = undefined;
-           // element.id = uuid();
+            // element.id = uuid();
             element.hasChildren = true;
             this._onDidChangeTreeData.fire(element);
             this._onDidChangeTreeData.fire(element.root);
 
-            if (this.tree){
+            if (this.tree) {
                 await this.tree.reveal(element, { select: false, expand: true });
             }
 
-         //   this._onDidChangeTreeData.fire(element.root);
+            //   this._onDidChangeTreeData.fire(element.root);
         }
-        
+
     }
 
-    public async refreshTests(){
+    public async refreshTests() {
         this.roots = await this.loadRootTests();
 
         this._onDidChangeTreeData.fire();
@@ -375,7 +373,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     /// Managers
 
-    public async evalutateNode(element: TestNode, rootElement: TestNode | undefined){
+    public async evalutateNode(element: TestNode, rootElement: TestNode | undefined) {
         let man = await this.getManager(element);
 
         if (!man) {
@@ -406,7 +404,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             element.root = rootElement;
         }
 
-        if (rootElement && rootElement.type === NodeType.root){
+        if (rootElement && rootElement.type === NodeType.root) {
             this.updateRoot(rootElement);
         }
 
@@ -415,7 +413,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     private static parseHrtimeToSeconds(hrtime: number[]): number {
         let seconds = (hrtime[0] + (hrtime[1] / 1e9));
-        return Math.round(seconds *1000)/1000;
+        return Math.round(seconds * 1000) / 1000;
     }
 
     private async getManager(element: TestNode) {

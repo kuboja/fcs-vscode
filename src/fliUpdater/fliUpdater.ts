@@ -60,7 +60,7 @@ export class FliUpdater {
         return path.join(this.sourceMainVersionPath, "flivc." + mainVer + "." + this.numToFixLengthString(ver, 2) + ".zip");
     }
 
-    public getFliDir(){
+    public getFliDir() {
         return path.join(this.context.globalStoragePath, this.localFliDirName);
     }
 
@@ -127,7 +127,7 @@ export class FliUpdater {
         // pokud není přístup ke zdroji aktualizací -> použije se stávající instalace flivs, pokud není dostupná ani ta -> konec
         if (!lastVersion) {
             vscode.window.showWarningMessage("FliVS updater: Failed to load current version information.");
-            
+
             try {
                 fs.accessSync(this.getFliPath());
             } catch (error) {

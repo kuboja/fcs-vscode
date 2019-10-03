@@ -9,7 +9,7 @@ import { ExtensionData } from "../extensionData";
 export class TestManager implements vscode.Disposable {
 
     public static currentMainVersion = 1;
-    
+
     private pathFli: string;
     public pathFcs: string;
 
@@ -25,7 +25,7 @@ export class TestManager implements vscode.Disposable {
         this.pathFcs = fcsPath;
         this.pathFli = fliPath;
     }
-    
+
     public canSendRequest(): boolean {
         return this.connection !== undefined && this.sessionStarted;
     }
@@ -141,7 +141,7 @@ export class TestManager implements vscode.Disposable {
             console.error("Error with " + req.method + " request: " + e);
         }
     }
-    
+
     dispose() {
         if (this.fliProcess) {
             this.fliProcess.kill();

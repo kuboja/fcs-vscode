@@ -16,7 +16,7 @@ export class TestTree implements vscode.Disposable {
 
     constructor(context: vscode.ExtensionContext, extData: ExtensionData, fliUpdater: FliUpdater) {
         this.fliUpdater = fliUpdater;
-        
+
         this.treeDataProvider = new TestTreeProvider(context, this.fliUpdater, extData);
         this.tree = vscode.window.createTreeView('fcstesttree', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
 
@@ -34,7 +34,7 @@ export class TestTree implements vscode.Disposable {
         await this.treeDataProvider.refreshTests();
     }
 
-    public dispose(){
+    public dispose() {
         this.treeDataProvider.dispose();
         this.tree.dispose();
     }
