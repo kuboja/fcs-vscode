@@ -151,8 +151,8 @@
                 "title": "Open",
                 "description": "Open current file in Tree",
                 "icon": {
-                    "light": "media/button/stage_light.svg",
-                    "dark": "media/button/stage_dark.svg"
+                    "light": "media/icons/light/start.svg",
+                    "dark": "media/icons/dark/start.svg"
                 }
             },
             {
@@ -160,8 +160,8 @@
                 "title": "Close",
                 "description": "Close file",
                 "icon": {
-                    "light": "media/button/close_light.svg",
-                    "dark": "media/button/close_dark.svg"
+                    "light": "media/icons/light/close.svg",
+                    "dark": "media/icons/dark/close.svg"
                 }
             },
             {
@@ -169,8 +169,8 @@
                 "title": "Refresh",
                 "description": "Reload values",
                 "icon": {
-                    "light": "media/button/refresh_light.svg",
-                    "dark": "media/button/refresh_dark.svg"
+                    "light": "media/icons/light/refresh.svg",
+                    "dark": "media/icons/dark/refresh.svg"
                 }
             },
             {
@@ -178,8 +178,8 @@
                 "title": "Evaluate",
                 "description": "Get values of the element",
                 "icon": {
-                    "light": "media/button/check_light.svg",
-                    "dark": "media/button/check_dark.svg"
+                    "light": "media/icons/light/start.svg",
+                    "dark": "media/icons/dark/start.svg"
                 }
             },
             {
@@ -187,8 +187,8 @@
                 "title": "Find in code",
                 "description": "Find in code",
                 "icon": {
-                    "light": "media/button/next_light.svg",
-                    "dark": "media/button/next_dark.svg"
+                    "light": "media/icons/light/open-preview.svg",
+                    "dark": "media/icons/dark/open-preview.svg"
                 }
             },
             {

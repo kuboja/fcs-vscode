@@ -105,19 +105,19 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
 
         switch (cat) {
             case BitCategory.Class:
-                name = "Class";
+                name = "class";
                 break;
             case BitCategory.Sequence:
-                name = "Enumerator";
+                name = "enumerator";
                 break;
             case BitCategory.Value:
-                name = "Constant";
+                name = "constant";
                 break;
             case BitCategory.Any:
-                name = "Empty";
+                name = "empty";
                 break;
             case BitCategory.RootFile:
-                name = "Interface";
+                name = "interface";
                 break;
             default:
                 name = "";
@@ -128,10 +128,10 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
             return;
         }
 
-        let normalName = name + "_16x.svg";
-        let inverseName = name + "_inverse_16x.svg";
-        let lightIconPath = this.context.asAbsolutePath("media/icons/" + normalName);
-        let darkIconPath = this.context.asAbsolutePath("media/icons/" + inverseName);
+        let normalName = name + ".svg";
+        let inverseName = name + ".svg";
+        let lightIconPath = this.context.asAbsolutePath("media/icons/types/light/" + normalName);
+        let darkIconPath = this.context.asAbsolutePath("media/icons/types/dark/" + inverseName);
 
         return {
             light: lightIconPath,
