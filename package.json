@@ -433,6 +433,7 @@
     },
     "dependencies": {
         "adm-zip": "^0.4.13",
+        "applicationinsights": "^1.4.2",
         "original-fs": "1.1.0",
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
