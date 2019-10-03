@@ -11,6 +11,7 @@ import { TestManager, TestInfo } from "./testManager";
 
 
 export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vscode.Disposable {
+    
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
     private fliUpdater: FliUpdater;
@@ -166,12 +167,23 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             return data;
         }
 
-        function toTest(t: string, r: any, root: TestNode): TestNode {
+        function toTestDefiniton(t: string | TestNamePath, root: TestNode): TestNode {
+            let name = "";
+            let path = "";
+            if (typeof t === "string"){
+                name = t;
+                path = t;
+            }
+            else {
+                name = t.name;
+                path = t.path;
+            }
+
             return {
-                name: t,
+                name,
                 isOk: false,
                 message: "",
-                path: t,
+                path,
                 filePath: root.filePath,
                 hasChildren: false,
                 dirty: false,
@@ -202,7 +214,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                     id: uuid(),
                 };
 
-                root.nodes = r.tests.map(t => toTest(t, r, root));
+                root.nodes = r.tests.map((t : string | TestNamePath ) => toTestDefiniton(t, root));
                 return root;
             });
         }
@@ -436,5 +448,10 @@ interface ThenableTreeIconPath {
 interface TestSetting {
     name: string;
     filePath: string;
-    tests: string[];
+    tests: (string | TestNamePath)[];
+}
+
+interface TestNamePath {
+    name: string;
+    path: string;
 }
