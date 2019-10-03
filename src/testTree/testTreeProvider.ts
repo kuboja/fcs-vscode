@@ -26,6 +26,25 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         this.extData = extData;
         this.fliUpdater = fliUpdater;
         this._onDidChangeTreeData = new vscode.EventEmitter<TestNode>();
+
+        if (this.tree)
+        {
+            this.tree.onDidExpandElement(this.expandEvent)
+        }
+
+        this.expandedTests = [];
+    }
+
+    private expandedTests: string[];
+
+
+    expandEvent(e: vscode.TreeViewExpansionEvent<TestNode>) {
+        let element = e.element;
+
+        if (element.type === NodeType.definition){
+            this.expandedTests.push( element.id);
+        }
+
     }
 
 
@@ -80,7 +99,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         treeItem.tooltip = element.name +
             "\n" + element.message +
             "\n\nFile: " + element.filePath + ", path: " + element.path +
-            "\nContex: " + treeItem.contextValue + ", type: " + element.type.toString();
+            "\nContex: " + treeItem.contextValue + ", type: " + element.type.toString() +
+            "\nTime: " + element.elapsedTime + " s";
 
         return treeItem;
     }
@@ -188,6 +208,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                 hasChildren: false,
                 dirty: false,
                 isEvaluated: false,
+                elapsedTime: 0,
                 tests: undefined,
                 nodes: undefined,
                 type: NodeType.definition,
@@ -207,6 +228,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                     hasChildren: r.tests && r.tests.length > 0,
                     dirty: false,
                     isEvaluated: false,
+                    elapsedTime: 0,
                     tests: undefined,
                     nodes: undefined,
                     type: NodeType.root,
@@ -227,12 +249,15 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             element.isEvaluated = isEval;
             element.isOk = element.nodes.every(n => n.isOk);
 
+            let totalTime = 0;
+
             let score = { ok: 0, fail: 0 };
             for (const node of element.nodes) {
                 if (node.tests && node.tests.length > 0) {
                     var nodeScore = this.getDeepCount(node.tests);
                     score.ok += nodeScore.ok;
                     score.fail += nodeScore.fail;
+                    totalTime += node.elapsedTime;
                 }
             }
 
@@ -245,6 +270,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                 }
             }
             element.message = mes;
+            element.elapsedTime = totalTime;
         }
     }
 
@@ -260,6 +286,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
             dirty: false,
             isEvaluated: true,
+            elapsedTime: 0,
 
             tests: b.Items,
             nodes: undefined,
@@ -356,7 +383,12 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             return;
         }
 
+        let startTime = process.hrtime();
+
         let response = await man.executeTests(element.path);
+
+        var elapsedSeconds = TestTreeProvider.parseHrtimeToSeconds(process.hrtime(startTime));
+        element.elapsedTime = elapsedSeconds;
 
         if (!response) {
             element.isEvaluated = true;
@@ -379,6 +411,11 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         }
 
         await this.closeManager(man);
+    }
+
+    private static parseHrtimeToSeconds(hrtime: number[]): number {
+        let seconds = (hrtime[0] + (hrtime[1] / 1e9));
+        return Math.round(seconds *1000)/1000;
     }
 
     private async getManager(element: TestNode) {
@@ -421,6 +458,7 @@ export interface TestNode {
     message: string;
     dirty: boolean;
     isEvaluated: boolean;
+    elapsedTime: number;
 
     path: string;
     filePath: string;
