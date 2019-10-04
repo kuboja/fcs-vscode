@@ -45,7 +45,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         if (element.dirty) {
             await this.evalutateNode(element, element.root);
             element.dirty = false;
-            if (this.extData.collapseTestAfterRun && !this.isExpanded(element)) {
+            if (this.extData.collapseTestAfterRun && !this.isExpanded(element) && element.isOk) {
                 element.id = uuid();
             }
             this._onDidChangeTreeData.fire(element.root);
