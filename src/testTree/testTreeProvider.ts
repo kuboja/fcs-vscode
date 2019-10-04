@@ -84,7 +84,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     /// Tree item
 
-    private toTreeItem(element: TestNode){
+    private toTreeItem(element: TestNode) {
         const treeItem = new vscode.TreeItem(element.name);
 
         treeItem.id = element.id;
@@ -96,8 +96,16 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         treeItem.tooltip = element.name +
             "\n" + element.message +
             "\n\nFile: " + element.filePath + ", path: " + element.path +
-            "\nContex: " + treeItem.contextValue + ", type: " + element.type.toString() +
-            "\nTime: " + element.elapsedTime + " s";
+            "\nContex: " + treeItem.contextValue + ", type: " + element.type.toString();
+
+        if (element.type !== NodeType.test) {
+            treeItem.tooltip += "\nTime: " + element.elapsedTime + " s";
+        }
+
+        if (element.result && element.expectation){
+            treeItem.tooltip += "\n\nResult: " + element.result;
+            treeItem.tooltip += "\nExpected: " + element.expectation;
+        }
 
         return treeItem;
     }
@@ -294,6 +302,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             id: uuid(),
         };
 
+        if (!b.IsOk) {
+            this.updateWhenNotOk(node, b);
+        }
+
         if (b.Items && b.Items.length > 0) {
             node.hasChildren = true;
             node.message = this.getMessage(b);
@@ -315,6 +327,41 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         let fail = tests.filter(t => (!t.Items || (t.Items && t.Items.length === 0)) && !t.IsOk).length + reduced.fail;
 
         return { ok, fail };
+    }
+
+    private getMessage(info: TestInfo): string {
+        let score = this.getDeepCount(info.Items);
+        let mes = (score.ok + score.fail > 0) ? `Total tests ${score.ok + score.fail}, Succeeded ${score.ok}, Failed ${score.fail}` : "Empty test suite";
+        mes += (info.Message && info.Message.length > 0) ? " | " + info.Message : "";
+        return mes;
+    }
+
+    private updateWhenNotOk(element: TestNode, info: TestInfo) {
+        if (!info.Message || info.IsOk) {
+            return;
+        }
+
+        const RESULT = "( Result= ";
+        const EXPECTED = ", Expected= ";
+
+        let msg = info.Message;
+        let expectationPosition = msg.indexOf(EXPECTED);
+
+        if (expectationPosition === -1) {
+            return;
+        }
+
+        let parts = msg.split(EXPECTED);
+
+        if (parts && parts.length !== 2) {
+            return;
+        }
+
+        let result = parts[0].substring(RESULT.length).trim();
+        let expected = parts[1].substr(0, parts[1].length - 1).trim();
+
+        element.result = result;
+        element.expectation = expected;
     }
 
 
@@ -366,7 +413,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         this._onDidChangeTreeData.fire();
     }
 
-    
+
     /// Managers
 
     public async evalutateNode(element: TestNode, rootElement: TestNode | undefined) {
@@ -422,13 +469,6 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         return man;
     }
 
-    private getMessage(info: TestInfo): string {
-        let score = this.getDeepCount(info.Items);
-        let mes = (score.ok + score.fail > 0) ? `Total tests ${score.ok + score.fail}, Succeeded ${score.ok}, Failed ${score.fail}` : "Empty test suite";
-        mes += (info.Message && info.Message.length > 0) ? " | " + info.Message : "";
-        return mes;
-    }
-
     private async closeManager(man: TestManager | undefined) {
         if (man) {
             man.dispose();
@@ -440,8 +480,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     private expandedTests: string[];
 
-    private addToExpandedItems(element: TestNode | undefined){
-        if (!element){
+    private addToExpandedItems(element: TestNode | undefined) {
+        if (!element) {
             return;
         }
 
@@ -450,8 +490,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         }
     }
 
-    private removeFromExpandedItems(element: TestNode | undefined){
-        if (!element){
+    private removeFromExpandedItems(element: TestNode | undefined) {
+        if (!element) {
             return;
         }
 
@@ -463,8 +503,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         }
     }
 
-    private isExpanded(element: TestNode | undefined): boolean{
-        if (!element){
+    private isExpanded(element: TestNode | undefined): boolean {
+        if (!element) {
             return false;
         }
 
@@ -497,10 +537,13 @@ export interface TestNode {
     type: NodeType;
 
     hasChildren: boolean;
-    tests: TestInfo[] | undefined;
-    nodes: TestNode[] | undefined;
+    tests?: TestInfo[];
+    nodes?: TestNode[];
 
-    root: TestNode | undefined;
+    root?: TestNode;
+
+    result?: string;
+    expectation?: string;
 }
 
 export enum NodeType {
