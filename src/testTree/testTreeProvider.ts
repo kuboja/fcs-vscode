@@ -458,6 +458,13 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         }
     }
 
+    public messageToOutput(element: TestNode | undefined) {
+        if (!element || !element.message) { return; }
+
+        this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
+        this.extData.outputChannel.appendLine("[IntFli.ErrroMessage]: " + element.message);
+    }
+
 
     /// Managers
 
