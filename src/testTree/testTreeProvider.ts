@@ -88,13 +88,18 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         const treeItem = new vscode.TreeItem(element.name);
 
         treeItem.id = element.id;
-        treeItem.description = (element.message ? "" + element.message : "");
+        let description = "";
+        if (element.message) {
+            description = element.message.replace(/\r?\n|\r/g, "").substr(0, 120);
+            description += element.message.length > 120 ? "..." : "";
+            treeItem.description = description;
+        }
         treeItem.label = element.name;
         treeItem.collapsibleState = this.getElementState(element);
         treeItem.contextValue = this.getElementContext(element);
         treeItem.iconPath = this.getIconByTokenType(element);
         treeItem.tooltip = element.name +
-            "\n" + element.message +
+            "\n" + description +
             "\n\nFile: " + element.filePath + ", path: " + element.path +
             "\nContex: " + treeItem.contextValue + ", type: " + element.type.toString();
 
@@ -103,8 +108,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         }
 
         if (element.result && element.expectation){
-            treeItem.tooltip += "\n\nResult: " + element.result;
-            treeItem.tooltip += "\nExpected: " + element.expectation;
+            treeItem.tooltip += "\n\nResult: " + element.result.replace(/\s/g, "");
+            treeItem.tooltip += "\nExpected: " + element.expectation.replace(/\s/g, "");
         }
 
         return treeItem;
