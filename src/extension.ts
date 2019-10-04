@@ -10,6 +10,7 @@ import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
 import { InteractiveTree } from "./interactiveTree/interactiveTree";
 import { FliUpdater } from "./fliUpdater/fliUpdater";
 import { TestTree } from "./testTree/testTree";
+import { FcsTextContentProvider } from "./contentProvider";
 
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -29,6 +30,9 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
 
     const fliUpdater: FliUpdater = new FliUpdater(context, extData);
+
+    context.subscriptions.push(
+        vscode.workspace.registerTextDocumentContentProvider("fliText", new FcsTextContentProvider()));
 
     context.subscriptions.push(new InteractiveTree(context, extData, fliUpdater));
 
