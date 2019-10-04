@@ -150,11 +150,15 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     private getElementContext(e: TestNode) {
-        if (e.type === NodeType.test) {
-            return "test";
+        if (e.type !== NodeType.test) {
+            return "root";
         }
 
-        return e.isEvaluated ? "evaluated" : "notEvaluated";
+        if (e.result && e.expectation){
+            return "failTest";
+        }
+
+        return "test";
     }
 
 
@@ -411,6 +415,42 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         this.expandedTests = [];
 
         this._onDidChangeTreeData.fire();
+    }
+
+    public async compareValues(element: TestNode | undefined) {
+        if (!(element && element.result && element.expectation)) {
+            return;
+        }
+
+        const EXTENSION_SCHEME = 'fliText';
+
+        const makeUriString = (textKey: string, timestamp: Date, text: string): string =>
+            `${EXTENSION_SCHEME}://${textKey}?_ts=${timestamp.getTime()}&text=${text}`; // `_ts` to avoid cache
+
+        const date = new Date();
+
+        const getUri = (textKey: string, name: string) => 
+            vscode.Uri.parse(makeUriString(name, date, textKey));
+
+        let left = getUri(element.expectation, "expected");
+        let right = getUri(element.result, "result");
+
+        let option: vscode.TextDocumentShowOptions = {
+
+        };
+
+        await vscode.commands.executeCommand("vscode.diff", left, right, element.name + " E-R", option);
+    }
+
+    public async copyResult(element: TestNode | undefined, clear: boolean = false) {
+        if (element && element.result) {
+            if (clear) {
+                vscode.env.clipboard.writeText(element.result.replace(/\s/g, ""));
+            }
+            else {
+                vscode.env.clipboard.writeText(element.result);
+            }
+        }
     }
 
 

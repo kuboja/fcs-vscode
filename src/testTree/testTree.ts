@@ -33,6 +33,9 @@ export class TestTree implements vscode.Disposable {
 
         this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesEvaluateTests', async (resource) => await this.evaluteTests(resource)));
         this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesReloadTests', async (resource) => await this.refreshTests(resource)));
+        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesCompareValues', async (resource) => await this.compareValues(resource)));
+        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesCopyResult', async (resource) => await this.copyResult(resource)));
+        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesCopyResultClear', async (resource) => await this.copyResultClear(resource)));
     }
 
     private async evaluteTests(element: TestNode | undefined) {
@@ -41,6 +44,18 @@ export class TestTree implements vscode.Disposable {
 
     private async refreshTests(element: TestNode | undefined) {
         await this.treeDataProvider.refreshTests();
+    }
+
+    private async compareValues(element: TestNode | undefined) {
+        await this.treeDataProvider.compareValues(element);
+    }
+
+    private async copyResult(element: TestNode | undefined) {
+        await this.treeDataProvider.copyResult(element, false);
+    }
+
+    private async copyResultClear(element: TestNode | undefined) {
+        await this.treeDataProvider.copyResult(element, true);
     }
 
     public dispose() {

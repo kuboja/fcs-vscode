@@ -10,7 +10,7 @@ import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
 import { InteractiveTree } from "./interactiveTree/interactiveTree";
 import { FliUpdater } from "./fliUpdater/fliUpdater";
 import { TestTree } from "./testTree/testTree";
-import { FcsTextContentProvider } from "./contentProvider";
+import { FcsTextContentProvider } from "./fcsTextContentProvider";
 
 
 export function activate(context: vscode.ExtensionContext): void {

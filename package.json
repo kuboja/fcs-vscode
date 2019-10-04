@@ -211,6 +211,18 @@
                     "light": "media/icons/light/refresh.svg",
                     "dark": "media/icons/dark/refresh.svg"
                 }
+            },
+            {
+                "command": "fcs-vscode.tesCompareValues",
+                "title": "Compare values"
+            },
+            {
+                "command": "fcs-vscode.tesCopyResult",
+                "title": "Copy result value"
+            },
+            {
+                "command": "fcs-vscode.tesCopyResultClear",
+                "title": "Copy result value (clear)"
             }
         ],
         "menus": {
@@ -276,8 +288,23 @@
                 },
                 {
                     "command": "fcs-vscode.tesEvaluateTests",
-                    "when": "view == fcstesttree && viewItem != test ",
+                    "when": "view == fcstesttree && viewItem == root ",
                     "group": "inline"
+                },
+                {
+                    "command": "fcs-vscode.tesCompareValues",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesCopyResult",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesCopyResultClear",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
                 }
             ],
             "view/title": [
