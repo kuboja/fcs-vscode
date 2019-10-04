@@ -6,6 +6,7 @@ import { TestNode, TestTreeProvider } from "./testTreeProvider";
 import { FcsSymbolProvider } from "../fcsSymbolUtil";
 import { FliUpdater } from "../fliUpdater/fliUpdater";
 import { ExtensionData } from "../extensionData";
+import { Disposable } from "vscode-jsonrpc";
 
 
 export class TestTree implements vscode.Disposable {
@@ -13,8 +14,11 @@ export class TestTree implements vscode.Disposable {
     private fliUpdater: FliUpdater;
     private treeDataProvider: TestTreeProvider;
     private tree: vscode.TreeView<TestNode>;
+    private disposable: Disposable[];
 
     constructor(context: vscode.ExtensionContext, extData: ExtensionData, fliUpdater: FliUpdater) {
+        this.disposable = [];
+        
         this.fliUpdater = fliUpdater;
 
         this.treeDataProvider = new TestTreeProvider(context, this.fliUpdater, extData);
@@ -22,8 +26,8 @@ export class TestTree implements vscode.Disposable {
 
         this.treeDataProvider.tree = this.tree;
 
-        vscode.commands.registerCommand('fcs-vscode.tesEvaluateTests', async (resource) => await this.evaluteTests(resource));
-        vscode.commands.registerCommand('fcs-vscode.tesReloadTests', async (resource) => await this.refreshTests(resource));
+        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesEvaluateTests', async (resource) => await this.evaluteTests(resource)));
+        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesReloadTests', async (resource) => await this.refreshTests(resource)));
     }
 
     private async evaluteTests(element: TestNode | undefined) {
@@ -37,5 +41,9 @@ export class TestTree implements vscode.Disposable {
     public dispose() {
         this.treeDataProvider.dispose();
         this.tree.dispose();
+
+        for (const d of this.disposable) {
+            d.dispose();
+        }
     }
 }
