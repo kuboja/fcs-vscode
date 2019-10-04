@@ -223,6 +223,10 @@
             {
                 "command": "fcs-vscode.tesCopyResultClear",
                 "title": "Copy result value (clear)"
+            },
+            {
+                "command": "fcs-vscode.tesMessageToOutput",
+                "title": "Message to output"
             }
         ],
         "menus": {
@@ -303,6 +307,11 @@
                 },
                 {
                     "command": "fcs-vscode.tesCopyResultClear",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesMessageToOutput",
                     "when": "view == fcstesttree && viewItem == failTest ",
                     "group": "menu"
                 }
