@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.6.0] - 2019-10-04
+
+### Added
+- New test explorer. Tests are loaded from *.tests.json files in root directory.
+
 ## [1.5.0] - 2019-06-03
 
 ### Added
