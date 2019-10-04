@@ -26,6 +26,11 @@ export class TestTree implements vscode.Disposable {
 
         this.treeDataProvider.tree = this.tree;
 
+        if (this.tree) {
+            this.tree.onDidExpandElement(this.treeDataProvider.expandEvent, this.treeDataProvider, this.disposable);
+            this.tree.onDidCollapseElement(this.treeDataProvider.collapseEvent, this.treeDataProvider, this.disposable);
+        }
+
         this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesEvaluateTests', async (resource) => await this.evaluteTests(resource)));
         this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesReloadTests', async (resource) => await this.refreshTests(resource)));
     }

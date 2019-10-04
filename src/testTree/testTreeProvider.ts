@@ -27,23 +27,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         this.fliUpdater = fliUpdater;
         this._onDidChangeTreeData = new vscode.EventEmitter<TestNode>();
 
-        if (this.tree) {
-            this.tree.onDidExpandElement(this.expandEvent)
-        }
-
         this.expandedTests = [];
-    }
-
-    private expandedTests: string[];
-
-
-    expandEvent(e: vscode.TreeViewExpansionEvent<TestNode>) {
-        let element = e.element;
-
-        if (element.type === NodeType.definition) {
-            this.expandedTests.push(element.id);
-        }
-
     }
 
 
@@ -61,7 +45,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         if (element.dirty) {
             await this.evalutateNode(element, element.root);
             element.dirty = false;
-            if (this.extData.collapseTestAfterRun) {
+            if (this.extData.collapseTestAfterRun && !this.isExpanded(element)) {
                 element.id = uuid();
             }
             this._onDidChangeTreeData.fire(element.root);
@@ -86,6 +70,21 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     public getTreeItem(element: TestNode): vscode.TreeItem {
+        return this.toTreeItem(element);
+    }
+
+    public expandEvent(e: vscode.TreeViewExpansionEvent<TestNode>) {
+        this.addToExpandedItems(e.element);
+    }
+
+    public collapseEvent(e: vscode.TreeViewExpansionEvent<TestNode>) {
+        this.removeFromExpandedItems(e.element);
+    }
+
+
+    /// Tree item
+
+    private toTreeItem(element: TestNode){
         const treeItem = new vscode.TreeItem(element.name);
 
         treeItem.id = element.id;
@@ -102,7 +101,6 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
         return treeItem;
     }
-
 
     private getIconByTokenType(e: TestNode): ThenableTreeIconPath | undefined {
         let name: string;
@@ -150,6 +148,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
         return e.isEvaluated ? "evaluated" : "notEvaluated";
     }
+
 
     /// Test node / info
 
@@ -318,10 +317,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         return { ok, fail };
     }
 
+
     /// Actions
 
     public async evalutateTests(element: TestNode | undefined) {
-
         if (!element) {
             if (!this.roots) {
                 return;
@@ -347,30 +346,27 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         else if (element.type === NodeType.definition) {
             element.dirty = true;
             element.isEvaluated = false;
-            element.hasChildren = false;
             element.message = "runnig...";
             element.nodes = undefined;
             element.tests = undefined;
-            // element.id = uuid();
             element.hasChildren = true;
+
             this._onDidChangeTreeData.fire(element);
-            this._onDidChangeTreeData.fire(element.root);
 
             if (this.tree) {
                 await this.tree.reveal(element, { select: false, expand: true });
             }
-
-            //   this._onDidChangeTreeData.fire(element.root);
         }
-
     }
 
     public async refreshTests() {
         this.roots = await this.loadRootTests();
+        this.expandedTests = [];
 
         this._onDidChangeTreeData.fire();
     }
 
+    
     /// Managers
 
     public async evalutateNode(element: TestNode, rootElement: TestNode | undefined) {
@@ -437,6 +433,43 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         if (man) {
             man.dispose();
         }
+    }
+
+
+    /// Expanded items
+
+    private expandedTests: string[];
+
+    private addToExpandedItems(element: TestNode | undefined){
+        if (!element){
+            return;
+        }
+
+        if (element.type === NodeType.definition && !element.dirty) {
+            this.expandedTests.push(element.id);
+        }
+    }
+
+    private removeFromExpandedItems(element: TestNode | undefined){
+        if (!element){
+            return;
+        }
+
+        if (element.type === NodeType.definition) {
+            let id = this.expandedTests.indexOf(element.id);
+            if (id > -1) {
+                this.expandedTests.splice(id, 1);
+            }
+        }
+    }
+
+    private isExpanded(element: TestNode | undefined): boolean{
+        if (!element){
+            return false;
+        }
+
+        let id = this.expandedTests.indexOf(element.id);
+        return (id > -1);
     }
 
 
