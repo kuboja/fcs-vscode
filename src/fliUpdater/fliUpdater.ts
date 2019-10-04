@@ -14,7 +14,7 @@ const readdirAsync = promisify(fs.readdir);
 declare const IS_DEV_BUILD: boolean; // The value is supplied by Webpack during the build
 
 export class FliUpdater {
-    readonly requiredMainVersion = 1;
+    readonly requiredMainVersion = 2;
 
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
