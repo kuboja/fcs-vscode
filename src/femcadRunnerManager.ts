@@ -338,7 +338,7 @@ export class FemcadRunner {
         var term: vscode.Terminal = this.terminal;
 
         try {
-            let fliPath = this.getFliPath();
+            let fliPath: string | undefined = await this.getFliPath();
 
             if (!fliPath) {
                 return;
