@@ -24,7 +24,7 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
         return Promise.resolve(this.getSuggestions(document, position, token));
     }
 
-    private getSuggestions(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
+    private async getSuggestions(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
     Promise<vscode.CompletionItem[]> {
 
         var grammar : FcsGrammar = this.grammar;

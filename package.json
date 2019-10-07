@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.5.4",
+    "version": "1.6.0",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
@@ -142,17 +142,12 @@
                 "description": "Open current file in FemCAD with XML profiling"
             },
             {
-                "command": "fcs-vscode.testTree",
-                "title": "Test Tree",
-                "description": "Open current file in Tree"
-            },
-            {
                 "command": "fcs-vscode.intOpen",
                 "title": "Open",
                 "description": "Open current file in Tree",
                 "icon": {
-                    "light": "media/button/stage_light.svg",
-                    "dark": "media/button/stage_dark.svg"
+                    "light": "media/icons/light/start.svg",
+                    "dark": "media/icons/dark/start.svg"
                 }
             },
             {
@@ -160,8 +155,8 @@
                 "title": "Close",
                 "description": "Close file",
                 "icon": {
-                    "light": "media/button/close_light.svg",
-                    "dark": "media/button/close_dark.svg"
+                    "light": "media/icons/light/close.svg",
+                    "dark": "media/icons/dark/close.svg"
                 }
             },
             {
@@ -169,8 +164,8 @@
                 "title": "Refresh",
                 "description": "Reload values",
                 "icon": {
-                    "light": "media/button/refresh_light.svg",
-                    "dark": "media/button/refresh_dark.svg"
+                    "light": "media/icons/light/refresh.svg",
+                    "dark": "media/icons/dark/refresh.svg"
                 }
             },
             {
@@ -178,8 +173,8 @@
                 "title": "Evaluate",
                 "description": "Get values of the element",
                 "icon": {
-                    "light": "media/button/check_light.svg",
-                    "dark": "media/button/check_dark.svg"
+                    "light": "media/icons/light/start.svg",
+                    "dark": "media/icons/dark/start.svg"
                 }
             },
             {
@@ -187,14 +182,46 @@
                 "title": "Find in code",
                 "description": "Find in code",
                 "icon": {
-                    "light": "media/button/next_light.svg",
-                    "dark": "media/button/next_dark.svg"
+                    "light": "media/icons/light/open-preview.svg",
+                    "dark": "media/icons/dark/open-preview.svg"
                 }
             },
             {
                 "command": "fcs-vscode.intValueToOutput",
                 "title": "Value to output",
                 "description": "Value to output"
+            },
+            {
+                "command": "fcs-vscode.tesEvaluateTests",
+                "title": "Run tests",
+                "icon": {
+                    "light": "media/icons/light/start.svg",
+                    "dark": "media/icons/dark/start.svg"
+                }
+            },
+            {
+                "command": "fcs-vscode.tesReloadTests",
+                "title": "Reload tests",
+                "icon": {
+                    "light": "media/icons/light/refresh.svg",
+                    "dark": "media/icons/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "fcs-vscode.tesCompareValues",
+                "title": "Compare values"
+            },
+            {
+                "command": "fcs-vscode.tesCopyResult",
+                "title": "Copy result value"
+            },
+            {
+                "command": "fcs-vscode.tesCopyResultClear",
+                "title": "Copy result value (clear)"
+            },
+            {
+                "command": "fcs-vscode.tesMessageToOutput",
+                "title": "Message to output"
             }
         ],
         "menus": {
@@ -225,11 +252,6 @@
                     "command": "fcs-vscode.openInFemcadWithProfiling",
                     "when": "editorLangId==fcs",
                     "group": "femcad"
-                },
-                {
-                    "command": "fcs-vscode.testTree",
-                    "when": "editorLangId==fcs",
-                    "group": "femcad"
                 }
             ],
             "view/item/context": [
@@ -257,12 +279,47 @@
                     "command": "fcs-vscode.intValueToOutput",
                     "when": "view == fcstree && viewItem != root ",
                     "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesEvaluateTests",
+                    "when": "view == fcstesttree && viewItem == root ",
+                    "group": "inline"
+                },
+                {
+                    "command": "fcs-vscode.tesCompareValues",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesCopyResult",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesCopyResultClear",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
+                },
+                {
+                    "command": "fcs-vscode.tesMessageToOutput",
+                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "group": "menu"
                 }
             ],
             "view/title": [
                 {
                     "command": "fcs-vscode.intOpen",
                     "when": "view == fcstree",
+                    "group": "navigation"
+                },
+                {
+                    "command": "fcs-vscode.tesEvaluateTests",
+                    "when": "view == fcstesttree",
+                    "group": "navigation"
+                },
+                {
+                    "command": "fcs-vscode.tesReloadTests",
+                    "when": "view == fcstesttree",
                     "group": "navigation"
                 }
             ]
@@ -347,6 +404,11 @@
                     "type": "string",
                     "default": "Q:\\Builds\\fliVS",
                     "description": "Path to source folder of FliVS."
+                },
+                "fcs-vscode.collapseTestAfterRun": {
+                    "type": "boolean",
+                    "default": "true",
+                    "description": "Force collapse the test item after run."
                 }
             }
         },
@@ -386,6 +448,7 @@
         "@types/node": "^10.14.18",
         "@types/ps-tree": "^1.1.0",
         "@types/shelljs": "^0.8.5",
+        "@types/uuid": "^3.4.5",
         "@types/vscode": "^1.38.0",
         "mocha": "^6.2.0",
         "ts-loader": "^6.1.2",
@@ -396,10 +459,12 @@
     },
     "dependencies": {
         "adm-zip": "^0.4.13",
+        "applicationinsights": "^1.4.2",
         "original-fs": "1.1.0",
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
         "tree-kill": "^1.2.1",
+        "uuid": "^3.3.3",
         "vscode-languageclient": "^5.2.1"
     }
 }

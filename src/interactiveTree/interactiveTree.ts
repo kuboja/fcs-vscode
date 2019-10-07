@@ -15,7 +15,7 @@ export class InteractiveTree implements vscode.Disposable {
 
     constructor(context: vscode.ExtensionContext, extData: ExtensionData, fliUpdater: FliUpdater) {
         this.fliUpdater = fliUpdater;
-        
+
         this.treeDataProvider = new TreeInteractionProvider(context, this.fliUpdater, extData);
         this.tree = vscode.window.createTreeView('fcstree', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
 
@@ -54,7 +54,7 @@ export class InteractiveTree implements vscode.Disposable {
         }
     }
 
-    private async updateFlivs(){
+    private async updateFlivs() {
         return await this.fliUpdater.runUpdate();
     }
 
@@ -96,7 +96,7 @@ export class InteractiveTree implements vscode.Disposable {
         }
     }
 
-    public dispose(){
+    public dispose() {
         this.treeDataProvider.dispose();
         this.tree.dispose();
     }

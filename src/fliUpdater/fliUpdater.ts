@@ -11,8 +11,10 @@ import { ExtensionData } from "../extensionData";
 
 const readdirAsync = promisify(fs.readdir);
 
+declare const IS_DEV_BUILD: boolean; // The value is supplied by Webpack during the build
+
 export class FliUpdater {
-    readonly requiredMainVersion = 1;
+    readonly requiredMainVersion = 2;
 
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
@@ -58,12 +60,13 @@ export class FliUpdater {
         return path.join(this.sourceMainVersionPath, "flivc." + mainVer + "." + this.numToFixLengthString(ver, 2) + ".zip");
     }
 
-    public getFliDir(){
+    public getFliDir() {
         return path.join(this.context.globalStoragePath, this.localFliDirName);
     }
 
-    public getFliPath(){
-        return path.join( this.getFliDir(), "flivs.exe" );
+    public getFliPath() {
+        let folder = (IS_DEV_BUILD) ? "C:/GitHub/fcs-histruct/Apps/FCS.Apps.FliVS/bin/Debug/net472" : this.getFliDir();
+        return path.join(folder, "flivs.exe");
     }
 
     private async getcreatedFliDir() {
@@ -124,7 +127,7 @@ export class FliUpdater {
         // pokud není přístup ke zdroji aktualizací -> použije se stávající instalace flivs, pokud není dostupná ani ta -> konec
         if (!lastVersion) {
             vscode.window.showWarningMessage("FliVS updater: Failed to load current version information.");
-            
+
             try {
                 fs.accessSync(this.getFliPath());
             } catch (error) {

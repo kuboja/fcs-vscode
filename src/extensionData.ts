@@ -76,6 +76,10 @@ export class ExtensionData {
         return this.GetStringValue("autoupdateFliVSsource", "Q:\\Builds\\fliVS");
     }
 
+    public get collapseTestAfterRun(): boolean {
+        return this.GetBooleanValue("collapseTestAfterRun", true);
+    }
+
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
 
@@ -88,31 +92,29 @@ export class ExtensionData {
         this.Initialized = true && this.femcadRunner.IsInitialized;
     }
 
-    public saveDocument(editor: vscode.TextEditor): boolean {
+    public async saveDocumentBySettings(editor: vscode.TextEditor): Promise<void> {
         if (editor.document.isUntitled) {
-            vscode.window.showErrorMessage("Nelze spustit. Uložte nejdříve rozpracovaný soubor.");
-            return false;
+            throw new Error("Nelze spustit, protože soubor ještě nebyl uložen na disk. Uložte nejdříve rozpracovaný soubor.");
         }
 
         // pokud je povoleno, tak se provede uložení všech souborů...
         if (this.saveAllFilesBeforeRun) {
-            vscode.workspace.saveAll();
-            return true;
+            await vscode.workspace.saveAll();
+            return;
         }
 
         // pokud je dokument uložený, není potřeba ukládat...
         if (!editor.document.isDirty) {
-            return true;
+            return;
         }
 
         // pokud je soubor rozpracovaný a je povoleno uložení, tak se uloží...
         if (this.saveFileBeforeRun) {
-            editor.document.save();
-            return true;
+            await editor.document.save();
+            return;
         }
 
-        vscode.window.showErrorMessage("Nelze spustit. Uložte nejdříve aktuální soubor, nebo povolte ukládání v nastavení.");
-        return false;
+        throw new Error("Nelze spustit, protože soubor není uložen. Uložte soubor ručně nebo povolte automatické ukládání v nastavení.");
     }
 
     private _outputChannel : vscode.OutputChannel | undefined;

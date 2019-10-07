@@ -9,6 +9,8 @@ import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
 import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
 import { InteractiveTree } from "./interactiveTree/interactiveTree";
 import { FliUpdater } from "./fliUpdater/fliUpdater";
+import { TestTree } from "./testTree/testTree";
+import { FcsTextContentProvider } from "./fcsTextContentProvider";
 
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -29,22 +31,27 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
 
     const fliUpdater: FliUpdater = new FliUpdater(context, extData);
 
+    context.subscriptions.push(
+        vscode.workspace.registerTextDocumentContentProvider("fliText", new FcsTextContentProvider()));
+
     context.subscriptions.push(new InteractiveTree(context, extData, fliUpdater));
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.runLine", () => { codeManager.runLineCommand(); }));
+    context.subscriptions.push(new TestTree(context, extData, fliUpdater));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.stop", () => { codeManager.stopCommand(); }));
+        vscode.commands.registerCommand("fcs-vscode.runLine", async () => { await codeManager.runLineCommand(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", () => { codeManager.openInTerminal(); }));
+        vscode.commands.registerCommand("fcs-vscode.stop", async () => { await codeManager.stopCommand(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.openInFemcad", () => { openFcs.openInFemcad(); }));
+        vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", async () => { await codeManager.openInTerminal(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.openInFemcadWithProfiling", () => { openFcs.openInFemcadProfiling(); }));
+        vscode.commands.registerCommand("fcs-vscode.openInFemcad", async () => { await openFcs.openInFemcad(); }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.openInFemcadWithProfiling", async () => { await openFcs.openInFemcadProfiling(); }));
 }
 
 

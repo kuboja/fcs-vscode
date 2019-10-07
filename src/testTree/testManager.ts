@@ -6,7 +6,10 @@ import { ChildProcess, spawn } from "child_process";
 import { ExtensionData } from "../extensionData";
 
 
-export class InteractiveManager implements vscode.Disposable {
+export class TestManager implements vscode.Disposable {
+
+    public static currentMainVersion = 1;
+
     private pathFli: string;
     public pathFcs: string;
 
@@ -41,7 +44,7 @@ export class InteractiveManager implements vscode.Disposable {
         try {
             let pipe = await rpc.createClientPipeTransport(pipeName);
 
-            this.fliProcess = spawn(this.pathFli, ["--i", "--c", pipeName], { shell: false, windowsHide: false });
+            this.fliProcess = spawn(this.pathFli, ["--t", "--c", pipeName], { shell: false, windowsHide: false });
             this.fliProcess.stdout.setEncoding("utf8");
             this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
             this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
@@ -56,9 +59,9 @@ export class InteractiveManager implements vscode.Disposable {
             });
 
             this.connection.trace(rpc.Trace.Messages, {
-                log: (data: any, data2?: any) => {
-                    console.log(data);
-                    if (data2) { console.log(data2); }
+                log: (message: string, data?: string) => {
+                    console.log(message);
+                    if (data) { console.log(data); }
                 }
             });
 
@@ -108,12 +111,12 @@ export class InteractiveManager implements vscode.Disposable {
         }
     }
 
-    async sendStartRequest(): Promise<boolean> {
+    public async sendStartRequest(): Promise<boolean> {
         if (!this.connection) { return false; }
         if (this.canSendRequest()) { return true; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("start");
-        let req2 = new rpc.RequestType2<string, string, any, any, any>("start");
+        let req2 = new rpc.RequestType2<string, string, boolean, any, any>("start");
 
         try {
             this.sessionStarted = await this.connection.sendRequest(req2, this.pathFcs, "");
@@ -125,13 +128,13 @@ export class InteractiveManager implements vscode.Disposable {
         return this.sessionStarted;
     }
 
-    public async getList(path: string, forceEvaluation: boolean) {
+    public async executeTests(path: string) {
         if (!this.connection) { return; }
 
-        let req = new rpc.RequestType2<string, boolean, Bits, any, any>("list");
+        let req = new rpc.RequestType2<string, string, TestInfo, any, any>("executeTests");
 
         try {
-            return await this.connection.sendRequest(req, path, forceEvaluation);
+            return await this.connection.sendRequest(req, path, "");
         } catch (e) {
             this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
             this.extData.outputChannel.appendLine("[IntFli.Error]: " + e);
@@ -146,36 +149,13 @@ export class InteractiveManager implements vscode.Disposable {
     }
 }
 
-export interface Bits {
-    Category: BitCategory;
-    Items?: Bit[];
-    ErrorMessage?: string;
-    Value?: string;
-    Type?: string;
-}
-
-export enum BitCategory {
-    RootFile = -2,
-    Any = -1,
-    Error = 0,
-    Value = 1,
-    Sequence = 2,
-    Class = 3,
-}
-
-export interface Bit {
+export interface TestInfo {
     Name: string;
-    Evaluated: boolean;
-    Value: BitValue;
-    FilePath: string;
+    IsOk: boolean;
+    Message: string | undefined;
+    Items: TestInfo[];
 }
 
-export interface BitValue {
-    Value?: string;
-    Error?: string;
-    Type?: string;
-    Category: BitCategory;
-}
 
 class ConsoleLogger implements rpc.Logger {
     public error(message: string): void {

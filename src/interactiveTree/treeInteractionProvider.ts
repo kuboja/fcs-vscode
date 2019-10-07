@@ -105,19 +105,19 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
 
         switch (cat) {
             case BitCategory.Class:
-                name = "Class";
+                name = "class";
                 break;
             case BitCategory.Sequence:
-                name = "Enumerator";
+                name = "enumerator";
                 break;
             case BitCategory.Value:
-                name = "Constant";
+                name = "constant";
                 break;
             case BitCategory.Any:
-                name = "Empty";
+                name = "empty";
                 break;
             case BitCategory.RootFile:
-                name = "Interface";
+                name = "interface";
                 break;
             default:
                 name = "";
@@ -128,10 +128,10 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
             return;
         }
 
-        let normalName = name + "_16x.svg";
-        let inverseName = name + "_inverse_16x.svg";
-        let lightIconPath = this.context.asAbsolutePath("media/icons/" + normalName);
-        let darkIconPath = this.context.asAbsolutePath("media/icons/" + inverseName);
+        let normalName = name + ".svg";
+        let inverseName = name + ".svg";
+        let lightIconPath = this.context.asAbsolutePath("media/icons/types/light/" + normalName);
+        let darkIconPath = this.context.asAbsolutePath("media/icons/types/dark/" + inverseName);
 
         return {
             light: lightIconPath,
@@ -205,9 +205,9 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
     /// Actions
 
     public async open(filePath: string) {
-        
-        if (!this.managers || Object.values(this.managers).length === 0){
-            if (!await this.fliUpdater.runUpdate()){
+
+        if (!this.managers || Object.values(this.managers).length === 0) {
+            if (!await this.fliUpdater.runUpdate()) {
                 return;
             }
         }
@@ -215,7 +215,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
         let root = this.roots.find(r => r.filePath === filePath);
 
         if (!root) {
-            let name = filePath.replace(/\\/g, "/",).split("/").pop();
+            let name = filePath.replace(/\\/g, "/").split("/").pop();
 
             root = {
                 name: name ? name : filePath,
@@ -241,7 +241,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
             if (this.roots.some(r => r.rootId === element.rootId)) {
                 this.roots = this.roots.filter(r => r.rootId !== element.rootId);
                 await this.closeManager(element);
-                if (this.roots.length === 0){
+                if (this.roots.length === 0) {
                     this.managers = {};
                 }
 
@@ -258,7 +258,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
     public refresh(element: Entry): any {
         this._onDidChangeTreeData.fire(element);
     }
-    
+
     public valueToOutput(element: Entry): any {
         if (!element || !element.value) { return; }
 
