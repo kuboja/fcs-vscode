@@ -39,19 +39,19 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
     context.subscriptions.push(new TestTree(context, extData, fliUpdater));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.runLine", () => { codeManager.runLineCommand(); }));
+        vscode.commands.registerCommand("fcs-vscode.runLine", async () => { await codeManager.runLineCommand(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.stop", () => { codeManager.stopCommand(); }));
+        vscode.commands.registerCommand("fcs-vscode.stop", async () => { await codeManager.stopCommand(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", () => { codeManager.openInTerminal(); }));
+        vscode.commands.registerCommand("fcs-vscode.runFcsTerminal", async () => { await codeManager.openInTerminal(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.openInFemcad", () => { openFcs.openInFemcad(); }));
+        vscode.commands.registerCommand("fcs-vscode.openInFemcad", async () => { await openFcs.openInFemcad(); }));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.openInFemcadWithProfiling", () => { openFcs.openInFemcadProfiling(); }));
+        vscode.commands.registerCommand("fcs-vscode.openInFemcadWithProfiling", async () => { await openFcs.openInFemcadProfiling(); }));
 }
 
 

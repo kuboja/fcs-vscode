@@ -21,34 +21,44 @@ export class OpenFileInFemCAD {
         this.femcadRunner = extData.femcadRunner;
     }
 
-    public openInFemcad(): void {
+    public async openInFemcad(): Promise<void> {
         if (vscode.window.activeTextEditor === undefined) {
             return;
         }
 
         let editor : vscode.TextEditor = vscode.window.activeTextEditor;
      
-        if (!this.extData.saveDocument(editor)) { return; }
+        try {
+            await this.extData.saveDocumentBySettings(editor);
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
+            return;
+        }
 
         let fcsFile: string = editor.document.fileName;
 
         this.appInsightsClient.sendEvent("Command: Open in FemCAD");
-        this.femcadRunner.openInFemcad(fcsFile);
+        await this.femcadRunner.openInFemcad(fcsFile);
     }
 
-    public openInFemcadProfiling(): void {
+    public async openInFemcadProfiling(): Promise<void> {
         if (vscode.window.activeTextEditor === undefined) {
             return;
         }
 
         let editor : vscode.TextEditor = vscode.window.activeTextEditor;
      
-        if (!this.extData.saveDocument(editor)) { return; }
+        try {
+            await this.extData.saveDocumentBySettings(editor);
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
+            return;
+        }
 
         let fcsFile: string = editor.document.fileName;
 
         this.appInsightsClient.sendEvent("Command: Open in FemCAD with profiling");
-        this.femcadRunner.openInFemcadProfiling(fcsFile);
+        await this.femcadRunner.openInFemcadProfiling(fcsFile);
     }
 }
 
@@ -66,7 +76,7 @@ export class FliCommandRunner {
         this.femcadRunner = extData.femcadRunner;
     }
 
-    public runLineCommand(): void {
+    public async runLineCommand(): Promise<void> {
         this.appInsightsClient.sendEvent("Command: Run line");
 
         if (vscode.window.activeTextEditor === undefined) {
@@ -76,7 +86,12 @@ export class FliCommandRunner {
 
         let editor : vscode.TextEditor = vscode.window.activeTextEditor;
 
-        if (!this.extData.saveDocument(editor)) { return; }
+        try {
+            await this.extData.saveDocumentBySettings(editor);
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
+            return;
+        }
 
         let fcsFile: FcsFileData = this.getFcsFileData(editor);
         let commandFile: LineRunnerCommandCreator = new LineRunnerCommandCreator(fcsFile);
@@ -85,15 +100,15 @@ export class FliCommandRunner {
         console.log("Line from source code: " + fcsFile.rawLineCode);
         console.log("Source file path: " + fcsFile.filePath);
 
-        this.femcadRunner.executeFliCommand(fliCommand);
+        await this.femcadRunner.executeFliCommand(fliCommand);
     }
 
-    public stopCommand(): void {
+    public async stopCommand(): Promise<void> {
         this.appInsightsClient.sendEvent("Command: Stop");
-        this.femcadRunner.stopExecutionFliCommand();
+        await this.femcadRunner.stopExecutionFliCommand();
     }
 
-    public openInTerminal(): void {
+    public async openInTerminal(): Promise<void> {
         this.appInsightsClient.sendEvent("Command: Open in terminal");
 
         if (vscode.window.activeTextEditor === undefined) {
@@ -103,9 +118,14 @@ export class FliCommandRunner {
 
         let editor : vscode.TextEditor = vscode.window.activeTextEditor;
         
-        if (!this.extData.saveDocument(editor)) { return; }
+        try {
+            await this.extData.saveDocumentBySettings(editor);
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
+            return;
+        }
 
-        this.femcadRunner.openFcsFile( editor.document.fileName );
+        await this.femcadRunner.openFcsFile( editor.document.fileName );
     }
 
     private getFcsFileData(editor: vscode.TextEditor): FcsFileData {

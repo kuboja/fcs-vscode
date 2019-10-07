@@ -54,51 +54,47 @@ export class FemcadRunner {
         return this.extData.femcadFolderPath;
     }
 
-    private getFemcadFilepath(fileName: string, quiteFile : boolean = false): string | undefined {
+    private async getFemcadFilepath(fileName: string, quiteOnFile : boolean = false): Promise<string | undefined> {
         let femcadFolder: string = this.getFemcadFolder();
 
         if (!(femcadFolder)) {
-            vscode.window.showErrorMessage("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-            return;
+            throw new Error("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
         }
 
-        let isOk: boolean = true;
-
         // kontrola jestli je adresář femcadu dostupný
-        fs.access(femcadFolder, (err) => {
-            if (err) {
-                isOk = false;
-                vscode.window
-                    .showErrorMessage("Nebyl nalezen zadaný FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-            }
-        });
+        if (!await AsyncTools.fsAccess(femcadFolder)){
+            throw new Error("Nebyl nalezen zadaný FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
+        }
 
         let filePath = join(femcadFolder, fileName);
-        if (!isOk) { return; }
 
         // kontrola jestli je v adresáři femcad dostupný soubor
-        fs.access(filePath, (err) => {
-            if (err && !quiteFile) {
-                isOk = false;
-                vscode.window.showErrorMessage("Nenalezen " + filePath + "! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
+        if (!await AsyncTools.fsAccess(filePath)){
+            if (quiteOnFile){
+                return;
             }
-        });
-
-        if (!isOk) { return; }
-
+            else {
+                throw new Error("Nenalezen " + filePath + "! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
+            }
+        }
+        
         return filePath;
     }
 
-    private getFliPath(): string | undefined {
-        var fliPath = this.getFemcadFilepath("fliw.exe", true);
-        if (!fliPath) {
-            fliPath = this.getFemcadFilepath("fli.exe");
+    private async getFliPath(): Promise<string | undefined> {
+        try {
+            var fliPath = await this.getFemcadFilepath("fliw.exe", true);
+            if (!fliPath) {
+                fliPath = await this.getFemcadFilepath("fli.exe");
+            }
+            return fliPath;
+        } catch (ex) {
+            vscode.window.showErrorMessage(ex);
         }
-        return fliPath;
     }
 
-    private getFemcadPath(): string | undefined {
-        return this.getFemcadFilepath("femcad.exe");
+    private async getFemcadPath(): Promise<string | undefined> {
+        return await this.getFemcadFilepath("femcad.exe");
     }
 
     constructor(extData: ExtensionData) {
@@ -140,7 +136,7 @@ export class FemcadRunner {
     private process?: ChildProcess;
     private commandData?: FliCommand;
 
-    public executeFliCommand(commandData: FliCommand): void {
+    public async executeFliCommand(commandData: FliCommand): Promise<void> {
         this.commandData = commandData;
         let command: string = commandData.command;
 
@@ -149,7 +145,7 @@ export class FemcadRunner {
             return;
         }
 
-        let fliPath = this.getFliPath();
+        let fliPath = await this.getFliPath();
 
         if (!fliPath) {
             return;
@@ -209,12 +205,12 @@ export class FemcadRunner {
         this.process.on("close", (code) => this.onCloseEvent(code));
     }
 
-    public stopExecutionFliCommand(): void {
+    public async stopExecutionFliCommand(): Promise<void> {
     //    this.appInsightsClient.sendEvent("Stop executin fli command");
-        this.killProcess();
+        await this.killProcess();
     }
 
-    private onGetOutputData(data: string): void {
+    private async onGetOutputData(data: string): Promise<void> {
         if (!this.isRunning) {return;}
 
         data = this.lineBuffer + data;
@@ -241,7 +237,7 @@ export class FemcadRunner {
             if ( line === "" ) { continue; }
 
             if (this.commandData && this.commandData.stopText && line.includes(this.commandData.stopText)) {
-                this.killProcess();
+                await this.killProcess();
                 return;
             }
 
@@ -293,29 +289,21 @@ export class FemcadRunner {
         }
     }
 
-
-    private killProcessId(processId: number): void {
-        if (processId) {
-            treekill(processId);
-            //spawnSync("Taskkill", ["/PID", processId.toString(), "/T", "/F"], { shell: true });
-        }
-    }
-
-    private killProcess(): void {
+    private async killProcess(): Promise<void> {
         if (this.process && this.isRunning) {
             this.isRunning = false;
-            this.killProcessId(this.process.pid);
+            await AsyncTools.treekillAsync(this.process.pid);
         }
     }
 
-    public openInFemcad(fcsFilePath: string): void {
+    public async openInFemcad(fcsFilePath: string): Promise<void> {
         this.appInsightsClient.sendEvent("Open in FemCAD");
 
         if (!this.IsInitialized) {
             return;
         }
 
-        let femcadPath = this.getFemcadPath();
+        let femcadPath = await this.getFemcadPath();
 
         if (femcadPath) {
             let femcadPathqQuoted: string = FileSystemManager.quoteFileName(femcadPath);
@@ -327,14 +315,14 @@ export class FemcadRunner {
         }
     }
 
-    public openInFemcadProfiling(fcsFilePath: string): void {
+    public async openInFemcadProfiling(fcsFilePath: string): Promise<void> {
         this.appInsightsClient.sendEvent("Open in FemCAD with profiling");
 
         if (!this.IsInitialized) {
             return;
         }
 
-        let femcadPath = this.getFemcadPath();
+        let femcadPath = await this.getFemcadPath();
 
         if (femcadPath) {
             let femcadPathqQuoted: string = FileSystemManager.quoteFileName(femcadPath);
@@ -346,7 +334,7 @@ export class FemcadRunner {
         }
     }
 
-    public openFcsFile(fcsPath: string): void {
+    public async openFcsFile(fcsPath: string): Promise<void> {
         var term: vscode.Terminal = this.terminal;
 
         try {
@@ -358,32 +346,29 @@ export class FemcadRunner {
 
             var terminalCommand: string = fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
 
-            term.processId.then(pid => {
-                var processId: number = pid;
+            let processId: number = await term.processId;
 
-                psTree(processId, (err, children) => {
-                    if (children.length > 0) {
-                        for (const child of children) {
-                            if (child) {
-                                this.killProcessId(parseInt(child.PID));
-                            }
-                        }
+            let children = await AsyncTools.psTreeAsync(processId);
+
+            if (children.length > 0) {
+                for (const child of children) {
+                    if (child) {
+                        await AsyncTools.treekillAsync(parseInt(child.PID));
                     }
+                }
+            }
 
-                    term.show(true);
+            term.show(true);
 
-                    console.log("Open terminal:");
-                    console.log(terminalCommand);
+            console.log("Open terminal:");
+            console.log(terminalCommand);
 
-                    if (this.extData.clearPreviousOutput) {
-                        term.sendText("cls");
-                    }
-                    term.sendText(terminalCommand);
+            if (this.extData.clearPreviousOutput) {
+                term.sendText("cls");
+            }
+            term.sendText(terminalCommand);
 
-                    vscode.commands.executeCommand("workbench.action.terminal.focus");
-                });
-
-            });
+            vscode.commands.executeCommand("workbench.action.terminal.focus");
 
         } catch (error) {
             vscode.window.showErrorMessage("Nastala chyba při pokusu o spuštění souboru v terminálu.");
@@ -392,4 +377,51 @@ export class FemcadRunner {
             console.log(error);
         }
     }
+}
+
+class AsyncTools {
+
+    public static async psTreeAsync(processId: number): Promise<readonly psTree.PS[]> {
+        return new Promise((resolve, reject) => {
+            psTree(processId, (err, children) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(children);
+                }
+            });
+        });
+    }
+
+    public static async treekillAsync(processId: number | undefined ): Promise<void> {
+        if (!processId){
+            return;
+        }
+        
+        return new Promise((resolve, reject) => {
+            treekill(processId, (err) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            });
+        });
+    }
+
+    public static async fsAccess(filepath: string): Promise<boolean>{
+        return new Promise( (resolve, reject) => {
+            fs.access(filepath, (err) => {
+                if (err) {
+                    resolve(false);
+                }
+                else {
+                    resolve(true);
+                }
+            } );
+        });
+    }
+
 }

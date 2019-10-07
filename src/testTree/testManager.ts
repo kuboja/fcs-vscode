@@ -59,9 +59,9 @@ export class TestManager implements vscode.Disposable {
             });
 
             this.connection.trace(rpc.Trace.Messages, {
-                log: (data: any, data2?: any) => {
-                    console.log(data);
-                    if (data2) { console.log(data2); }
+                log: (message: string, data?: string) => {
+                    console.log(message);
+                    if (data) { console.log(data); }
                 }
             });
 
@@ -116,7 +116,7 @@ export class TestManager implements vscode.Disposable {
         if (this.canSendRequest()) { return true; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("start");
-        let req2 = new rpc.RequestType2<string, string, any, any, any>("start");
+        let req2 = new rpc.RequestType2<string, string, boolean, any, any>("start");
 
         try {
             this.sessionStarted = await this.connection.sendRequest(req2, this.pathFcs, "");
