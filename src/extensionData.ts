@@ -117,7 +117,7 @@ export class ExtensionData {
         throw new Error("Nelze spustit, protože soubor není uložen. Uložte soubor ručně nebo povolte automatické ukládání v nastavení.");
     }
 
-    private _outputChannel : vscode.OutputChannel | undefined;
+    private _outputChannel: vscode.OutputChannel | undefined;
     public get outputChannel(): vscode.OutputChannel {
         if (this._outputChannel === undefined) {
             this._outputChannel = vscode.window.createOutputChannel("FemCAD");

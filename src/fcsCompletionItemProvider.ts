@@ -8,7 +8,7 @@ import { ExtensionData } from "./extensionData";
 export class FcsCompletionItemProvider implements vscode.CompletionItemProvider {
 
     //private extData: ExtensionData;
-    private grammar : FcsGrammar;
+    private grammar: FcsGrammar;
 
     constructor(extData: ExtensionData) {
         //this.extData = extData;
@@ -18,16 +18,16 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
     public provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
         Thenable<vscode.CompletionItem[]> {
 
-            
+
         //console.log("run FcsCompletionItemProvider");
 
         return Promise.resolve(this.getSuggestions(document, position, token));
     }
 
     private async getSuggestions(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken):
-    Promise<vscode.CompletionItem[]> {
+        Promise<vscode.CompletionItem[]> {
 
-        var grammar : FcsGrammar = this.grammar;
+        var grammar: FcsGrammar = this.grammar;
 
         // text, který je před kurozorem: Fcs.Action.Cl| -> "Fcs.Action.Cl"
         var priorWord: string | undefined = grammar.priorWord(document, position);
@@ -47,16 +47,16 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
 
         // pokud je před kurzor na nějaká tečka, tak se vyfiltrují vhodné položky
         if (numberOfDot > 0) {
-            filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith(priorWord ? priorWord : ""));
+            filteredObjects = grammar.GrammarNodes.filter(v => v.dot === numberOfDot && v.key.startsWith(priorWord ? priorWord : ""));
         }
 
         // pokud nebyla tečka v textu před kurzorem nebo nebyl nalezen žádný vhodný node
-        if (filteredObjects.length === 0 ) {
-            if ( dotBefore ) {
+        if (filteredObjects.length === 0) {
+            if (dotBefore) {
                 numberOfDot = -1;
             }
             var startWith: string = currentWord ? currentWord : "";
-            filteredObjects = grammar.GrammarNodes.filter( v => v.dot === numberOfDot && v.key.startsWith( startWith ));
+            filteredObjects = grammar.GrammarNodes.filter(v => v.dot === numberOfDot && v.key.startsWith(startWith));
         }
 
         //console.log(priorWord  + " | " + currentWord + " | " + numberOfDot + " | " + filteredObjects.map(v => v.name).join(", "));

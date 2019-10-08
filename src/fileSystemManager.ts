@@ -15,7 +15,7 @@ export class FileSystemManager {
     }
 
     public static getRandomTempName(folder: string, fileExtension: string): string {
-        return join(folder, "temp_" + this.rndName() + fileExtension );
+        return join(folder, "temp_" + this.rndName() + fileExtension);
     }
 
     public static createAndSaveTextFile(content: string, fullPath: string) {

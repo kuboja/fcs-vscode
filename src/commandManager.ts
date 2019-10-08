@@ -26,8 +26,8 @@ export class OpenFileInFemCAD {
             return;
         }
 
-        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
-     
+        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
@@ -46,8 +46,8 @@ export class OpenFileInFemCAD {
             return;
         }
 
-        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
-     
+        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
@@ -84,7 +84,7 @@ export class FliCommandRunner {
             return;
         }
 
-        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
+        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
 
         try {
             await this.extData.saveDocumentBySettings(editor);
@@ -116,8 +116,8 @@ export class FliCommandRunner {
             return;
         }
 
-        let editor : vscode.TextEditor = vscode.window.activeTextEditor;
-        
+        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
+
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
@@ -125,7 +125,7 @@ export class FliCommandRunner {
             return;
         }
 
-        await this.femcadRunner.openFcsFile( editor.document.fileName );
+        await this.femcadRunner.openFcsFile(editor.document.fileName);
     }
 
     private getFcsFileData(editor: vscode.TextEditor): FcsFileData {

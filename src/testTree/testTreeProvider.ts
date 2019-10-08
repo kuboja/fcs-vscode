@@ -107,7 +107,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             treeItem.tooltip += "\nTime: " + element.elapsedTime + " s";
         }
 
-        if (element.result && element.expectation){
+        if (element.result && element.expectation) {
             treeItem.tooltip += "\n\nResult: " + element.result.replace(/\s/g, "");
             treeItem.tooltip += "\nExpected: " + element.expectation.replace(/\s/g, "");
         }
@@ -159,7 +159,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             return "root";
         }
 
-        if (e.result && e.expectation){
+        if (e.result && e.expectation) {
             return "failTest";
         }
 
@@ -434,7 +434,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
         const date = new Date();
 
-        const getUri = (textKey: string, name: string) => 
+        const getUri = (textKey: string, name: string) =>
             vscode.Uri.parse(makeUriString(name, date, textKey));
 
         let left = getUri(element.expectation, "expected");

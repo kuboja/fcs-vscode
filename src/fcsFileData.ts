@@ -58,7 +58,7 @@ export class FcsFileData {
         let symbolReg: RegExp = /^([#a-zA-Z][\w\.\(\)\[\] ]*)/;
         let matches: RegExpMatchArray | null = lineText.match(symbolReg);
 
-        if (matches === null) { 
+        if (matches === null) {
             return "";
         }
 
@@ -126,19 +126,19 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
 
     constructor(fcsFile: FcsFileData) {
         this.fcsFile = fcsFile;
-        
+
         let tempDirPath: string = FileSystemManager.getTempFolderPath();
         this.tempFilePath = FileSystemManager.getRandomTempName(tempDirPath, ".fcs");
     }
 
     public getFliCommand(): FliCommand {
-        if (this.fliCommand){
+        if (this.fliCommand) {
             return this.fliCommand;
         }
 
         this.executionMethod = LineRunnerCommandCreator.getExecutionMethod(this.fcsFile);
 
-        let fliCommand : FliCommand;
+        let fliCommand: FliCommand;
         switch (this.executionMethod) {
             case ExecutionMethodType.Straight:
                 fliCommand = this.ExecuteStraight(this.fcsFile);
@@ -167,14 +167,14 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
     }
 
     private ExecuteStraight(fcsFile: FcsFileData): FliCommand {
-        this.tempFilePath  = LineRunnerCommandCreator.getOutputFilePath(fcsFile.commandType, fcsFile.fileName);
+        this.tempFilePath = LineRunnerCommandCreator.getOutputFilePath(fcsFile.commandType, fcsFile.fileName);
 
         let command: string = LineRunnerCommandCreator.getCommandForStraightExecution(
             fcsFile,
             fcsFile.clearCode,
-            this.tempFilePath );
+            this.tempFilePath);
 
-        let fli : FliCommand = new FliCommand(command);
+        let fli: FliCommand = new FliCommand(command);
         fli.commandClass = this;
 
         return fli;
@@ -183,7 +183,7 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
     public afterExit(): void {
         switch (this.executionMethod) {
             case ExecutionMethodType.Straight:
-                vscode.env.openExternal( vscode.Uri.parse( this.tempFilePath ) );
+                vscode.env.openExternal(vscode.Uri.parse(this.tempFilePath));
                 break;
             case ExecutionMethodType.WithTempFile:
                 fs.unlinkSync(this.tempFilePath);
