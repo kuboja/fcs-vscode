@@ -643,7 +643,11 @@ const grammarNodes: GrammarType[] = [
     new GrammarType({ dot: -1, key: "ToString", kind: GrammarKind.FunctionEmpty }),
 
     new GrammarType({ dot: -1, key: "Select", kind: GrammarKind.Function, description: "Array function" }),
+    new GrammarType({ dot: -1, key: "SelectIterate", kind: GrammarKind.Function, description: "Array function" }),
+    new GrammarType({ dot: -1, key: "SelectMany", kind: GrammarKind.Function, description: "Array function" }),
+    new GrammarType({ dot: -1, key: "SelectManyFn", kind: GrammarKind.Function, description: "Array function" }),
     new GrammarType({ dot: -1, key: "Aggregate", kind: GrammarKind.Function, description: "Array function" }),
+    new GrammarType({ dot: -1, key: "AggregateIterate", kind: GrammarKind.Function, description: "Array function" }),
     new GrammarType({ dot: -1, key: "Max", kind: GrammarKind.Function, description: "Array function" }),
     new GrammarType({ dot: -1, key: "MaxBy", kind: GrammarKind.Function, description: "Array function" }),
     new GrammarType({ dot: -1, key: "IndexOfMax", kind: GrammarKind.Function, description: "Array function" }),
@@ -677,6 +681,10 @@ const grammarNodes: GrammarType[] = [
     new GrammarType({ dot: -1, key: "MultiplyElements", kind: GrammarKind.Function, description: "Array function" }),
     new GrammarType({ dot: -1, key: "MaskedSpanSums", kind: GrammarKind.Function, description: "Array function" }),
     new GrammarType({ dot: -1, key: "MergeDoubles", kind: GrammarKind.Function, description: "Array function" }),
+    new GrammarType({ dot: -1, key: "JoinStrings", kind: GrammarKind.Function, description: "Array string function" }),
+    new GrammarType({ dot: -1, key: "JoinStringsWith", kind: GrammarKind.Function, description: "Array string function" }),
+    new GrammarType({ dot: -1, key: "JoinStringsFn", kind: GrammarKind.Function, description: "Array string function" }),
+    new GrammarType({ dot: -1, key: "JoinStringsWithFn", kind: GrammarKind.Function, description: "Array string function" }),
 
     new GrammarType({ dot: -1, key: "Substring", kind: GrammarKind.Function, description: "String function" }),
     new GrammarType({ dot: -1, key: "Contains", kind: GrammarKind.Function, description: "String function" }),
