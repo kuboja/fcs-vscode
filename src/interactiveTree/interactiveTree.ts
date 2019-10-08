@@ -1,5 +1,3 @@
-"use strict";
-
 import * as vscode from "vscode";
 
 import { Entry, TreeInteractionProvider } from "./treeInteractionProvider";

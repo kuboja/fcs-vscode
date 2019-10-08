@@ -1,5 +1,3 @@
-"use strict";
-
 import * as fs from "fs";
 import * as shelljs from "shelljs";
 import { tmpdir } from "os";

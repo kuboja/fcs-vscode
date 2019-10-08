@@ -1,5 +1,3 @@
-"use strict";
-
 import * as vscode from "vscode";
 import { FcsGrammar, GrammarType } from "./fcsGrammar";
 import { ExtensionData } from "./extensionData";

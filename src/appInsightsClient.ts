@@ -1,5 +1,3 @@
-"use strict";
-
 import * as appInsights from "applicationinsights";
 import * as os from "os";
 

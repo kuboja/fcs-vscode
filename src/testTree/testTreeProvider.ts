@@ -1,5 +1,3 @@
-"use strict";
-
 import * as vscode from "vscode";
 import * as uuid from "uuid/v4";
 import * as fs from "fs";
