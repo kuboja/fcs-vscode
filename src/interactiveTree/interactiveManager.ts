@@ -54,9 +54,9 @@ export class InteractiveManager implements vscode.Disposable {
             });
 
             this.connection.trace(rpc.Trace.Messages, {
-                log: (data: any, data2?: any) => {
-                    console.log(data);
-                    if (data2) { console.log(data2); }
+                log: (message: string, data?: string) => {
+                    console.log(message);
+                    if (data) { console.log(data); }
                 }
             });
 
@@ -111,7 +111,7 @@ export class InteractiveManager implements vscode.Disposable {
         if (this.canSendRequest()) { return true; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("start");
-        let req2 = new rpc.RequestType2<string, string, any, any, any>("start");
+        let req2 = new rpc.RequestType2<string, string, boolean, string, void>("start");
 
         try {
             this.sessionStarted = await this.connection.sendRequest(req2, this.pathFcs, "");
@@ -126,7 +126,7 @@ export class InteractiveManager implements vscode.Disposable {
     public async getList(path: string, forceEvaluation: boolean) {
         if (!this.connection) { return; }
 
-        let req = new rpc.RequestType2<string, boolean, Bits, any, any>("list");
+        let req = new rpc.RequestType2<string, boolean, Bits, string, void>("list");
 
         try {
             return await this.connection.sendRequest(req, path, forceEvaluation);

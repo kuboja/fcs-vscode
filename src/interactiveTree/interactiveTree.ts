@@ -66,17 +66,17 @@ export class InteractiveTree implements vscode.Disposable {
 
     private async evaluate(element: Entry | undefined) {
         if (!element) { return; }
-        await this.treeDataProvider.evaluate(element);
+        this.treeDataProvider.evaluate(element);
     }
 
     private async refresh(element: Entry | undefined) {
         if (!element) { return; }
-        await this.treeDataProvider.refresh(element);
+        this.treeDataProvider.refresh(element);
     }
 
     private async valueToOutput(element: Entry | undefined) {
         if (!element) { return; }
-        await this.treeDataProvider.valueToOutput(element);
+        this.treeDataProvider.valueToOutput(element);
     }
 
     private async openSource(element: Entry | undefined) {
