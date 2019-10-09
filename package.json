@@ -402,6 +402,11 @@
                     "default": "Q:\\Builds\\fliVS",
                     "description": "Path to source folder of FliVS."
                 },
+                "fcs-vscode.testsAutoload": {
+                    "type": "boolean",
+                    "default": "true",
+                    "description": "Tests autoloading after startup."
+                },
                 "fcs-vscode.collapseTestAfterRun": {
                     "type": "boolean",
                     "default": "true",

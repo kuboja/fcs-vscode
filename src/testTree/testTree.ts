@@ -9,6 +9,7 @@ import { Disposable } from "vscode-jsonrpc";
 
 export class TestTree implements vscode.Disposable {
 
+    private extData: ExtensionData;
     private fliUpdater: FliUpdater;
     private treeDataProvider: TestTreeProvider;
     private tree: vscode.TreeView<TestNode>;
@@ -16,7 +17,7 @@ export class TestTree implements vscode.Disposable {
 
     constructor(context: vscode.ExtensionContext, extData: ExtensionData, fliUpdater: FliUpdater) {
         this.disposable = [];
-
+        this.extData = extData;
         this.fliUpdater = fliUpdater;
 
         this.treeDataProvider = new TestTreeProvider(context, this.fliUpdater, extData);
@@ -27,6 +28,7 @@ export class TestTree implements vscode.Disposable {
         if (this.tree) {
             this.tree.onDidExpandElement(this.treeDataProvider.expandEvent, this.treeDataProvider, this.disposable);
             this.tree.onDidCollapseElement(this.treeDataProvider.collapseEvent, this.treeDataProvider, this.disposable);
+            this.tree.onDidChangeVisibility(this.onVisibleEvent, this, this.disposable);
         }
 
         this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesEvaluateTests', async (resource) => await this.evaluteTests(resource)));
@@ -59,6 +61,14 @@ export class TestTree implements vscode.Disposable {
 
     private async messageToOutput(element: TestNode | undefined) {
         this.treeDataProvider.messageToOutput(element);
+    }
+
+    private onVisibleRised = false;
+    private async onVisibleEvent(event: vscode.TreeViewVisibilityChangeEvent) {
+        if (event.visible && !this.onVisibleRised && this.extData.testsAutoload) {
+            await this.treeDataProvider.refreshTests();
+            this.onVisibleRised = true;
+        }
     }
 
     public dispose() {

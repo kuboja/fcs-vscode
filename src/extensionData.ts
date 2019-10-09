@@ -78,6 +78,10 @@ export class ExtensionData {
         return this.GetBooleanValue("collapseTestAfterRun", true);
     }
 
+    public get testsAutoload(): boolean {
+        return this.GetBooleanValue("testsAutoload", true);
+    }
+
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
 
