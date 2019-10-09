@@ -28,17 +28,25 @@ export class InteractiveTree implements vscode.Disposable {
 
     private async openFromEditor() {
         let editor = vscode.window.activeTextEditor;
-
+        
         if (!editor) {
-            console.log("Není otevřen žádný editor?");
+            vscode.window.showErrorMessage("Fcs tree error: No file. Please move cursor to fcs file.");
+            return;
+        }
+
+        if (editor.document.languageId !== "fcs"){
+            vscode.window.showErrorMessage("Fcs tree error: Only for fcs files. Please move cursor to fcs file.");
+            console.log("Soubor není fcs");
             return;
         }
 
         let filePath = editor.document.uri.fsPath;
         if (!filePath) {
+            vscode.window.showErrorMessage("Fcs tree error: Please save the file.");
             console.log("Soubor nemá cestu na disku!");
             return;
         }
+
 
         let root = await this.treeDataProvider.open(filePath);
 
