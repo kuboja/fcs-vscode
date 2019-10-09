@@ -8,6 +8,8 @@ import { FileSystemManager } from "../fileSystemManager";
 import { ExtensionData } from "../extensionData";
 
 const readdirAsync = promisify(fs.readdir);
+const existsAsync = promisify(fs.exists);
+const accessAsync = promisify(fs.access);
 
 declare const IS_DEV_BUILD: boolean; // The value is supplied by Webpack during the build
 
@@ -50,6 +52,25 @@ export class FliUpdater {
         } catch (error) {
             console.log('Unable to scan directory: ' + error);
         }
+    }
+
+    private async checkSourceFolderAccess(filePath: string): Promise<boolean> {
+        return await this.checkAccess(this.sourceMainVersionPath);
+    }
+
+    private async checkAccess(path: string): Promise<boolean> {
+        let exists = await existsAsync(path);
+        if (exists){
+            try {
+                await accessAsync(path);
+                return true;
+            } catch (error) {
+                console.error("FliVS updater: Failed to load current version information. And flivs is not accesible.");
+                return false;
+            }
+        }
+
+        return false;
     }
 
     private getLastVersionZip(ver: number) {
@@ -122,32 +143,32 @@ export class FliUpdater {
         console.log("FliVS updater: current version: " + currentVersion);
         console.log("FliVS updater: last version: " + lastVersion);
 
-        // pokud není přístup ke zdroji aktualizací -> použije se stávající instalace flivs, pokud není dostupná ani ta -> konec
+        let fliPath: string = this.getFliPath();
+        let isLoacalFliAccesible: boolean = await this.checkAccess(fliPath);
+
+        // pokud není přístup ke zdroji aktualizací -> použije se dostupná lokalní instalalce s vhodnou hlavní verzí pokud je dostupná
         if (!lastVersion) {
-            vscode.window.showWarningMessage("FliVS updater: Failed to load current version information.");
-
-            try {
-                fs.accessSync(this.getFliPath());
-            } catch (error) {
-                console.error("FliVS updater: Failed to load current version information. And flivs is not accesible.");
-                return false;
-            }
-
-            return true;
-        }
-
-        // test jeslti je dostupný flivs.exe -> pokud ne, tak proběhne aktulaizace vždy, jinak pouze pokud je dostupná nová verze
-        try {
-            fs.accessSync(this.getFliPath());
-
-            if (currentMainVersion === this.requiredMainVersion && lastVersion <= currentVersion) {
-                console.info("FliVS updater: The fliVS version is current.", lastVersion);
+            if (isLoacalFliAccesible && currentMainVersion === this.requiredMainVersion) {
+                vscode.window.showWarningMessage("FliVS updater: Check access to source folder (usually on Q disk). Current local fliVS is used.");
+                console.error("FliVS updater: Failed to load current version information. Current fli is used.");
                 return true;
             }
-        } catch (error) {
-            console.error("FliVS updater: FliVs in not currenty instaled -> will be install");
+
+            vscode.window.showErrorMessage("FliVS updater: Check access to source folder (usually on Q disk).");
+            console.error("FliVS updater: Failed to load current version information. And flivs is not accesible.");
+            return false;
         }
 
+        // pokud je nainstalovaná poslední verze -> není potřeba aktualizovat
+        if (isLoacalFliAccesible && currentMainVersion === this.requiredMainVersion && lastVersion <= currentVersion) {
+            console.info("FliVS updater: The fliVS version is current.", lastVersion);
+            this.statusItem.text = "FliVS updater: The current version is already installed.";
+            this.statusItem.hide();
+            return true;
+        }
+        
+        console.error("FliVS updater: FliVs in not currenty instaled in the last version -> will be install");
+        
         let fliDir = await this.getcreatedFliDir();
         let lastVersionZip = this.getLastVersionZip(lastVersion);
 
@@ -156,6 +177,7 @@ export class FliUpdater {
 
         if (!fliDir) {
             console.error("FliVS updater: Error accessing FliVS folder.");
+            vscode.window.showErrorMessage("FliVS updater: Error accessing FliVS folder.\n" + fliDir);
             return false;
         }
 
