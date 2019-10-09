@@ -6,12 +6,14 @@ import { join } from "path";
 import { FliUpdater } from "../fliUpdater/fliUpdater";
 import { ExtensionData } from "../extensionData";
 import { TestManager, TestInfo } from "./testManager";
+import { AppInsightsClient } from "../appInsightsClient";
 
 
 export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vscode.Disposable {
 
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
+    private appInsightsClient: AppInsightsClient;
     private fliUpdater: FliUpdater;
 
     public tree: vscode.TreeView<TestNode> | undefined;
@@ -22,9 +24,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     public constructor(context: vscode.ExtensionContext, fliUpdater: FliUpdater, extData: ExtensionData) {
         this.context = context;
         this.extData = extData;
+        this.appInsightsClient = extData.appInsightsClient;
         this.fliUpdater = fliUpdater;
-        this._onDidChangeTreeData = new vscode.EventEmitter<TestNode>();
 
+        this._onDidChangeTreeData = new vscode.EventEmitter<TestNode>();
         this.expandedTests = [];
     }
 
@@ -375,6 +378,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     /// Actions
 
     public async evalutateTests(element: TestNode | undefined) {
+        this.sendEvent("evalutateTests");
+
         if (!element) {
             if (!this.roots) {
                 return;
@@ -414,6 +419,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     public async refreshTests() {
+        this.sendEvent("refreshTests");
+
         this.roots = await this.loadRootTests();
         this.expandedTests = [];
 
@@ -424,6 +431,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         if (!(element && element.result && element.expectation)) {
             return;
         }
+
+        this.sendEvent("compareValues");
 
         const EXTENSION_SCHEME = 'fliText';
 
@@ -448,9 +457,11 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     public async copyResult(element: TestNode | undefined, clear: boolean = false) {
         if (element && element.result) {
             if (clear) {
+                this.sendEvent("copyResultClear");
                 vscode.env.clipboard.writeText(element.result.replace(/\s/g, ""));
             }
             else {
+                this.sendEvent("copyResultClear");
                 vscode.env.clipboard.writeText(element.result);
             }
         }
@@ -459,10 +470,15 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     public messageToOutput(element: TestNode | undefined) {
         if (!element || !element.message) { return; }
 
+        this.sendEvent("messageToOutput");
+
         this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
         this.extData.outputChannel.appendLine("[IntFli.ErrroMessage]: " + element.message);
     }
 
+    private sendEvent(event: string){
+        this.appInsightsClient.sendEvent("Test tree: " + event);
+    }
 
     /// Managers
 
