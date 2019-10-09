@@ -330,7 +330,7 @@
         ],
         "configuration": {
             "type": "object",
-            "title": "Femcad Script Configurations",
+            "title": "Femcad Script",
             "properties": {
                 "fcs-vscode.maxNumberOfProblems": {
                     "type": "number",
