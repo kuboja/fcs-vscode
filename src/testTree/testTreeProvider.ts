@@ -510,6 +510,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     private async getManager(element: TestNode) {
+        if (!await this.fliUpdater.runUpdate()) {
+            return;
+        }
+
         let man = new TestManager(element.filePath, this.fliUpdater.getFliPath(), this.extData);
 
         if (!await man.startConnection()) {

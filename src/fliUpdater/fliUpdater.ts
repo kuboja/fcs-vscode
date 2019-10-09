@@ -149,12 +149,12 @@ export class FliUpdater {
         // pokud není přístup ke zdroji aktualizací -> použije se dostupná lokalní instalalce s vhodnou hlavní verzí pokud je dostupná
         if (!lastVersion) {
             if (isLoacalFliAccesible && currentMainVersion === this.requiredMainVersion) {
-                vscode.window.showWarningMessage("FliVS updater: Check access to source folder (usually on Q disk). Current local fliVS is used.");
+                vscode.window.showWarningMessage("FliVS updater: Check access to shared disk (usually Q) with fliVS source folder. Current local fliVS is used.");
                 console.error("FliVS updater: Failed to load current version information. Current fli is used.");
                 return true;
             }
 
-            vscode.window.showErrorMessage("FliVS updater: Check access to source folder (usually on Q disk).");
+            vscode.window.showErrorMessage("FliVS updater: Check access to shared disk (usually Q) with fliVS source folder.");
             console.error("FliVS updater: Failed to load current version information. And flivs is not accesible.");
             return false;
         }
