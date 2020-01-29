@@ -163,6 +163,10 @@ const grammarNodes: GrammarType[] = [
     new GrammarType({ dot: 0, key: "import", kind: GrammarKind.Order }),
     new GrammarType({ dot: 0, key: "model_shell3d", kind: GrammarKind.OrderWithoutParameters }),
     new GrammarType({ dot: 0, key: "exportesaxml", kind: GrammarKind.Order }),
+    
+    new GrammarType({ dot: 0, key: "#vc_json", kind: GrammarKind.Order }),
+    new GrammarType({ dot: 0, key: "#vc_image", kind: GrammarKind.Order }),
+    new GrammarType({ dot: 0, key: "#vc_dxf", kind: GrammarKind.Order }),
 
     new GrammarType({ dot: 0, key: "Math", kind: GrammarKind.Module }),
     new GrammarType({ dot: 1, key: "Math.PI", kind: GrammarKind.Constant }),

@@ -12,6 +12,7 @@ export enum OutputFunctionType {
     Document = 4,
     Json = 8,
     Image = 16,
+    Dxf = 32,
 }
 
 export enum ExecutionMethodType {
@@ -81,11 +82,14 @@ export class FcsFileData {
         if (textLine.startsWith("print ")) {
             return OutputFunctionType.Print;
         }
-        if (textLine.startsWith("json ")) {
+        if (textLine.startsWith("vc_json ")) {
             return OutputFunctionType.Json;
         }
-        if (textLine.startsWith("image ")) {
+        if (textLine.startsWith("vc_image ")) {
             return OutputFunctionType.Image;
+        }
+        if (textLine.startsWith("vc_dxf ")){
+            return OutputFunctionType.Dxf;
         }
 
         return OutputFunctionType.Print;
@@ -95,7 +99,7 @@ export class FcsFileData {
         let textLine: string = rawCommand.replace(/^#/, "");
         textLine = textLine.trim();
 
-        textLine = textLine.replace(/^#* *(print|(browse_)?report|json|image) +/, "");
+        textLine = textLine.replace(/^#* *(print|(browse_)?report|vc_json|vc_image|vc_dxf) +/, "");
 
         return textLine;
     }
@@ -227,6 +231,10 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
             case OutputFunctionType.Image:
                 method = ExecutionMethodType.Straight;
                 break;
+
+            case OutputFunctionType.Dxf:
+                method = ExecutionMethodType.Straight;
+                break;
         }
 
         return method;
@@ -241,6 +249,10 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
 
             case OutputFunctionType.Image:
                 extension = ".png";
+                break;
+
+            case OutputFunctionType.Dxf:
+                extension = ".dxf";
                 break;
         }
 
@@ -279,6 +291,10 @@ export class LineRunnerCommandCreator implements IFliCommandMethods {
 
             case OutputFunctionType.Image:
                 typeCmd = "--t PNG";
+                break;
+
+            case OutputFunctionType.Dxf:
+                typeCmd = "--t DXF";
                 break;
         }
 
