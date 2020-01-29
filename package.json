@@ -442,10 +442,14 @@
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode development",
         "watch": "webpack --mode development --watch",
-        "lint": "tslint -p ./"
+        "lint": "tslint -p ./",
+        "test-compile": "tsc -p ./",
+        "test": "node ./out/test/runTest.js",
+        "mochatest": "npx mocha ./out/test/suite/extension.test.js --recursive",
+        "st": "npm run test-compile && npm run mochatest"
     },
     "engines": {
-        "vscode": "^1.38.0"
+        "vscode": "^1.41.0"
     },
     "devDependencies": {
         "@types/adm-zip": "^0.4.13",
