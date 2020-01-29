@@ -344,7 +344,11 @@ export class FemcadRunner {
 
             var terminalCommand: string = fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
 
-            let processId: number = await term.processId;
+            let processId: number | undefined = await term.processId;
+
+            if (!processId){
+                return;
+            }
 
             let children = await AsyncTools.psTreeAsync(processId);
 
