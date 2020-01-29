@@ -457,13 +457,13 @@
         "@types/node": "^10.17.9",
         "@types/ps-tree": "^1.1.0",
         "@types/shelljs": "^0.8.6",
-        "@types/uuid": "^3.4.6",
+        "@types/uuid": "^3.4.7",
         "@types/vscode": "^1.41.0",
         "mocha": "^6.2.2",
         "ts-loader": "^6.2.1",
-        "typescript": "^3.7.3",
+        "typescript": "^3.7.5",
         "vscode-test": "^1.3.0",
-        "webpack": "^4.41.2",
+        "webpack": "^4.41.5",
         "webpack-cli": "^3.3.10"
     },
     "dependencies": {
@@ -473,8 +473,8 @@
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
         "tree-kill": "^1.2.2",
-        "uuid": "^3.3.3",
-        "vscode-languageclient": "^5.2.1",
+        "uuid": "^3.4.0",
+        "vscode-languageclient": "^6.1.0",
         "vscode-textmate": "^4.4.0"
     }
 }
