@@ -95,19 +95,19 @@
         ],
         "configurationDefaults": {
             "[fcs]": {
-                "editor.autoIndent": true,
+                "editor.autoIndent": "brackets",
                 "editor.detectIndentation": false,
                 "editor.tabSize": 3,
                 "editor.insertSpaces": true
             },
             "[json]": {
-                "editor.autoIndent": true,
+                "editor.autoIndent": "brackets",
                 "editor.detectIndentation": true,
                 "editor.tabSize": 2,
                 "editor.insertSpaces": true
             },
             "[fcsmth]": {
-                "editor.autoIndent": true,
+                "editor.autoIndent": "brackets",
                 "editor.detectIndentation": false,
                 "editor.tabSize": 3,
                 "editor.insertSpaces": true
