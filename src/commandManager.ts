@@ -67,7 +67,7 @@ export class FliCommandRunner {
     private appInsightsClient: AppInsightsClient;
     private femcadRunner: FemcadRunner;
 
-    private lineRunner: FcsCommandsToFliMamanager;
+    private fcsCommmands: FcsCommandsToFliMamanager;
 
     constructor(extData: ExtensionData) {
         this.extData = extData;
@@ -75,18 +75,18 @@ export class FliCommandRunner {
         this.appInsightsClient = extData.appInsightsClient;
         this.femcadRunner = extData.femcadRunner;
 
-        this.lineRunner = new FcsCommandsToFliMamanager(extData);
+        this.fcsCommmands = new FcsCommandsToFliMamanager(extData);
     }
 
     public async runLineCommand(): Promise<void> {
         this.appInsightsClient.sendEvent("Command: Run line");
 
-        if (vscode.window.activeTextEditor === undefined) {
-            vscode.window.showInformationMessage("No code found or selected.");
+        const editor = vscode.window.activeTextEditor;
+
+        if (editor === undefined) {
+            vscode.window.showInformationMessage("No file is open.");
             return;
         }
-
-        let editor: vscode.TextEditor = vscode.window.activeTextEditor;
 
         try {
             await this.extData.saveDocumentBySettings(editor);
@@ -95,9 +95,7 @@ export class FliCommandRunner {
             return;
         }
         
-        //let fcsFile: FcsFileData = this.getFcsFileData(editor);
-        let commandFile: FcsCommandsToFliMamanager = new FcsCommandsToFliMamanager(this.extData);
-        let fliCommand: FliCommand | undefined = commandFile.getFliParameters(editor);
+        const fliCommand: FliCommand | undefined = this.fcsCommmands.getFliParameters(editor);
 
         //console.log("Line from source code: " + fcsFile.rawLineCode);
         //console.log("Source file path: " + fcsFile.filePath);
@@ -106,7 +104,7 @@ export class FliCommandRunner {
             await this.femcadRunner.executeFliCommand(fliCommand);
         }
         else {
-            vscode.window.showErrorMessage("Unable to recognize command.");
+            vscode.window.showErrorMessage("Unable to recognize command or expression.");
         }
     }
 
