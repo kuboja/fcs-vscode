@@ -111,8 +111,8 @@ export class FcsCommandsToFliMamanager {
                 new FliSciaExportCommand({ commandStart: "#fli_esazip", exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),
                 new FliSciaExportCommand({ commandStart: "#exportesaxml", exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),
 
-                new FliWithoutPrintCommand({ commandStart: "", exportType: "", fileExtension: "", canBeOpened: false }),
-                new FliWithoutPrintCommand({ commandStart: "#", exportType: "", fileExtension: "", canBeOpened: false }),
+                new FliExpressionCommand({ commandStart: "", exportType: "", fileExtension: "", canBeOpened: false }),
+                new FliExpressionCommand({ commandStart: "#", exportType: "", fileExtension: "", canBeOpened: false }),
             ];
         }
 
@@ -168,7 +168,7 @@ class FliJsonPrintCommand extends FliPrintCommand {
     }
 }
 
-class FliWithoutPrintCommand extends FliPrintCommand {
+class FliExpressionCommand extends FliPrintCommand {
     protected getCommandParameter(line: CommandLine): string {
 
         // >value := expression  
