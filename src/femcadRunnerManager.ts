@@ -196,11 +196,14 @@ export class FemcadRunner {
         console.log("Fli path: " + fliPath);
         console.log("Full cmd command: " + fullCommand);
 
-        this.process = spawn(fullCommand, [], { shell: true });
-        this.process.stdout.setEncoding("utf8");
-        this.process.stdout.on("data", (data: string) => this.onGetOutputData(data));
-        this.process.stderr.on("data", (data: string) => this.onGetOutputData(data));
-        this.process.on("close", (code) => this.onCloseEvent(code));
+        const process = spawn(fullCommand, [], { shell: true });
+        if (process) {
+            process.stdout.setEncoding("utf8");
+            process.stdout.on("data", (data: string) => this.onGetOutputData(data));
+            process.stderr.on("data", (data: string) => this.onGetOutputData(data));
+            process.on("close", (code) => this.onCloseEvent(code));
+        }
+        this.process = process;
     }
 
     public async stopExecutionFliCommand(): Promise<void> {

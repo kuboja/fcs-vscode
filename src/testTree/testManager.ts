@@ -43,9 +43,9 @@ export class TestManager implements vscode.Disposable {
             let pipe = await rpc.createClientPipeTransport(pipeName);
 
             this.fliProcess = spawn(this.pathFli, ["--t", "--c", pipeName], { shell: false, windowsHide: false });
-            this.fliProcess.stdout.setEncoding("utf8");
-            this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
-            this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
+            this.fliProcess.stdout?.setEncoding("utf8");
+            this.fliProcess.stdout?.on("data", (data: string) => this.onGetOutputData(data));
+            this.fliProcess.stderr?.on("data", (data: string) => this.onGetOutputData(data));
             this.fliProcess.on("close", (code) => this.onCloseEvent(code));
 
             let [messageReader, messageWriter] = await pipe.onConnected();

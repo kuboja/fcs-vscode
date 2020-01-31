@@ -39,11 +39,14 @@ export class InteractiveManager implements vscode.Disposable {
         try {
             let pipe = await rpc.createClientPipeTransport(pipeName);
 
-            this.fliProcess = spawn(this.pathFli, ["--i", "--c", pipeName], { shell: false, windowsHide: false });
-            this.fliProcess.stdout.setEncoding("utf8");
-            this.fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
-            this.fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
-            this.fliProcess.on("close", (code) => this.onCloseEvent(code));
+            const fliProcess = spawn(this.pathFli, ["--i", "--c", pipeName], { shell: false, windowsHide: false });
+            if (fliProcess) {
+                fliProcess.stdout.setEncoding("utf8");
+                fliProcess.stdout.on("data", (data: string) => this.onGetOutputData(data));
+                fliProcess.stderr.on("data", (data: string) => this.onGetOutputData(data));
+                fliProcess.on("close", (code) => this.onCloseEvent(code));
+            }
+            this.fliProcess = fliProcess;
 
             let [messageReader, messageWriter] = await pipe.onConnected();
 
