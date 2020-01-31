@@ -33,7 +33,7 @@ export class FliCommand {
         }
     }
 
-    public afterStopExecution(): void {
+    public afterSuccessExecution(): void {
         if (this.commandClass !== undefined) {
             this.commandClass.afterExit();
         }
@@ -242,7 +242,7 @@ export class FemcadRunner {
             if (this.extData.removeTraceInfo) {
                 this.outputLineCount++;
 
-                if (this.outputLineCount <= 2) { continue; }
+                //if (this.outputLineCount <= 2) { continue; }
 
                 let printLine: boolean = true;
 
@@ -283,7 +283,7 @@ export class FemcadRunner {
             this.extData.outputChannel.appendLine("");
         }
         if (code === 0 && this.commandData) {
-            this.commandData.afterStopExecution();
+            this.commandData.afterSuccessExecution();
         }
     }
 

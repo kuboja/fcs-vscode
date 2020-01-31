@@ -411,6 +411,16 @@
                     "type": "boolean",
                     "default": "true",
                     "description": "Force collapse the test item after run."
+                },
+                "fcs-vscode.openAfterExport": {
+                    "type": "boolean",
+                    "default": "true",
+                    "description": "Open export file after completion."
+                },
+                "fcs-vscode.outputFolder": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Output folder for exported files."
                 }
             }
         },

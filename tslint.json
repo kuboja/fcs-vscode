@@ -13,6 +13,7 @@
 		"no-any": true,
 		"promise-function-async": true,
 		"no-floating-promises": true,
+		"quotemark": true,
 		"await-promise": [ true, "Thenable", "Promise" ]
 	},
 	"defaultSeverity": "warning"

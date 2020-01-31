@@ -3,7 +3,7 @@ import { AppInsightsClient } from "./appInsightsClient";
 
 import { ExtensionData } from "./extensionData";
 import { FemcadRunner, FliCommand } from "./femcadRunnerManager";
-import { FcsFileData, LineRunnerCommandCreator } from "./fcsFileData";
+import { FcsCommandsToFliMamanager } from "./fcsCommands";
 
 
 export class OpenFileInFemCAD {
@@ -67,11 +67,15 @@ export class FliCommandRunner {
     private appInsightsClient: AppInsightsClient;
     private femcadRunner: FemcadRunner;
 
+    private lineRunner: FcsCommandsToFliMamanager;
+
     constructor(extData: ExtensionData) {
         this.extData = extData;
 
         this.appInsightsClient = extData.appInsightsClient;
         this.femcadRunner = extData.femcadRunner;
+
+        this.lineRunner = new FcsCommandsToFliMamanager(extData);
     }
 
     public async runLineCommand(): Promise<void> {
@@ -90,15 +94,20 @@ export class FliCommandRunner {
             vscode.window.showErrorMessage(error);
             return;
         }
+        
+        //let fcsFile: FcsFileData = this.getFcsFileData(editor);
+        let commandFile: FcsCommandsToFliMamanager = new FcsCommandsToFliMamanager(this.extData);
+        let fliCommand: FliCommand | undefined = commandFile.getFliParameters(editor);
 
-        let fcsFile: FcsFileData = this.getFcsFileData(editor);
-        let commandFile: LineRunnerCommandCreator = new LineRunnerCommandCreator(fcsFile);
-        let fliCommand: FliCommand = commandFile.getFliCommand();
+        //console.log("Line from source code: " + fcsFile.rawLineCode);
+        //console.log("Source file path: " + fcsFile.filePath);
 
-        console.log("Line from source code: " + fcsFile.rawLineCode);
-        console.log("Source file path: " + fcsFile.filePath);
-
-        await this.femcadRunner.executeFliCommand(fliCommand);
+        if (fliCommand) {
+            await this.femcadRunner.executeFliCommand(fliCommand);
+        }
+        else {
+            vscode.window.showErrorMessage("Unable to recognize command.");
+        }
     }
 
     public async stopCommand(): Promise<void> {
@@ -126,12 +135,4 @@ export class FliCommandRunner {
         await this.femcadRunner.openFcsFile(editor.document.fileName);
     }
 
-    private getFcsFileData(editor: vscode.TextEditor): FcsFileData {
-        let lineNumber: number = editor.selection.active.line;
-
-        return new FcsFileData(editor.document, lineNumber);
-    }
-
-    // const selection: vscode.Selection = this._editor.selection;
-    // const ignoreSelection: boolean = this._config.get<boolean>("ignoreSelection");
 }

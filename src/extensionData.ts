@@ -82,6 +82,14 @@ export class ExtensionData {
         return this.GetBooleanValue("testsAutoload", true);
     }
 
+    public get openAfterExport(): boolean {
+        return this.GetBooleanValue("openAfterExport", true);
+    }
+
+    public get outputFolder(): string {
+        return this.GetStringValue("outputFolder", "");
+    }
+
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
 
