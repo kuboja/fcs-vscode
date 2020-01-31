@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.6.2",
+    "version": "1.6.3",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
@@ -464,7 +464,7 @@
     "devDependencies": {
         "@types/adm-zip": "^0.4.13",
         "@types/mocha": "^5.2.7",
-        "@types/node": "^10.17.9",
+        "@types/node": "^12.4.0",
         "@types/ps-tree": "^1.1.0",
         "@types/shelljs": "^0.8.6",
         "@types/uuid": "^3.4.7",
@@ -478,7 +478,7 @@
     },
     "dependencies": {
         "adm-zip": "^0.4.13",
-        "applicationinsights": "^1.6.0",
+        "applicationinsights": "^1.7.0",
         "original-fs": "1.1.0",
         "ps-tree": "^1.2.0",
         "shelljs": "^0.8.3",
