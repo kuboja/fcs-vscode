@@ -6,7 +6,7 @@ import { Tools } from "./tools";
 import { ExtensionData } from "./extensionData";
 
 interface FliParameter {
-    fli : string | undefined;
+    fli: string | undefined;
     outputFile?: string | undefined;
 }
 
@@ -82,7 +82,7 @@ export class FcsCommandsToFliMamanager {
                 let fliCommand = new FliCommand(fliParametres.fli);
 
                 fliCommand.afterSuccessExecution = () => {
-                    if (cmd.canBeOpened && this.extData.openAfterExport && fliParametres.outputFile){
+                    if (cmd.canBeOpened && this.extData.openAfterExport && fliParametres.outputFile) {
                         let uri = vscode.Uri.file(fliParametres.outputFile);
                         vscode.env.openExternal(uri);
                     }
@@ -135,12 +135,12 @@ class FliPrintCommand {
         let expression = this.getCommandParameter(line);
 
         if (expression !== "") {
-            return { 
+            return {
                 fli: `"${line.filePath}" "${expression}"`,
             };
         }
 
-        return { fli : undefined };
+        return { fli: undefined };
     }
 
     public isThisCommand(line: CommandLine): boolean {
@@ -209,7 +209,7 @@ class FliExportCommand extends FliPrintCommand {
         let expression = this.getCommandParameter(line);
         let outputFilePath = this.getOutputFilePath(line, expression);
 
-        return { 
+        return {
             fli: `"${line.filePath}" "${expression}" --t ${this.exportType} --o "${outputFilePath}"`,
             outputFile: outputFilePath
         };
@@ -221,7 +221,7 @@ class FliExportCommand extends FliPrintCommand {
         let baseFileName = path.basename(line.filePath, path.extname(line.filePath));
         let expr = (expression) ? "_" + expression : "";
 
-        return path.join(outFolder, timestamp + "_" + baseFileName + expr + "." + this.fileExtension );
+        return path.join(outFolder, timestamp + "_" + baseFileName + expr + "." + this.fileExtension);
     }
 }
 
@@ -237,7 +237,7 @@ class FliSciaExportCommand extends FliExportCommand {
 
         let outputFilePath = this.getOutputFilePath(line, "");
 
-        return { 
+        return {
             fli: `"${line.filePath}" --t ${this.exportType} -template "${templatePath}" --o "${outputFilePath}"`,
             outputFile: outputFilePath
         };
