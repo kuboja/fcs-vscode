@@ -16,6 +16,7 @@ interface CommandLine {
     rawLine: string;
     trimedLine: string;
     outputFolder: string;
+    fromSelection: boolean;
 }
 
 interface CommandDefinition {
@@ -52,7 +53,8 @@ export class FcsCommandsToFliMamanager {
             return;
         }
 
-        if (!selection.isEmpty) {
+        let isSelection = !selection.isEmpty;
+        if (isSelection) {
             let selStart = selection.start.character;
             let selEnd = selection.end.character;
 
@@ -67,6 +69,7 @@ export class FcsCommandsToFliMamanager {
             rawLine: lineText,
             trimedLine: lineText.trim(),
             outputFolder: outFolder,
+            fromSelection: isSelection,
         };
 
         let commands = FcsCommandsToFliMamanager.getCommands();
@@ -113,6 +116,8 @@ export class FcsCommandsToFliMamanager {
 
                 new FliExpressionCommand({ commandStart: "", exportType: "", fileExtension: "", canBeOpened: false }),
                 new FliExpressionCommand({ commandStart: "#", exportType: "", fileExtension: "", canBeOpened: false }),
+
+                new FliPrintCommand({ commandStart: "", exportType: "", fileExtension: "", canBeOpened: false }),
             ];
         }
 
@@ -169,6 +174,10 @@ class FliJsonPrintCommand extends FliPrintCommand {
 }
 
 class FliExpressionCommand extends FliPrintCommand {
+    public isThisCommand(line: CommandLine): boolean {
+        return line.trimedLine.startsWith(this.commandStart) && !line.fromSelection;
+    }
+
     protected getCommandParameter(line: CommandLine): string {
 
         // >value := expression  
