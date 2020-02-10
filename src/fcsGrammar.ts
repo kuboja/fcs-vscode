@@ -171,7 +171,7 @@ const grammarNodes: GrammarType[] = [
     new GrammarType({ dot: 0, key: "#fli_report", kind: GrammarKind.Order }),
     new GrammarType({ dot: 0, key: "#fli_image", kind: GrammarKind.Order }),
     new GrammarType({ dot: 0, key: "#fli_dxf", kind: GrammarKind.Order }),
-    new GrammarType({ dot: 0, key: "#fli_rft", kind: GrammarKind.Order }),
+    new GrammarType({ dot: 0, key: "#fli_rtf", kind: GrammarKind.Order }),
     new GrammarType({ dot: 0, key: "#fli_ifc", kind: GrammarKind.Order }),
     new GrammarType({ dot: 0, key: "#fli_html", kind: GrammarKind.Order }),
     new GrammarType({ dot: 0, key: "#fli_esazip", kind: GrammarKind.Order }),
