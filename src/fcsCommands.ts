@@ -136,7 +136,7 @@ class FliPrintCommand {
 
         if (expression !== "") {
             return {
-                fli: `"${line.filePath}" "${expression}"`,
+                fli: `"${line.filePath}" "${expression.replace(/\"/g, "\\\"")}"`,
             };
         }
 
@@ -210,7 +210,7 @@ class FliExportCommand extends FliPrintCommand {
         let outputFilePath = this.getOutputFilePath(line, expression);
 
         return {
-            fli: `"${line.filePath}" "${expression}" --t ${this.exportType} --o "${outputFilePath}"`,
+            fli: `"${line.filePath}" "${expression.replace(/\"/g, "\\\"")}" --t ${this.exportType} --o "${outputFilePath}"`,
             outputFile: outputFilePath
         };
     }
