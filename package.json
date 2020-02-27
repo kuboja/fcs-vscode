@@ -134,6 +134,11 @@
                 "description": "Open current file in FemCAD"
             },
             {
+                "command": "fcs-vscode.openInViewer",
+                "title": "Open in Viewer",
+                "description": "Open current file in Histruct Viewer"
+            },
+            {
                 "command": "fcs-vscode.openInFemcadWithProfiling",
                 "title": "Open in FemCAD with profiling",
                 "description": "Open current file in FemCAD with XML profiling"
@@ -231,6 +236,11 @@
                 {
                     "when": "!inOutput && editorLangId==fcs",
                     "command": "fcs-vscode.openInFemcad",
+                    "group": "navigation"
+                },
+                {
+                    "when": "!inOutput && editorLangId==fcs",
+                    "command": "fcs-vscode.openInViewer",
                     "group": "navigation"
                 },
                 {

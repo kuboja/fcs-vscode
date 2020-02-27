@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { ExtensionData } from "./extensionData";
-import { FliCommandRunner, OpenFileInFemCAD } from "./commandManager";
+import { FliCommandRunner, OpenFileInFemCAD, ViewerCommandRunner } from "./commandManager";
 import { FcsSymbolProvider } from "./fcsSymbolUtil";
 import { FcsCompletionItemProvider } from "./fcsCompletionItemProvider";
 import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
@@ -26,6 +26,7 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
 
     const codeManager: FliCommandRunner = new FliCommandRunner(extData);
     const openFcs: OpenFileInFemCAD = new OpenFileInFemCAD(extData);
+    const viewerFcs: ViewerCommandRunner = new ViewerCommandRunner(extData);
 
     const fliUpdater: FliUpdater = new FliUpdater(context, extData);
 
@@ -50,6 +51,9 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.openInFemcadWithProfiling", async () => { await openFcs.openInFemcadProfiling(); }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.openInViewer", async () => { await viewerFcs.openInViewer(); }));
 }
 
 

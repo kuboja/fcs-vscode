@@ -67,6 +67,47 @@ export class OpenFileInFemCAD {
     }
 }
 
+export class ViewerCommandRunner {
+    private appInsightsClient: AppInsightsClient;
+    private extData: ExtensionData;
+
+    private femcadRunner: FemcadRunner | undefined;
+
+    constructor(extData: ExtensionData) {
+        this.extData = extData;
+        this.appInsightsClient = extData.appInsightsClient;
+    }
+
+    public async openInViewer(): Promise<void> {
+        this.appInsightsClient.sendEvent("Command: Open in Histruct Viewer");
+        this.appInsightsClient.sendEvent("Command: Run line");
+
+        const editor = vscode.window.activeTextEditor;
+
+        if (editor === undefined) {
+            vscode.window.showInformationMessage("No file is open.");
+            return;
+        }
+
+        try {
+            await this.extData.saveDocumentBySettings(editor);
+        } catch (error) {
+            vscode.window.showErrorMessage(error);
+            return;
+        }
+        
+        const fliCommand = new FliCommand(" -viewer");
+        await this.getFemcadRunner().executeFliCommand(fliCommand, false);
+    }
+
+    private getFemcadRunner(): FemcadRunner {
+        if (!this.femcadRunner){
+            this.femcadRunner = new FemcadRunner(this.extData, this.extData.viewerOutpuChannelName);
+        }
+
+        return this.femcadRunner;
+    }
+}
 
 export class FliCommandRunner {
 
