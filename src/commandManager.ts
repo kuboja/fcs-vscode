@@ -10,13 +10,12 @@ export class OpenFileInFemCAD {
 
     private appInsightsClient: AppInsightsClient;
     private extData: ExtensionData;
-    private femcadRunner: FemcadRunner;
+
+    private femcadRunner: FemcadRunner | undefined;
 
     constructor(extData: ExtensionData) {
         this.extData = extData;
-
         this.appInsightsClient = extData.appInsightsClient;
-        this.femcadRunner = extData.femcadRunner;
     }
 
     public async openInFemcad(): Promise<void> {
@@ -36,7 +35,7 @@ export class OpenFileInFemCAD {
         let fcsFile: string = editor.document.fileName;
 
         this.appInsightsClient.sendEvent("Command: Open in FemCAD");
-        await this.femcadRunner.openInFemcad(fcsFile);
+        await this.getFemcadRunner().openInFemcad(fcsFile);
     }
 
     public async openInFemcadProfiling(): Promise<void> {
@@ -56,7 +55,15 @@ export class OpenFileInFemCAD {
         let fcsFile: string = editor.document.fileName;
 
         this.appInsightsClient.sendEvent("Command: Open in FemCAD with profiling");
-        await this.femcadRunner.openInFemcadProfiling(fcsFile);
+        await this.getFemcadRunner().openInFemcadProfiling(fcsFile);
+    }
+
+    private getFemcadRunner(): FemcadRunner {
+        if (!this.femcadRunner){
+            this.femcadRunner = new FemcadRunner(this.extData);
+        }
+
+        return this.femcadRunner;
     }
 }
 
@@ -65,17 +72,13 @@ export class FliCommandRunner {
 
     private extData: ExtensionData;
     private appInsightsClient: AppInsightsClient;
-    private femcadRunner: FemcadRunner;
-
-    private fcsCommmands: FcsCommandsToFliMamanager;
+    
+    private femcadRunner: FemcadRunner | undefined;
+    private fcsCommmands: FcsCommandsToFliMamanager | undefined;
 
     constructor(extData: ExtensionData) {
         this.extData = extData;
-
         this.appInsightsClient = extData.appInsightsClient;
-        this.femcadRunner = extData.femcadRunner;
-
-        this.fcsCommmands = new FcsCommandsToFliMamanager(extData);
     }
 
     public async runLineCommand(): Promise<void> {
@@ -95,13 +98,13 @@ export class FliCommandRunner {
             return;
         }
         
-        const fliCommand: FliCommand | undefined = this.fcsCommmands.getFliParameters(editor);
+        const fliCommand: FliCommand | undefined = this.getFcsCommmands().getFliParameters(editor);
 
         //console.log("Line from source code: " + fcsFile.rawLineCode);
         //console.log("Source file path: " + fcsFile.filePath);
 
         if (fliCommand) {
-            await this.femcadRunner.executeFliCommand(fliCommand);
+            await this.getFemcadRunner().executeFliCommand(fliCommand);
         }
         else {
             vscode.window.showErrorMessage("Unable to recognize command or expression.");
@@ -110,7 +113,7 @@ export class FliCommandRunner {
 
     public async stopCommand(): Promise<void> {
         this.appInsightsClient.sendEvent("Command: Stop");
-        await this.femcadRunner.stopExecutionFliCommand();
+        await this.getFemcadRunner().stopExecutionFliCommand();
     }
 
     public async openInTerminal(): Promise<void> {
@@ -130,7 +133,22 @@ export class FliCommandRunner {
             return;
         }
 
-        await this.femcadRunner.openFcsFile(editor.document.fileName);
+        await this.getFemcadRunner().openFcsFile(editor.document.fileName);
     }
 
+    private getFemcadRunner(){
+        if (!this.femcadRunner){
+            this.femcadRunner = new FemcadRunner(this.extData);
+        }
+
+        return this.femcadRunner;
+    }
+
+    private getFcsCommmands(){
+        if (!this.fcsCommmands){
+            this.fcsCommmands = new FcsCommandsToFliMamanager(this.extData);
+        }
+
+        return this.fcsCommmands;
+    }
 }

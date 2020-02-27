@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import { AppInsightsClient } from "./appInsightsClient";
 
-import { FemcadRunner } from "./femcadRunnerManager";
 import { FcsGrammar } from "./fcsGrammar";
 
 
@@ -9,7 +8,6 @@ export class ExtensionData {
 
     public Initialized: boolean = false;
     public appInsightsClient: AppInsightsClient;
-    public femcadRunner: FemcadRunner;
     public grammar: FcsGrammar;
 
     public context: vscode.ExtensionContext;
@@ -96,10 +94,10 @@ export class ExtensionData {
         this.appInsightsClient = new AppInsightsClient();
         this.appInsightsClient.sendEvent("Extension startup");
 
-        this.femcadRunner = new FemcadRunner(this);
+     //   this.femcadRunner = new FemcadRunner(this);
         this.grammar = new FcsGrammar();
 
-        this.Initialized = true && this.femcadRunner.IsInitialized;
+        this.Initialized = true;
     }
 
     public async saveDocumentBySettings(editor: vscode.TextEditor): Promise<void> {
@@ -127,11 +125,23 @@ export class ExtensionData {
         throw new Error("Nelze spustit, protože soubor není uložen. Uložte soubor ručně nebo povolte automatické ukládání v nastavení.");
     }
 
-    private _outputChannel: vscode.OutputChannel | undefined;
-    public get outputChannel(): vscode.OutputChannel {
-        if (this._outputChannel === undefined) {
-            this._outputChannel = vscode.window.createOutputChannel("FemCAD");
+    private outputChannels: vscode.OutputChannel[] = [];
+
+    public getOutputChannel(name: string): vscode.OutputChannel {
+        let outputChannel = this.outputChannels.find(c => c.name === name);
+
+        if (!outputChannel) {
+            outputChannel = vscode.window.createOutputChannel(name);
+            this.outputChannels.push(outputChannel);
         }
-        return this._outputChannel;
+
+        return outputChannel;
     }
+
+    public getDefaultOutputChannel(): vscode.OutputChannel {
+        return this.getOutputChannel(this.defaultOutpuChannelName);
+    }
+
+    public readonly defaultOutpuChannelName = "FemCAD";
+    public readonly viewerOutpuChannelName = "Histruct Viewer";
 }

@@ -472,8 +472,9 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
         this.sendEvent("messageToOutput");
 
-        this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
-        this.extData.outputChannel.appendLine("[IntFli.ErrroMessage]: " + element.message);
+        let outChan = this.extData.getOutputChannel(this.extData.defaultOutpuChannelName);
+        outChan.show(this.extData.preserveFocusInOutput);
+        outChan.appendLine("[IntFli.ErrroMessage]: " + element.message);
     }
 
     private sendEvent(event: string){

@@ -134,8 +134,9 @@ export class TestManager implements vscode.Disposable {
         try {
             return await this.connection.sendRequest(req, path, "");
         } catch (e) {
-            this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
-            this.extData.outputChannel.appendLine("[IntFli.Error]: " + e);
+            let outChan = this.extData.getDefaultOutputChannel();
+            outChan.show(this.extData.preserveFocusInOutput);
+            outChan.appendLine("[IntFli.Error]: " + e);
             console.error("Error with " + req.method + " request: " + e);
         }
     }

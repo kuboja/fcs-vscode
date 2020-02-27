@@ -46,7 +46,8 @@ export class FemcadRunner {
     private extData: ExtensionData;
     private appInsightsClient: AppInsightsClient;
 
-    readonly IsInitialized: boolean;
+    private readonly outputChannel: vscode.OutputChannel;
+    private readonly IsInitialized: boolean;
 
     private getFemcadFolder(): string {
         return this.extData.femcadFolderPath;
@@ -95,7 +96,7 @@ export class FemcadRunner {
         return await this.getFemcadFilepath("femcad.exe");
     }
 
-    constructor(extData: ExtensionData) {
+    constructor(extData: ExtensionData, outputChannelName: string | undefined = undefined) {
         this.IsInitialized = false;
         this.extData = extData;
         this.appInsightsClient = extData.appInsightsClient;
@@ -108,6 +109,11 @@ export class FemcadRunner {
                 this.disposeTerminal();
             }
         });
+
+        if (!outputChannelName){
+            outputChannelName = extData.defaultOutpuChannelName;
+        }
+        this.outputChannel = extData.getOutputChannel(outputChannelName);
 
         this.IsInitialized = true;
     }
@@ -178,14 +184,14 @@ export class FemcadRunner {
             });
         });
 
-        this.extData.outputChannel.show(this.extData.preserveFocusInOutput);
+        this.outputChannel.show(this.extData.preserveFocusInOutput);
 
         if (this.extData.clearPreviousOutput) {
-            this.extData.outputChannel.clear();
+            this.outputChannel.clear();
         }
 
         if (this.extData.showExecutionMessage) {
-            this.extData.outputChannel.appendLine("[Running] " + command);
+            this.outputChannel.appendLine("[Running] " + command);
         }
 
         //    this.appInsightsClient.sendEvent(command);
@@ -270,7 +276,7 @@ export class FemcadRunner {
             }
 
             if (this.isRunning) {
-                this.extData.outputChannel.append(line + "\n");
+                this.outputChannel.append(line + "\n");
             }
         }
     }
@@ -279,11 +285,11 @@ export class FemcadRunner {
         this.isRunning = false;
         const endTime: Date = new Date();
         const elapsedTime: number = (endTime.getTime() - this.startTime.getTime()) / 1000;
-        this.extData.outputChannel.appendLine("");
+        this.outputChannel.appendLine("");
 
         if (this.extData.showExecutionMessage) {
-            this.extData.outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
-            this.extData.outputChannel.appendLine("");
+            this.outputChannel.appendLine("[Done] exited with code=" + code + " in " + elapsedTime + " seconds");
+            this.outputChannel.appendLine("");
         }
         if (code === 0 && this.commandData) {
             this.commandData.afterSuccessExecution();
