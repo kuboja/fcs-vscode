@@ -239,7 +239,7 @@
                     "group": "navigation"
                 },
                 {
-                    "when": "!inOutput && editorLangId==fcs",
+                    "when": "!inOutput && editorLangId==fcs && config.fcs-vscode.beta",
                     "command": "fcs-vscode.openInViewer",
                     "group": "navigation"
                 },
@@ -431,6 +431,11 @@
                     "type": "string",
                     "default": "",
                     "description": "Output folder for exported files."
+                },
+                "fcs-vscode.beta": {
+                    "type": "boolean",
+                    "default": "false",
+                    "description": "Enables experimental features."
                 }
             }
         },

@@ -88,6 +88,10 @@ export class ExtensionData {
         return this.GetStringValue("outputFolder", "");
     }
 
+    public get isBeta(): boolean {
+        return this.GetBooleanValue("beta", false);
+    }
+
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
 
