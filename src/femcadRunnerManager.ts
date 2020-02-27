@@ -140,7 +140,7 @@ export class FemcadRunner {
     private process?: ChildProcess;
     private commandData?: FliCommand;
 
-    public async executeFliCommand(commandData: FliCommand): Promise<void> {
+    public async executeFliCommand(commandData: FliCommand, withProgress: boolean = true): Promise<void> {
         this.commandData = commandData;
         let command: string = commandData.command;
 
@@ -159,30 +159,33 @@ export class FemcadRunner {
         this.outputLineCount = 0;
         this.lineBuffer = "";
 
-        let progressOptions: vscode.ProgressOptions = {
-            title: "Fli runner",
-            location: vscode.ProgressLocation.Notification,
-            cancellable: true,
-        };
+        if (withProgress) {
+            let progressOptions: vscode.ProgressOptions = {
+                title: "Fli runner",
+                location: vscode.ProgressLocation.Notification,
+                cancellable: true,
+            };
 
-        vscode.window.withProgress(progressOptions, async (p, calcelationToken) => {
-            return new Promise((resolve, _) => {
+            vscode.window.withProgress(progressOptions, async (p, calcelationToken) => {
+                return new Promise((resolve, _) => {
 
-                p.report({ message: "Fli running..." });
+                    p.report({ message: "Fli running..." });
 
-                calcelationToken.onCancellationRequested(() => this.killProcess());
+                    calcelationToken.onCancellationRequested(() => this.killProcess());
 
-                const handle: NodeJS.Timer = setInterval(() => {
+                    const handle: NodeJS.Timer = setInterval(() => {
 
-                    if (!this.isRunning) {
-                        p.report({ message: "Fli ended." });
-                        clearInterval(handle);
-                        resolve();
-                    }
-                }, 1000);
+                        if (!this.isRunning) {
+                            p.report({ message: "Fli ended." });
+                            clearInterval(handle);
+                            resolve();
+                        }
+                    }, 1000);
 
+                });
             });
-        });
+        }
+
 
         this.outputChannel.show(this.extData.preserveFocusInOutput);
 
