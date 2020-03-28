@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.7.0] - 2020-03-27
+
+### Added
+- Support for Web Model Viewer. (Right Click in opened fcs file in editor and select "Open in Viewer". You mush have installed supported fliw.)
+
 ## [1.6.0] - 2019-10-04
 
 ### Added

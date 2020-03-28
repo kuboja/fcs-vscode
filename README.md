@@ -60,6 +60,7 @@ This extension contributes the following settings:
 
 ## Release Notes - main new features
 
+- 1.7 - Model viewer
 - 1.6 - Test explorer
 - 1.5 - Interactive tree
 - 1.4 - Goto symbol definition.
