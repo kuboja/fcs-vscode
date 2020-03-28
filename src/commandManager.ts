@@ -96,7 +96,14 @@ export class ViewerCommandRunner {
             return;
         }
         
-        const fliCommand = new FliCommand(" -viewer");
+        let ws = vscode.workspace.getWorkspaceFolder(editor.document.uri);
+
+        const fliCommand = new FliCommand(" --view-model " + editor.document.fileName + 
+           // " --td Trace" +
+           // " --draw-settings c:\\GitHub\\fcs-gsi2\\Gsi_StorageSystems\\Silo_Round\\Geometry\\GsiSilo.fcsdrs" +
+           // " --view-settings C:\\GitHub\\fcs-gsi2\\Gsi_StorageSystems\\Silo_Round\\Geometry\\GsiSilo.fcsdrv" +
+            (ws ? " --watch " + ws?.uri.fsPath : ""));
+
         await this.getFemcadRunner().executeFliCommand(fliCommand, false);
     }
 
@@ -138,7 +145,7 @@ export class FliCommandRunner {
             vscode.window.showErrorMessage(error);
             return;
         }
-        
+
         const fliCommand: FliCommand | undefined = this.getFcsCommmands().getFliParameters(editor);
 
         //console.log("Line from source code: " + fcsFile.rawLineCode);
