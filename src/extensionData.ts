@@ -40,6 +40,10 @@ export class ExtensionData {
         return this.GetStringValue("femcadFolder", "C:\\FemCad\\Application");
     }
 
+    public get fliFolderPath(): string {
+        return this.GetStringValue("fliFolder", this.femcadFolderPath);
+    }
+
     public get showExecutionMessage(): boolean {
         return this.GetBooleanValue("showExecutionMessage", true);
     }

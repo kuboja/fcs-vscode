@@ -80,11 +80,38 @@ export class FemcadRunner {
         return filePath;
     }
 
+    private async getFliFilepath(fileName: string, quiteOnFile: boolean = false): Promise<string | undefined> {
+        let fliFolder: string = this.extData.fliFolderPath;
+
+        if (!(fliFolder)) {
+            throw new Error("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder', případně 'fcs-vscode.fliFolder'.");
+        }
+
+        // kontrola jestli je adresář femcadu dostupný
+        if (!await AsyncTools.fsAccess(fliFolder)) {
+            throw new Error("Nebyl nalezen zadaný FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder', případně 'fcs-vscode.fliFolder'.");
+        }
+
+        let filePath = join(fliFolder, fileName);
+
+        // kontrola jestli je v adresáři femcad dostupný soubor
+        if (!await AsyncTools.fsAccess(filePath)) {
+            if (quiteOnFile) {
+                return;
+            }
+            else {
+                throw new Error("Nenalezen " + filePath + "! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder', případně 'fcs-vscode.fliFolder'.");
+            }
+        }
+
+        return filePath;
+    }
+
     private async getFliPath(): Promise<string | undefined> {
         try {
-            var fliPath = await this.getFemcadFilepath("fliw.exe", true);
+            var fliPath = await this.getFliFilepath("fliw.exe", true);
             if (!fliPath) {
-                fliPath = await this.getFemcadFilepath("fli.exe");
+                fliPath = await this.getFliFilepath("fli.exe");
             }
             return fliPath;
         } catch (ex) {
