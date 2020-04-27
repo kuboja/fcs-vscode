@@ -363,7 +363,7 @@
                     "description": "FemCAD instalation folder."
                 },
                 "fcs-vscode.fliFolder": {
-                    "type": ["string", "null"],
+                    "type": "string",
                     "default": null,
                     "description": "FLI instalation folder. (default is FemCAD folder)"
                 },
