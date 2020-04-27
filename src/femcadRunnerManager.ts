@@ -88,12 +88,16 @@ export class FemcadRunner {
             }
             return fliPath;
         } catch (ex) {
-            vscode.window.showErrorMessage(ex);
+            vscode.window.showErrorMessage(ex.message);
         }
     }
 
     private async getFemcadPath(): Promise<string | undefined> {
-        return await this.getFemcadFilepath("femcad.exe");
+        try {
+            return await this.getFemcadFilepath("femcad.exe");
+        } catch (ex) {
+            vscode.window.showErrorMessage(ex.message);
+        }
     }
 
     constructor(extData: ExtensionData, outputChannelName: string | undefined = undefined) {

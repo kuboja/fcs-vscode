@@ -28,7 +28,7 @@ export class OpenFileInFemCAD {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
-            vscode.window.showErrorMessage(error);
+            vscode.window.showErrorMessage(error.message);
             return;
         }
 
@@ -48,7 +48,7 @@ export class OpenFileInFemCAD {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
-            vscode.window.showErrorMessage(error);
+            vscode.window.showErrorMessage(error.message);
             return;
         }
 
@@ -92,7 +92,7 @@ export class ViewerCommandRunner {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
-            vscode.window.showErrorMessage(error);
+            vscode.window.showErrorMessage(error.message);
             return;
         }
         
@@ -142,7 +142,7 @@ export class FliCommandRunner {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
-            vscode.window.showErrorMessage(error);
+            vscode.window.showErrorMessage(error.message);
             return;
         }
 
@@ -177,7 +177,7 @@ export class FliCommandRunner {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
-            vscode.window.showErrorMessage(error);
+            vscode.window.showErrorMessage(error.message);
             return;
         }
 
