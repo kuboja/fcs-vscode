@@ -11,7 +11,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
     private extData: ExtensionData;
     private fliUpdater: FliUpdater;
 
-    private _onDidChangeTreeData: vscode.EventEmitter<Entry>;
+    private _onDidChangeTreeData: vscode.EventEmitter<Entry | undefined>;
     private managers: { [index: string]: InteractiveManager | undefined } = {};
     private roots: Entry[] = [];
 
@@ -228,7 +228,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
             };
 
             this.roots.push(root);
-            this._onDidChangeTreeData.fire();
+            this._onDidChangeTreeData.fire(undefined);
         }
 
         return root;
@@ -243,7 +243,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
                     this.managers = {};
                 }
 
-                this._onDidChangeTreeData.fire();
+                this._onDidChangeTreeData.fire(undefined);
             }
         }
     }

@@ -28,7 +28,7 @@ export class ExtensionData {
 
     private GetStringValue(name: string, defaultValue: string): string {
         var settingsValue = this.config.get<string>(name, defaultValue);
-        if (settingsValue == undefined) {
+        if (settingsValue === undefined) {
             return defaultValue;
         }
         else {

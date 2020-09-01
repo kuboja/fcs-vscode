@@ -18,7 +18,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     public tree: vscode.TreeView<TestNode> | undefined;
 
-    private _onDidChangeTreeData: vscode.EventEmitter<TestNode>;
+    private _onDidChangeTreeData: vscode.EventEmitter<TestNode | undefined>;
     private roots: TestNode[] | undefined;
 
     public constructor(context: vscode.ExtensionContext, fliUpdater: FliUpdater, extData: ExtensionData) {
@@ -424,7 +424,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         this.roots = await this.loadRootTests();
         this.expandedTests = [];
 
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     public async compareValues(element: TestNode | undefined) {
@@ -434,7 +434,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
         this.sendEvent("compareValues");
 
-        const EXTENSION_SCHEME = 'fliText';
+        const EXTENSION_SCHEME = "fliText";
 
         const makeUriString = (textKey: string, timestamp: Date, text: string): string =>
             `${EXTENSION_SCHEME}://${textKey}?_ts=${timestamp.getTime()}&text=${text}`; // `_ts` to avoid cache
