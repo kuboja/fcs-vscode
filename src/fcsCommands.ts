@@ -182,7 +182,7 @@ class FliExpressionCommand extends FliPrintCommand {
 
         // >value := expression  
         //  ^^^^^
-        let reg = /^([a-zA-Z][a-zA-Z0-9_]+)\s*:?=/;
+        let reg = /^([a-zA-Z][a-zA-Z0-9_]*)\s*:?=/;
         let match = reg.exec(line.rawLine);
 
         if (match && match.length > 1) {
@@ -191,7 +191,7 @@ class FliExpressionCommand extends FliPrintCommand {
 
         // >#value   
         //   ^^^^^
-        let reg2 = /^#?([a-zA-Z][a-zA-Z0-9_.]+)\s*/;
+        let reg2 = /^#?([a-zA-Z][a-zA-Z0-9_.]*)\s*/;
         let match2 = reg2.exec(line.rawLine);
 
         if (match2 && match2.length > 1) {
