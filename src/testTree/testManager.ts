@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as rpc from 'vscode-jsonrpc';
+import * as rpc from "vscode-jsonrpc";
 import { ChildProcess, spawn } from "child_process";
 import { ExtensionData } from "../extensionData";
 

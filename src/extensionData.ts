@@ -31,13 +31,16 @@ export class ExtensionData {
         if (settingsValue === undefined) {
             return defaultValue;
         }
+        else if (settingsValue === null) {
+            return defaultValue;
+        }
         else {
             return settingsValue;
         }
     }
 
     public get femcadFolderPath(): string {
-        return this.GetStringValue("femcadFolder", "C:\\FemCad\\Application");
+        return this.GetStringValue("femcadFolder", "");
     }
 
     public get fliFolderPath(): string {
