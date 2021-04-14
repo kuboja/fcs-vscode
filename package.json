@@ -289,7 +289,12 @@
                 },
                 {
                     "command": "fcs-vscode.tesEvaluateTests",
-                    "when": "view == fcstesttree && viewItem == root ",
+                    "when": "view == fcstesttree && viewItem == error",
+                    "group": "inline"
+                },
+                {
+                    "command": "fcs-vscode.tesEvaluateTests",
+                    "when": "view == fcstesttree && viewItem == root",
                     "group": "inline"
                 },
                 {

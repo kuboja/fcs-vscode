@@ -156,11 +156,12 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     private getElementContext(e: TestNode) {
-        if (e.isEvaluated && !e.isOk) {
-            return "error";
-        }
-        
         if (e.type !== NodeType.test) {
+
+            if (e.isEvaluated && !e.isOk && !e.tests) {
+                return "error";
+            }
+
             return "root";
         }
 
@@ -345,7 +346,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     private getMessage(info: TestInfo): string {
         let score = this.getDeepCount(info.Items);
-        if (info.IsOk) {
+        if (!info.Message || info.IsOk) {
             let mes = (score.ok + score.fail > 0) ? `Total tests ${score.ok + score.fail}, Succeeded ${score.ok}, Failed ${score.fail}` : "Empty test suite";
             mes += (info.Message && info.Message.length > 0) ? " | " + info.Message : "";
             return mes;
