@@ -309,7 +309,7 @@
                 },
                 {
                     "command": "fcs-vscode.tesMessageToOutput",
-                    "when": "view == fcstesttree && viewItem == failTest ",
+                    "when": "view == fcstesttree && viewItem == error",
                     "group": "menu"
                 }
             ],
