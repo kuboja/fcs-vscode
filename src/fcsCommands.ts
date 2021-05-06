@@ -11,7 +11,7 @@ interface FliParameter {
 }
 
 interface CommandLine {
-    projectDirectory: string;
+    projectDirectory?: string;
     filePath: string;
     rawLine: string;
     trimedLine: string;
@@ -20,7 +20,7 @@ interface CommandLine {
 }
 
 interface CommandDefinition {
-    commandStart: string;
+    commandStart: string | RegExp;
     exportType: string;
     fileExtension: string;
     canBeOpened: boolean;
@@ -49,9 +49,9 @@ export class FcsCommandsToFliMamanager {
         let lineText = line.text;
 
         let wrkspc = vscode.workspace.getWorkspaceFolder(doc.uri);
-        if (wrkspc === undefined || line.isEmptyOrWhitespace) {
-            return;
-        }
+        // if (wrkspc === undefined || line.isEmptyOrWhitespace) {
+        //     return;
+        // }
 
         let isSelection = !selection.isEmpty;
         if (isSelection) {
@@ -64,7 +64,7 @@ export class FcsCommandsToFliMamanager {
         let outFolder = (this.extData.outputFolder === "") ? FileSystemManager.getReportFolderPath() : this.extData.outputFolder;
 
         let lineData = {
-            projectDirectory: wrkspc.uri.fsPath,
+            projectDirectory: wrkspc?.uri?.fsPath,
             filePath: doc.fileName,
             rawLine: lineText,
             trimedLine: lineText.trim(),
@@ -99,20 +99,23 @@ export class FcsCommandsToFliMamanager {
     private static getCommands(): FliPrintCommand[] {
         if (FcsCommandsToFliMamanager.commands.length === 0) {
             FcsCommandsToFliMamanager.commands = [
-                new FliPrintCommand({ commandStart: "#print", exportType: "", fileExtension: "", canBeOpened: false }),
-                new FliJsonPrintCommand({ commandStart: "#fli_json", exportType: "", fileExtension: "", canBeOpened: false }),
+                new FliPrintCommand({ commandStart: /^#[ \t]*print/, exportType: "", fileExtension: "", canBeOpened: false }),
+                new FliJsonPrintCommand({ commandStart: /^#[ \t]*fli_json/, exportType: "", fileExtension: "", canBeOpened: false }),
 
-                new FliExportCommand({ commandStart: "#browse_report", exportType: "HTML", fileExtension: "html", canBeOpened: true }),
-                new FliExportCommand({ commandStart: "#fli_report", exportType: "HTML", fileExtension: "html", canBeOpened: true }),
-                new FliExportCommand({ commandStart: "#fli_html", exportType: "HTML", fileExtension: "html", canBeOpened: true }),
-                new FliExportCommand({ commandStart: "#fli_image", exportType: "PNG", fileExtension: "png", canBeOpened: true }),
-                new FliExportCommand({ commandStart: "#browse_image", exportType: "PNG", fileExtension: "png", canBeOpened: true }),
-                new FliExportCommand({ commandStart: "#fli_dxf", exportType: "DXF", fileExtension: "dxf", canBeOpened: false }),
-                new FliExportCommand({ commandStart: "#fli_rtf", exportType: "RTF", fileExtension: "rtf", canBeOpened: false }),
-                new FliExportCommand({ commandStart: "#fli_ifc", exportType: "IFC", fileExtension: "ifc", canBeOpened: false }),
+                new FliExportCommand({ commandStart: /^#[ \t]*browse_report/, exportType: "HTML", fileExtension: "html", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_report/, exportType: "HTML", fileExtension: "html", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_html/, exportType: "HTML", fileExtension: "html", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_image/, exportType: "PNG", fileExtension: "png", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*browse_image/, exportType: "PNG", fileExtension: "png", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_dxf/, exportType: "DXF", fileExtension: "dxf", canBeOpened: false }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_rtf/, exportType: "RTF", fileExtension: "rtf", canBeOpened: false }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_ifc/, exportType: "IFC", fileExtension: "ifc", canBeOpened: false }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_docx/, exportType: "DOCX", fileExtension: "docx", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_xlsx/, exportType: "XLSX", fileExtension: "xlsx", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_pdf/, exportType: "PDF", fileExtension: "pdf", canBeOpened: true }),
 
-                new FliSciaExportCommand({ commandStart: "#fli_esazip", exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),
-                new FliSciaExportCommand({ commandStart: "#exportesaxml", exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),
+                new FliSciaExportCommand({ commandStart: /^#[ \t]*fli_esazip/, exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),
+                new FliSciaExportCommand({ commandStart: /^#[ \t]*exportesaxml/, exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),
 
                 new FliExpressionCommand({ commandStart: "", exportType: "", fileExtension: "", canBeOpened: false }),
                 new FliExpressionCommand({ commandStart: "#", exportType: "", fileExtension: "", canBeOpened: false }),
@@ -128,7 +131,7 @@ export class FcsCommandsToFliMamanager {
 
 class FliPrintCommand {
 
-    protected readonly commandStart: string;
+    protected readonly commandStart: string | RegExp;
     public readonly canBeOpened: boolean;
 
     constructor(commandDefinition: CommandDefinition) {
@@ -149,12 +152,12 @@ class FliPrintCommand {
     }
 
     public isThisCommand(line: CommandLine): boolean {
-        return line.trimedLine.startsWith(this.commandStart);
+        return CommandTools.checkIfLineStartWith(line.trimedLine, this.commandStart);
     }
 
     protected getCommandParameter(line: CommandLine): string {
-        let para = line.trimedLine.substr(this.commandStart.length);
-
+        let para = CommandTools.removeCommandFromLine(line.trimedLine, this.commandStart);
+        
         // remove comments from line
         let commentHashIdx = para.indexOf("#");
         if (commentHashIdx > 0) {
@@ -175,7 +178,7 @@ class FliJsonPrintCommand extends FliPrintCommand {
 
 class FliExpressionCommand extends FliPrintCommand {
     public isThisCommand(line: CommandLine): boolean {
-        return line.trimedLine.startsWith(this.commandStart) && !line.fromSelection;
+        return CommandTools.checkIfLineStartWith(line.trimedLine, this.commandStart) && !line.fromSelection;
     }
 
     protected getCommandParameter(line: CommandLine): string {
@@ -191,7 +194,7 @@ class FliExpressionCommand extends FliPrintCommand {
 
         // >#value   
         //   ^^^^^
-        let reg2 = /^#?([a-zA-Z][a-zA-Z0-9_.]*)\s*/;
+        let reg2 = /^(?:#[ \t]*)?([a-zA-Z][a-zA-Z0-9_.]*)\s*/;
         let match2 = reg2.exec(line.rawLine);
 
         if (match2 && match2.length > 1) {
@@ -240,7 +243,7 @@ class FliSciaExportCommand extends FliExportCommand {
         let templatePath = this.getCommandParameter(line);
 
         // zjištění jestli je zadána absolutní nebo relativní cesta
-        if (!path.isAbsolute(templatePath)) {
+        if (!path.isAbsolute(templatePath) && line.projectDirectory) {
             templatePath = path.join(line.projectDirectory, templatePath);
         }
 
@@ -253,7 +256,7 @@ class FliSciaExportCommand extends FliExportCommand {
     }
 
     protected getCommandParameter(line: CommandLine): string {
-        let para = line.trimedLine.substr(this.commandStart.length);
+        let para = CommandTools.removeCommandFromLine(line.trimedLine, this.commandStart);
 
         // remove comments from line
         let commentHashIdx = para.indexOf("#");
@@ -269,5 +272,23 @@ class FliSciaExportCommand extends FliExportCommand {
         para = para.replace(/"/g, "").trim();
 
         return para;
+    }
+}
+
+class CommandTools {
+    public static removeCommandFromLine(line: string, commandStart: string | RegExp) {
+        if (typeof commandStart === "string") {
+            return line.substr(commandStart.length);
+        } else {
+            return line.replace(commandStart, "");
+        }
+    }
+
+    public static checkIfLineStartWith(line: string, commandStart: string | RegExp) {
+        if (typeof commandStart === "string") {
+            return line.startsWith(commandStart);
+        } else {
+            return commandStart.test(line);
+        }
     }
 }
