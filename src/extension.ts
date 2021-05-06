@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-
 import { ExtensionData } from "./extensionData";
 import { FliCommandRunner, OpenFileInFemCAD, ViewerCommandRunner } from "./commandManager";
 import { FcsSymbolProvider } from "./fcsSymbolUtil";
@@ -10,12 +9,13 @@ import { FliUpdater } from "./fliUpdater/fliUpdater";
 import { TestTree } from "./testTree/testTree";
 import { FcsTextContentProvider } from "./fcsTextContentProvider";
 
+let extData: ExtensionData;
 
 export function activate(context: vscode.ExtensionContext): void {
-
+    
     //console.log("Activate Extension");
 
-    let extData: ExtensionData = new ExtensionData(context);
+    extData = new ExtensionData(context);
 
     registerSymbolManager(extData.context, extData);
     registerCommands(extData.context, extData);
@@ -74,4 +74,11 @@ function registerSymbolManager(context: vscode.ExtensionContext, extData: Extens
     );
 
 
+}
+
+export async function deactivate() {
+    if (extData) {
+        await extData.deactivate();
+        console.log("Deactivated");
+    }
 }

@@ -1,13 +1,12 @@
 import * as vscode from "vscode";
-import { AppInsightsClient } from "./appInsightsClient";
-
+import { TelemetryReporterClient } from "./appInsightsClient";
 import { FcsGrammar } from "./fcsGrammar";
 
 
 export class ExtensionData {
 
     public Initialized: boolean = false;
-    public appInsightsClient: AppInsightsClient;
+    public reporter: TelemetryReporterClient;
     public grammar: FcsGrammar;
 
     public context: vscode.ExtensionContext;
@@ -102,13 +101,17 @@ export class ExtensionData {
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
 
-        this.appInsightsClient = new AppInsightsClient();
-        this.appInsightsClient.sendEvent("Extension startup");
+        this.reporter = new TelemetryReporterClient(context);
+        this.reporter.sendEvent("Extension startup");
 
      //   this.femcadRunner = new FemcadRunner(this);
         this.grammar = new FcsGrammar();
 
         this.Initialized = true;
+    }
+
+    public async deactivate() {
+        await this.reporter.deactivate();
     }
 
     public async saveDocumentBySettings(editor: vscode.TextEditor): Promise<void> {

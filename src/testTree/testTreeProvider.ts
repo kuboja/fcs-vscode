@@ -6,14 +6,14 @@ import { join } from "path";
 import { FliUpdater } from "../fliUpdater/fliUpdater";
 import { ExtensionData } from "../extensionData";
 import { TestManager, TestInfo } from "./testManager";
-import { AppInsightsClient } from "../appInsightsClient";
+import { TelemetryReporterClient } from "../appInsightsClient";
 
 
 export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vscode.Disposable {
 
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
-    private appInsightsClient: AppInsightsClient;
+    private reporter: TelemetryReporterClient;
     private fliUpdater: FliUpdater;
 
     public tree: vscode.TreeView<TestNode> | undefined;
@@ -24,7 +24,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     public constructor(context: vscode.ExtensionContext, fliUpdater: FliUpdater, extData: ExtensionData) {
         this.context = context;
         this.extData = extData;
-        this.appInsightsClient = extData.appInsightsClient;
+        this.reporter = extData.reporter;
         this.fliUpdater = fliUpdater;
 
         this._onDidChangeTreeData = new vscode.EventEmitter<TestNode>();
@@ -487,7 +487,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     private sendEvent(event: string){
-        this.appInsightsClient.sendEvent("Test tree: " + event);
+        this.reporter.sendEvent("Test tree: " + event);
     }
 
     /// Managers

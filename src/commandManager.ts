@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { AppInsightsClient } from "./appInsightsClient";
+import { TelemetryReporterClient } from "./appInsightsClient";
 
 import { ExtensionData } from "./extensionData";
 import { FemcadRunner, FliCommand } from "./femcadRunnerManager";
@@ -8,14 +8,14 @@ import { FcsCommandsToFliMamanager } from "./fcsCommands";
 
 export class OpenFileInFemCAD {
 
-    private appInsightsClient: AppInsightsClient;
+    private reporter: TelemetryReporterClient;
     private extData: ExtensionData;
 
     private femcadRunner: FemcadRunner | undefined;
 
     constructor(extData: ExtensionData) {
         this.extData = extData;
-        this.appInsightsClient = extData.appInsightsClient;
+        this.reporter = extData.reporter;
     }
 
     public async openInFemcad(): Promise<void> {
@@ -34,7 +34,7 @@ export class OpenFileInFemCAD {
 
         let fcsFile: string = editor.document.fileName;
 
-        this.appInsightsClient.sendEvent("Command: Open in FemCAD");
+        this.reporter.sendEvent("Command: Open in FemCAD");
         await this.getFemcadRunner().openInFemcad(fcsFile);
     }
 
@@ -54,7 +54,7 @@ export class OpenFileInFemCAD {
 
         let fcsFile: string = editor.document.fileName;
 
-        this.appInsightsClient.sendEvent("Command: Open in FemCAD with profiling");
+        this.reporter.sendEvent("Command: Open in FemCAD with profiling");
         await this.getFemcadRunner().openInFemcadProfiling(fcsFile);
     }
 
@@ -68,19 +68,18 @@ export class OpenFileInFemCAD {
 }
 
 export class ViewerCommandRunner {
-    private appInsightsClient: AppInsightsClient;
+    private reporter: TelemetryReporterClient;
     private extData: ExtensionData;
 
     private femcadRunner: FemcadRunner | undefined;
 
     constructor(extData: ExtensionData) {
         this.extData = extData;
-        this.appInsightsClient = extData.appInsightsClient;
+        this.reporter = extData.reporter;
     }
 
     public async openInViewer(): Promise<void> {
-        this.appInsightsClient.sendEvent("Command: Open in Histruct Viewer");
-        this.appInsightsClient.sendEvent("Command: Run line");
+        this.reporter.sendEvent("Command: Open in Histruct Viewer");
 
         const editor = vscode.window.activeTextEditor;
 
@@ -119,18 +118,18 @@ export class ViewerCommandRunner {
 export class FliCommandRunner {
 
     private extData: ExtensionData;
-    private appInsightsClient: AppInsightsClient;
+    private reporter: TelemetryReporterClient;
     
     private femcadRunner: FemcadRunner | undefined;
     private fcsCommmands: FcsCommandsToFliMamanager | undefined;
 
     constructor(extData: ExtensionData) {
         this.extData = extData;
-        this.appInsightsClient = extData.appInsightsClient;
+        this.reporter = extData.reporter;
     }
 
     public async runLineCommand(): Promise<void> {
-        this.appInsightsClient.sendEvent("Command: Run line");
+        this.reporter.sendEvent("Command: Run line");
 
         const editor = vscode.window.activeTextEditor;
 
@@ -160,12 +159,12 @@ export class FliCommandRunner {
     }
 
     public async stopCommand(): Promise<void> {
-        this.appInsightsClient.sendEvent("Command: Stop");
+        this.reporter.sendEvent("Command: Stop");
         await this.getFemcadRunner().stopExecutionFliCommand();
     }
 
     public async openInTerminal(): Promise<void> {
-        this.appInsightsClient.sendEvent("Command: Open in terminal");
+        this.reporter.sendEvent("Command: Open in terminal");
 
         if (vscode.window.activeTextEditor === undefined) {
             vscode.window.showInformationMessage("No code found or selected.");

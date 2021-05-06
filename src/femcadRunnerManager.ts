@@ -5,7 +5,7 @@ import * as treekill from "tree-kill";
 import * as psTree from "ps-tree";
 import { ChildProcess, spawn, exec } from "child_process";
 
-import { AppInsightsClient } from "./appInsightsClient";
+import { TelemetryReporterClient } from "./appInsightsClient";
 import { FileSystemManager } from "./fileSystemManager";
 import { ExtensionData } from "./extensionData";
 
@@ -44,7 +44,7 @@ export class FliCommand {
 export class FemcadRunner {
 
     private extData: ExtensionData;
-    private appInsightsClient: AppInsightsClient;
+    private reporter: TelemetryReporterClient;
 
     private readonly outputChannel: vscode.OutputChannel;
     private readonly IsInitialized: boolean;
@@ -130,7 +130,7 @@ export class FemcadRunner {
     constructor(extData: ExtensionData, outputChannelName: string | undefined = undefined) {
         this.IsInitialized = false;
         this.extData = extData;
-        this.appInsightsClient = extData.appInsightsClient;
+        this.reporter = extData.reporter;
 
         this.outputLineCount = 0;
         this.startTime = new Date();
@@ -338,7 +338,7 @@ export class FemcadRunner {
     }
 
     public async openInFemcad(fcsFilePath: string): Promise<void> {
-        this.appInsightsClient.sendEvent("Open in FemCAD");
+        this.reporter.sendEvent("Open in FemCAD");
 
         if (!this.IsInitialized) {
             return;
@@ -357,7 +357,7 @@ export class FemcadRunner {
     }
 
     public async openInFemcadProfiling(fcsFilePath: string): Promise<void> {
-        this.appInsightsClient.sendEvent("Open in FemCAD with profiling");
+        this.reporter.sendEvent("Open in FemCAD with profiling");
 
         if (!this.IsInitialized) {
             return;
