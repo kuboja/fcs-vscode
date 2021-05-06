@@ -48,6 +48,11 @@ module.exports = (env, argv) => {
         }
       ]
     },
+
+    node: {
+      Buffer: false,
+      process: false,
+    },
     
     plugins: [
       new webpack.DefinePlugin({ IS_DEV_BUILD: JSON.stringify(isDevBuild) }),

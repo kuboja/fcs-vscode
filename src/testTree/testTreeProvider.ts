@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as uuid from "uuid/v4";
+import { v4 as uuid } from "uuid";
 import * as fs from "fs";
 import { join } from "path";
 

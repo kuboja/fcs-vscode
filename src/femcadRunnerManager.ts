@@ -198,7 +198,7 @@ export class FemcadRunner {
             };
 
             vscode.window.withProgress(progressOptions, async (p, calcelationToken) => {
-                return new Promise((resolve, _) => {
+                return new Promise<void>((resolve, _) => {
 
                     p.report({ message: "Fli running..." });
 
