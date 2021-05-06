@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.7.5",
+    "version": "1.7.6",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
@@ -484,7 +484,7 @@
         "st": "npm run test-compile && npm run mochatest"
     },
     "engines": {
-        "vscode": "^1.48.0"
+        "vscode": "^1.55.0"
     },
     "devDependencies": {
         "@types/adm-zip": "^0.4.34",
