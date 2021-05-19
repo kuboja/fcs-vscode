@@ -113,6 +113,7 @@ export class FcsCommandsToFliMamanager {
                 new FliExportCommand({ commandStart: /^#[ \t]*fli_docx/, exportType: "DOCX", fileExtension: "docx", canBeOpened: true }),
                 new FliExportCommand({ commandStart: /^#[ \t]*fli_xlsx/, exportType: "XLSX", fileExtension: "xlsx", canBeOpened: true }),
                 new FliExportCommand({ commandStart: /^#[ \t]*fli_pdf/, exportType: "PDF", fileExtension: "pdf", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_svg/, exportType: "SVG", fileExtension: "svg", canBeOpened: true }),
 
                 new FliSciaExportCommand({ commandStart: /^#[ \t]*fli_esazip/, exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),
                 new FliSciaExportCommand({ commandStart: /^#[ \t]*exportesaxml/, exportType: "ESAZIP", fileExtension: "zip", canBeOpened: false }),

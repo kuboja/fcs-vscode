@@ -148,7 +148,7 @@
         "fcsObjectCreators": {
             "patterns": [
                 {
-                    "match": "^(gclass|vertex|gblock|layer|load|distribution|area|material|thickness|planestress|volume|support|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\s*(\\{?([a-zA-Z_0-9]*)\\}?)",
+                    "match": "^(gclass|vertex|gblock|layer|load|distribution|area|label|material|thickness|planestress|volume|support|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\\s*(\\{?([a-zA-Z_0-9]*)\\}?)",
                     "captures": {
                         "1": {
                             "name": "storage.type.class.fcs"
@@ -190,7 +190,7 @@
                 {
                     "comment": "modifikátory za kterými musí být závorka nebo uvozovka (může být před nimi znaménko + nebo -)",
                     "name": "storage.modifier.object.fcs",
-                    "match": "(?<=\\s)(if|area|geometry|section|material|t|metadata|fixed|styles|case|fcsdrs|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions|hinges)(?=\\s+[+-]?(?:\\(|\\[|\\{|\"))"
+                    "match": "(?<=\\s)(if|area|geometry|section|material|t|metadata|fixed|styles|case|fcsdrs|prism|parameters|filename|spacings|geometries|boundary|sections|opening|repetitions|hinges|text)(?=\\s+[+-]?(?:\\(|\\[|\\{|\"))"
                 },
                 {
                     "comment": "názvy modifikátorů, které mohou být následovány číslem nebo textem (které může znamenat referenci)",

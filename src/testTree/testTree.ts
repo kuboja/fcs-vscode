@@ -21,7 +21,7 @@ export class TestTree implements vscode.Disposable {
         this.fliUpdater = fliUpdater;
 
         this.treeDataProvider = new TestTreeProvider(context, this.fliUpdater, extData);
-        this.tree = vscode.window.createTreeView('fcstesttree', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
+        this.tree = vscode.window.createTreeView("fcstesttree", { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
 
         this.treeDataProvider.tree = this.tree;
 
@@ -31,12 +31,12 @@ export class TestTree implements vscode.Disposable {
             this.tree.onDidChangeVisibility(this.onVisibleEvent, this, this.disposable);
         }
 
-        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesEvaluateTests', async (resource) => await this.evaluteTests(resource)));
-        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesReloadTests', async (resource) => await this.refreshTests(resource)));
-        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesCompareValues', async (resource) => await this.compareValues(resource)));
-        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesCopyResult', async (resource) => await this.copyResult(resource)));
-        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesCopyResultClear', async (resource) => await this.copyResultClear(resource)));
-        this.disposable.push(vscode.commands.registerCommand('fcs-vscode.tesMessageToOutput', async (resource) => await this.messageToOutput(resource)));
+        this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesEvaluateTests", async (resource) => await this.evaluteTests(resource)));
+        this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesReloadTests", async (resource) => await this.refreshTests(resource)));
+        this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesCompareValues", async (resource) => await this.compareValues(resource)));
+        this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesCopyResult", async (resource) => await this.copyResult(resource)));
+        this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesCopyResultClear", async (resource) => await this.copyResultClear(resource)));
+        this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesMessageToOutput", async (resource) => await this.messageToOutput(resource)));
     }
 
     private async evaluteTests(element: TestNode | undefined) {
