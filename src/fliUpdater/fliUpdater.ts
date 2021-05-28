@@ -84,7 +84,8 @@ export class FliUpdater {
     }
 
     public getFliPath() {
-        let folder = (IS_DEV_BUILD) ? "C:/GitHub/fcs-histruct/Apps/FCS.Apps.FliVS/bin/Debug/net5" : this.getFliDir();
+        //let folder = (IS_DEV_BUILD) ? "C:/GitHub/fcs-histruct/Apps/FCS.Apps.FliVS/bin/Debug/net5" : this.getFliDir();
+        let folder = this.getFliDir();
         return path.join(folder, "flivs.exe");
     }
 

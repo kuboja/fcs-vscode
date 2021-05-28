@@ -37,6 +37,7 @@ export class TestTree implements vscode.Disposable {
         this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesCopyResult", async (resource) => await this.copyResult(resource)));
         this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesCopyResultClear", async (resource) => await this.copyResultClear(resource)));
         this.disposable.push(vscode.commands.registerCommand("fcs-vscode.tesMessageToOutput", async (resource) => await this.messageToOutput(resource)));
+        this.disposable.push(vscode.commands.registerCommand("fcs-vscode.testUpdateExpectation", async (resource) => await this.updateExpactationFile(resource)));
     }
 
     private async evaluteTests(element: TestNode | undefined) {
@@ -61,6 +62,10 @@ export class TestTree implements vscode.Disposable {
 
     private async messageToOutput(element: TestNode | undefined) {
         this.treeDataProvider.messageToOutput(element);
+    }
+
+    private async updateExpactationFile(element: TestNode | undefined) {
+        this.treeDataProvider.updateExpectationFile(element);
     }
 
     private onVisibleRised = false;

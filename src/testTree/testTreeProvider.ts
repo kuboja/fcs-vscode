@@ -146,7 +146,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     private getElementState(e: TestNode) {
         if (e.hasChildren) {
-            if (e.type === NodeType.root || e.dirty) {
+            if ((e.type === NodeType.root && !e.isOk) || e.dirty) {
                 return vscode.TreeItemCollapsibleState.Expanded;
             }
             return vscode.TreeItemCollapsibleState.Collapsed;
@@ -207,9 +207,10 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             return data;
         }
 
-        function toTestDefiniton(t: string | TestNamePath, root: TestNode): TestNode {
+        function toTestDefiniton(t: string | TestNamePath, root: TestNode, wrkSpacePath: string): TestNode {
             let name = "";
             let path = "";
+            let variablesFile: string | undefined = undefined;
             if (typeof t === "string") {
                 name = t;
                 path = t;
@@ -217,6 +218,9 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             else {
                 name = t.name;
                 path = t.path;
+                if (t.resultFile){
+                    variablesFile = join(wrkSpacePath, t.resultFile);
+                }
             }
 
             return {
@@ -225,6 +229,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                 message: "",
                 path,
                 filePath: root.filePath,
+                variablesFile,
                 hasChildren: false,
                 dirty: false,
                 isEvaluated: false,
@@ -256,7 +261,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                     id: uuid(),
                 };
 
-                root.nodes = r.tests.map((t: string | TestNamePath) => toTestDefiniton(t, root));
+                root.nodes = r.tests.map((t: string | TestNamePath) => toTestDefiniton(t, root, wrkFolder.uri.fsPath));
                 return root;
             });
         }
@@ -296,13 +301,26 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
     private infoToNode(b: TestInfo, root: TestNode): TestNode {
 
+        let nameParts = b.Name.split("|");
+        let name = b.Name;
+        let variableName: string | undefined = undefined;
+        if (nameParts && nameParts.length >= 2) {
+            name = nameParts[1].trim();
+        }
+        if (nameParts && nameParts.length >= 3) {
+            variableName = nameParts[2].trim();
+        }
+
         let node: TestNode = {
-            name: b.Name,
+            name: name,
             isOk: b.IsOk,
             message: b.Message ? b.Message : "",
 
             path: "",
             filePath: "",
+
+            variablesFile: root.variablesFile,
+            variableName: variableName,
 
             dirty: false,
             isEvaluated: true,
@@ -420,9 +438,9 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             element.hasChildren = true;
 
             this._onDidChangeTreeData.fire(element);
-
+            
             if (this.tree) {
-                await this.tree.reveal(element, { select: false, expand: true });
+                await this.tree.reveal(element, { select: false, expand: !element.isOk });
             }
         }
     }
@@ -486,6 +504,60 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         outChan.appendLine("[IntFli.ErrroMessage]: " + element.message);
     }
 
+    public updateExpectationFile(element: TestNode | undefined){
+        if (!element || !element.message) { return; }
+
+        let outChan = this.extData.getOutputChannel(this.extData.defaultOutpuChannelName);
+        outChan.show(this.extData.preserveFocusInOutput);
+        // outChan.appendLine("Result:\n" + element.result);
+        // outChan.appendLine("Variable file:\n" + element.variablesFile);
+        // outChan.appendLine("Variable name:\n" + element.variableName);
+
+        if (!element.variablesFile || !element.variableName) {
+            outChan.appendLine("Undefines variable name or result file: var: " + element.variableName + ", file: " + element.variablesFile);
+            return;
+        }
+        const variable = element.variableName;
+        const file = element.variablesFile;
+
+        if (!fs.existsSync(file)) {
+            outChan.appendLine("MISSING the test result file: " + file);
+            return;
+        }
+
+        var openEditorIndex = vscode.window.visibleTextEditors.findIndex(e => e.document.fileName === file);
+        if (openEditorIndex !== -1){
+            outChan.appendLine("FIRST CLOSE the test result file: " + file);
+            return;
+        }
+
+        let fileData = fs.readFileSync(file, "utf-8");
+        let eol = fileData.indexOf("\r\n") !== -1 ? "\r\n" : "\n";
+
+        let lines = fileData.replace(/\r\n/g,"\n").split("\n");
+
+        var lineStart = lines.findIndex(l => l.startsWith(variable));
+        var lineEndRelative = lines.slice(lineStart).findIndex(l => l.trim() === "");
+        if (lineEndRelative === -1) {
+            lineEndRelative = lines.length - lineStart;
+        }
+
+        // outChan.appendLine("Start line:\n" + lineStart);
+        // outChan.appendLine("End relative:\n" + lineEndRelative);
+
+        var resultLines = element.result?.replace(/\r\n/g,"\n").split("\n");
+
+        if (!(resultLines && resultLines.length > 0)) {
+            return;
+        }
+
+        resultLines[0] = variable + " = " + resultLines[0];
+        lines.splice(lineStart, lineEndRelative, resultLines.join(eol));
+
+        fs.writeFileSync(element.variablesFile, lines.join(eol), { encoding : "utf-8" });
+        outChan.appendLine(`UPDATED: ${variable} in ${file}`);
+    }
+
     private sendEvent(event: string){
         this.reporter.sendEvent("Test tree: " + event);
     }
@@ -511,7 +583,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             element.isEvaluated = true;
             element.hasChildren = false;
             element.isOk = false;
-            element.message = "Nastala asi nějaká chyba.";
+            element.message = "Unknown Error occured!";
             element.root = rootElement;
         }
         else {
@@ -613,6 +685,9 @@ export interface TestNode {
 
     path: string;
     filePath: string;
+    
+    variablesFile?: string;
+    variableName?: string;
 
     type: NodeType;
 
@@ -646,4 +721,5 @@ interface TestSetting {
 interface TestNamePath {
     name: string;
     path: string;
+    resultFile?: string;
 }
