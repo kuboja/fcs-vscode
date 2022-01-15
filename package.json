@@ -514,7 +514,7 @@
         "adm-zip": "^0.5.5",
         "original-fs": "1.1.0",
         "ps-tree": "^1.2.0",
-        "shelljs": "^0.8.4",
+        "shelljs": "^0.8.5",
         "tree-kill": "^1.2.2",
         "uuid": "^8.3.2",
         "vscode-extension-telemetry": "^0.1.7",
