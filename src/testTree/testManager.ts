@@ -98,7 +98,7 @@ export class TestManager implements vscode.Disposable {
         this.sessionStarted = false;
     }
 
-    onCloseEvent(code: number): void {
+    onCloseEvent(code: number | null): void {
         if (this.showOutputsFromFli) { console.log("Fli was closed: " + code); }
         this.disconect();
     }

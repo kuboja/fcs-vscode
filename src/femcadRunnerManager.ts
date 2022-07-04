@@ -114,16 +114,16 @@ export class FemcadRunner {
                 fliPath = await this.getFliFilepath("fli.exe");
             }
             return fliPath;
-        } catch (ex) {
-            vscode.window.showErrorMessage(ex.message);
+        } catch (error) {
+            vscode.window.showErrorMessage((<Error>error).message);
         }
     }
 
     private async getFemcadPath(): Promise<string | undefined> {
         try {
             return await this.getFemcadFilepath("femcad.exe");
-        } catch (ex) {
-            vscode.window.showErrorMessage(ex.message);
+        } catch (error) {
+            vscode.window.showErrorMessage((<Error>error).message);
         }
     }
 
@@ -315,7 +315,7 @@ export class FemcadRunner {
         }
     }
 
-    private onCloseEvent(code: number): void {
+    private onCloseEvent(code: number | null): void {
         this.isRunning = false;
         const endTime: Date = new Date();
         const elapsedTime: number = (endTime.getTime() - this.startTime.getTime()) / 1000;

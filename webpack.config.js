@@ -5,11 +5,15 @@
 const webpack = require('webpack');
 const path = require('path');
 
-/**@type {import('webpack').Configuration}*/
+//@ts-check
+/** @typedef {import('webpack').Configuration} WebpackConfig **/
+
+/** @type WebpackConfig */
 module.exports = (env, argv) => {
   var isDevBuild = argv.mode !== 'production';
 
-  return {
+  /** @type WebpackConfig */
+  const extensionConfig = {
     mode: isDevBuild ? 'development' : 'production',
 
     target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
@@ -23,8 +27,6 @@ module.exports = (env, argv) => {
       libraryTarget: 'commonjs2',
       devtoolModuleFilenameTemplate: '../[resource-path]'
     },
-
-    devtool: 'source-map',
 
     externals: {
       vscode: 'commonjs vscode', // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
@@ -50,14 +52,17 @@ module.exports = (env, argv) => {
         }
       ]
     },
-
-    node: {
-      Buffer: false,
-      process: false,
-    },
     
     plugins: [
       new webpack.DefinePlugin({ IS_DEV_BUILD: JSON.stringify(isDevBuild) }),
-    ]
+    ],
+
+    devtool: 'nosources-source-map',
+
+    infrastructureLogging: {
+      level: "log", // enables logging required for problem matchers
+    },
   }
+
+  return extensionConfig;
 };
