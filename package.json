@@ -22,7 +22,7 @@
     },
     "bugs": {
         "url": "https://github.com/kuboja/fcs-vscode/issues",
-        "email": "jan.kubosek@femcad.com"
+        "email": "jan.kubosek@histruct.com"
     },
     "homepage": "https://github.com/kuboja/fcs-vscode",
     "main": "./dist/extension",
@@ -31,7 +31,11 @@
         "onLanguage:fcs",
         "onView:fcstree"
     ],
+    "capabilities": {
+        "virtualWorkspaces": true
+    },
     "contributes": {
+        
         "languages": [
             {
                 "id": "fcs",
@@ -68,6 +72,10 @@
             },
             {
                 "id": "json",
+                "aliases": [
+                    "FemCAD json",
+                    "fcsjson"
+                ],
                 "extensions": [
                     ".fcsdrv",
                     ".fcsdrs",
@@ -493,7 +501,7 @@
         "st": "npm run test-compile && npm run mochatest"
     },
     "engines": {
-        "vscode": "^1.63.0"
+        "vscode": "^1.68.0"
     },
     "devDependencies": {
         "@types/adm-zip": "^0.4.34",
