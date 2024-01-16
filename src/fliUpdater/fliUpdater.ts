@@ -80,6 +80,7 @@ export class FliUpdater {
     }
 
     public getFliDir() {
+        // %appdata%\Roaming\Code\User\globalStorage\kuboja.fcs-vscode\fliVS
         return path.join(this.context.globalStoragePath, this.localFliDirName);
     }
 
