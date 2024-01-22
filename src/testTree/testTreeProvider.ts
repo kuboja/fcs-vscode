@@ -612,6 +612,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
             return;
         }
 
+        
         let man = new TestManager(element.filePath, this.fliUpdater.getFliPath(), this.extData);
 
         if (!await man.startConnection()) {

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as rpc from "vscode-jsonrpc";
 import { ChildProcess, spawn } from "child_process";
 import { ExtensionData } from "../extensionData";
+import { TextDecoder } from "util";
 
 
 export class TestManager implements vscode.Disposable {
@@ -16,7 +17,7 @@ export class TestManager implements vscode.Disposable {
     private connection?: rpc.MessageConnection;
     private sessionStarted: boolean = false;
 
-    private showOutputsFromFli = false;
+    private showOutputsFromFli = true;
 
     constructor(fcsPath: string, fliPath: string, extData: ExtensionData) {
         this.extData = extData;
@@ -38,32 +39,38 @@ export class TestManager implements vscode.Disposable {
         console.log("Pipe name: " + pipeName);
 
         let logger = new ConsoleLogger();
+        
 
         try {
             let pipe = await rpc.createClientPipeTransport(pipeName);
-
+          
             this.fliProcess = spawn(this.pathFli, ["--t", "--c", pipeName], { shell: false, windowsHide: false });
             this.fliProcess.stdout?.setEncoding("utf8");
-            this.fliProcess.stdout?.on("data", (data: string) => this.onGetOutputData(data));
+            this.fliProcess.stdout?.on("data", (data: string | OutBuffer) => this.onGetOutputData(data));
             this.fliProcess.stderr?.on("data", (data: string) => this.onGetOutputData(data));
             this.fliProcess.on("close", (code) => this.onCloseEvent(code));
 
+            console.log("Fli process spawned");
+
             let [messageReader, messageWriter] = await pipe.onConnected();
+
+            console.log("Pipe connected")
 
             this.connection = rpc.createMessageConnection(messageReader, messageWriter, logger);
 
             this.connection.onError((e) => {
-                console.error("Chyba ve spojení: " + e);
+                console.error("RPC: Chyba ve spojení:", e);
             });
 
             this.connection.trace(rpc.Trace.Messages, {
                 log: (message: string, data?: string) => {
-                    console.log(message);
-                    if (data) { console.log(data); }
+                    console.log("RPC: trace message: " + message, data);
                 }
             });
 
             this.connection.onClose((e) => {
+                console.log("RPC: connection closed ", e);
+
                 if (this.fliProcess) {
                     this.fliProcess.kill();
                     this.fliProcess = undefined;
@@ -103,9 +110,15 @@ export class TestManager implements vscode.Disposable {
         this.disconect();
     }
 
-    onGetOutputData(data: string): void {
+    onGetOutputData(data: string | BufferEncoding): void {
         if (this.showOutputsFromFli) {
-            console.log(data);
+            let message = "";
+            if (isOutBuffer(data)) {
+                message = new TextDecoder().decode(new Uint8Array(data.data));
+            } else {
+                message = data;
+            }
+            console.log("Fli output (" + typeof(data) + "): ", message);
         }
     }
 
@@ -170,3 +183,9 @@ class ConsoleLogger implements rpc.Logger {
         console.log(message);
     }
 }
+
+function isOutBuffer(data: string | OutBuffer): data is OutBuffer {
+    return !!data && data.hasOwnProperty("type");
+}
+
+type OutBuffer = { type: "buffer", data: number[] };
