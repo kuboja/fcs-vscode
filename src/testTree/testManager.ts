@@ -110,7 +110,7 @@ export class TestManager implements vscode.Disposable {
         this.disconect();
     }
 
-    onGetOutputData(data: string | BufferEncoding): void {
+    onGetOutputData(data: string | OutBuffer): void {
         if (this.showOutputsFromFli) {
             let message = "";
             if (isOutBuffer(data)) {
