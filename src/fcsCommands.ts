@@ -101,10 +101,14 @@ export class FcsCommandsToFliMamanager {
             FcsCommandsToFliMamanager.commands = [
                 new FliPrintCommand({ commandStart: /^#[ \t]*print/, exportType: "", fileExtension: "", canBeOpened: false }),
                 new FliJsonPrintCommand({ commandStart: /^#[ \t]*fli_json/, exportType: "", fileExtension: "", canBeOpened: false }),
-
+                
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_zip/, exportType: "ZIP", fileExtension: "zip", canBeOpened: false }),
                 new FliExportCommand({ commandStart: /^#[ \t]*browse_report/, exportType: "HTML", fileExtension: "html", canBeOpened: true }),
                 new FliExportCommand({ commandStart: /^#[ \t]*fli_report/, exportType: "HTML", fileExtension: "html", canBeOpened: true }),
                 new FliExportCommand({ commandStart: /^#[ \t]*fli_html/, exportType: "HTML", fileExtension: "html", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_png/, exportType: "PNG", fileExtension: "png", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_jpg/, exportType: "JPG", fileExtension: "jpg", canBeOpened: true }),
+                new FliExportCommand({ commandStart: /^#[ \t]*fli_3js/, exportType: "3JS", fileExtension: "json", canBeOpened: true }),
                 new FliExportCommand({ commandStart: /^#[ \t]*fli_image/, exportType: "PNG", fileExtension: "png", canBeOpened: true }),
                 new FliExportCommand({ commandStart: /^#[ \t]*browse_image/, exportType: "PNG", fileExtension: "png", canBeOpened: true }),
                 new FliExportCommand({ commandStart: /^#[ \t]*fli_dxf/, exportType: "DXF", fileExtension: "dxf", canBeOpened: false }),
