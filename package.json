@@ -27,9 +27,7 @@
     "homepage": "https://github.com/kuboja/fcs-vscode",
     "main": "./dist/extension",
     "activationEvents": [
-        "workspaceContains:**/*.fcs",
-        "onLanguage:fcs",
-        "onView:fcstree"
+        "workspaceContains:**/*.fcs"
     ],
     "capabilities": {
         "virtualWorkspaces": true
