@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
-import { FcsGrammar, GrammarType } from "./fcsGrammar";
+import { FcsGrammar } from "./fcsGrammar";
 import { ExtensionData } from "./extensionData";
+import { GrammarType } from "./grammarNodes/grammarType";
 
 
 export class FcsCompletionItemProvider implements vscode.CompletionItemProvider {

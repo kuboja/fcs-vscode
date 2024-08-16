@@ -1,4 +1,4 @@
-import { GrammarKind, GrammarType } from "../fcsGrammar";
+import { GrammarKind, GrammarType } from "./grammarType";
 
 export const fcsSpaceGrammarNodes = [
 
