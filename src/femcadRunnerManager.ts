@@ -382,7 +382,7 @@ export class FemcadRunner {
                 return;
             }
 
-            var terminalCommand: string = fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
+            var terminalCommand: string = FileSystemManager.quoteFileName(fliPath) + " " + FileSystemManager.quoteFileName(fcsPath);
 
             // Dispose old terminal to kill any running processes, then get a fresh one
             this.disposeTerminal();
