@@ -39,9 +39,12 @@ export class FileSystemManager {
     }
 
     /**
-     * Includes double quotes around a given file name.
+     * Includes double quotes around a given file name, but only if it contains spaces.
      */
     public static quoteFileName(fileName: string): string {
+        if (!fileName.includes(" ")) {
+            return fileName;
+        }
         return "\"" + fileName + "\"";
     }
 

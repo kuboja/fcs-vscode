@@ -135,7 +135,7 @@ export class FemcadRunner {
         this.startTime = new Date();
 
         vscode.window.onDidCloseTerminal(term => {
-            if (term.name === "FemCAD") {
+            if (this._terminal && term === this._terminal) {
                 this.disposeTerminal();
             }
         });
@@ -374,6 +374,35 @@ export class FemcadRunner {
         }
     }
 
+    private isDefaultShellPowerShell(): boolean {
+        const platform = process.platform;
+        const profileKey = platform === "win32"
+            ? "defaultProfile.windows"
+            : platform === "darwin"
+                ? "defaultProfile.osx"
+                : "defaultProfile.linux";
+
+        const profileName: string | undefined = vscode.workspace
+            .getConfiguration("terminal.integrated")
+            .get<string>(profileKey);
+
+        if (profileName) {
+            return /powershell|pwsh/i.test(profileName);
+        }
+
+        // Fallback: check the legacy shell path setting
+        const shellPath: string | undefined = vscode.workspace
+            .getConfiguration("terminal.integrated")
+            .get<string>("shell.windows");
+
+        if (shellPath) {
+            return /powershell|pwsh/i.test(shellPath);
+        }
+
+        // On Windows, PowerShell is the VS Code default
+        return platform === "win32";
+    }
+
     public async openFcsFile(fcsPath: string): Promise<void> {
         try {
             let fliPath: string | undefined = await this.getFliPath();
@@ -382,7 +411,11 @@ export class FemcadRunner {
                 return;
             }
 
-            var terminalCommand: string = FileSystemManager.quoteFileName(fliPath) + " " + FileSystemManager.quoteFileName(fcsPath);
+            const quotedFli = FileSystemManager.quoteFileName(fliPath);
+            const quotedFcs = FileSystemManager.quoteFileName(fcsPath);
+            const terminalCommand: string = this.isDefaultShellPowerShell()
+                ? `& ${quotedFli} ${quotedFcs}`
+                : `${quotedFli} ${quotedFcs}`;
 
             // Dispose old terminal to kill any running processes, then get a fresh one
             this.disposeTerminal();
