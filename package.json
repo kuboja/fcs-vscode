@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.8.3",
+    "version": "1.8.5",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
@@ -500,7 +500,7 @@
         "test": "npm run test-compile && vscode-test"
     },
     "engines": {
-        "vscode": "1.109.0"
+        "vscode": ">=1.109.0"
     },
     "overrides": {
         "serialize-javascript": ">=7.0.3"
