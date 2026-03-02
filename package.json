@@ -500,7 +500,10 @@
         "test": "npm run test-compile && vscode-test"
     },
     "engines": {
-        "vscode": "^1.68.0"
+        "vscode": "1.109.0"
+    },
+    "overrides": {
+        "serialize-javascript": ">=7.0.3"
     },
     "devDependencies": {
         "@types/adm-zip": "0.5.7",
@@ -508,7 +511,7 @@
         "@types/ps-tree": "^1.1.6",
         "@types/shelljs": "^0.10.0",
         "@types/uuid": "11.0.0",
-        "@types/vscode": "^1.109.0",
+        "@types/vscode": "1.109.0",
         "@typescript-eslint/eslint-plugin": "8.56.1",
         "@typescript-eslint/parser": "8.56.1",
         "@vscode/test-cli": "^0.0.10",
