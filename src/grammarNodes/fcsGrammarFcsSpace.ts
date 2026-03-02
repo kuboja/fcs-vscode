@@ -828,4 +828,4 @@ export const fcsSpaceGrammarNodes = [
     new GrammarType({ dot: 4, key: "Fcs.Beam.Hinge.Dof.Free", kind: GrammarKind.Property }),
     new GrammarType({ dot: 4, key: "Fcs.Beam.Hinge.Dof.Stiff", kind: GrammarKind.Property }),
     new GrammarType({ dot: 4, key: "Fcs.Beam.Hinge.Dof.Semistiff", kind: GrammarKind.Function }),
-]
+];

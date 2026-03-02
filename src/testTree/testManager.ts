@@ -54,7 +54,7 @@ export class TestManager implements vscode.Disposable {
 
             let [messageReader, messageWriter] = await pipe.onConnected();
 
-            console.log("Pipe connected")
+            console.log("Pipe connected");
 
             this.connection = rpc.createMessageConnection(messageReader, messageWriter, logger);
 
@@ -62,7 +62,7 @@ export class TestManager implements vscode.Disposable {
                 console.error("RPC: Chyba ve spojení:", e);
             });
 
-            this.connection.trace(rpc.Trace.Messages, {
+            void this.connection.trace(rpc.Trace.Messages, {
                 log: (message: string, data?: string) => {
                     console.log("RPC: trace message: " + message, data);
                 }
@@ -127,7 +127,7 @@ export class TestManager implements vscode.Disposable {
         if (this.canSendRequest()) { return true; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("start");
-        let req2 = new rpc.RequestType2<string, string, boolean, any>("start");
+        let req2 = new rpc.RequestType2<string, string, boolean, unknown>("start");
 
         try {
             this.sessionStarted = await this.connection.sendRequest(req2, this.pathFcs, "");
@@ -142,7 +142,7 @@ export class TestManager implements vscode.Disposable {
     public async executeTests(path: string) {
         if (!this.connection) { return; }
 
-        let req = new rpc.RequestType2<string, string, TestInfo, any>("executeTests");
+        let req = new rpc.RequestType2<string, string, TestInfo, unknown>("executeTests");
 
         try {
             return await this.connection.sendRequest(req, path, "");

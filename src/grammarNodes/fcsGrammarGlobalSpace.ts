@@ -202,4 +202,4 @@ export const globalSpaceGrammarNodes = [
     new GrammarType({ dot: -1, key: "PadRight", kind: GrammarKind.Function, description: "String function" }),
     new GrammarType({ dot: -1, key: "Length", kind: GrammarKind.Constant, description: "String function" }),
 
-]
+];

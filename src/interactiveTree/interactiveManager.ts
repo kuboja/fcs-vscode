@@ -56,7 +56,7 @@ export class InteractiveManager implements vscode.Disposable {
                 console.error("Chyba ve spojení: " + e);
             });
 
-            this.connection.trace(rpc.Trace.Messages, {
+            void this.connection.trace(rpc.Trace.Messages, {
                 log: (message: string, data?: string) => {
                     console.log(message);
                     if (data) { console.log(data); }

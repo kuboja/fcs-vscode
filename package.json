@@ -495,7 +495,7 @@
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode development",
         "watch": "webpack --mode development --watch",
-        "lint": "tslint -p ./",
+        "lint": "eslint src",
         "test-compile": "tsc -p ./",
         "test": "npm run test-compile && vscode-test"
     },
@@ -515,6 +515,7 @@
         "@typescript-eslint/parser": "8.56.1",
         "@vscode/test-cli": "^0.0.10",
         "@vscode/test-electron": "^2.5.2",
+        "eslint": "^9.39.3",
         "ts-loader": "9.5.4",
         "typescript": "5.9.3",
         "vscode-oniguruma": "^2.0.1",

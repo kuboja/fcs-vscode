@@ -164,4 +164,4 @@ export const unitSpaceGrammarNodes = [
     new GrammarType({ dot: 1, key: "Unit.cSt", description: "[centistokes] (1 cSt = 1E-06 m²/s)" }),
     new GrammarType({ dot: 1, key: "Unit.ft2_s", description: "[square feet per second] (1 ft2_s = 0.09290304 m²/s" }),
 
-]
+];
