@@ -8,8 +8,7 @@
     "publisher": "kuboja",
     "qna": false,
     "categories": [
-        "Programming Languages",
-        "Formatters"
+        "Programming Languages"
     ],
     "keywords": [
         "FemCAD",
@@ -29,6 +28,7 @@
     "activationEvents": [
         "workspaceContains:**/*.fcs"
     ],
+    "extensionDependencies": ["vscode.json-language-features"],
     "capabilities": {
         "virtualWorkspaces": true
     },
@@ -466,12 +466,15 @@
         "views": {
             "femcad": [
                 {
+                    
                     "id": "fcstree",
-                    "name": "Fcs Tree"
+                    "name": "Fcs Tree",
+                    "icon": "media/iconView.svg"
                 },
                 {
                     "id": "fcstesttree",
-                    "name": "Fcs Tests"
+                    "name": "Fcs Tests",
+                    "icon": "media/iconView.svg"
                 }
             ]
         },
@@ -501,8 +504,8 @@
         "vscode": "^1.68.0"
     },
     "devDependencies": {
-        "@types/adm-zip": "^0.4.34",
-        "@types/mocha": "^9.0.0",
+        "@types/adm-zip": "0.5.7",
+        "@types/mocha": "10.0.10",
         "@types/node": "^14.x",
         "@types/ps-tree": "^1.1.2",
         "@types/shelljs": "^0.8.10",
@@ -518,14 +521,14 @@
         "webpack-cli": "5.1.4"
     },
     "dependencies": {
-        "adm-zip": "^0.5.5",
-        "original-fs": "1.1.0",
+        "adm-zip": "^0.5.16",
+        "original-fs": "1.2.0",
         "ps-tree": "^1.2.0",
-        "shelljs": "^0.8.4",
-        "tree-kill": "^1.2.2",
-        "uuid": "^8.3.2",
-        "vscode-extension-telemetry": "^0.1.7",
-        "vscode-languageclient": "^6.1.3",
-        "vscode-textmate": "^4.4.0"
+        "shelljs": "0.10.0",
+        "tree-kill": "1.2.2",
+        "uuid": "11.1.0",
+        "@vscode/extension-telemetry": "1.0.0",
+        "vscode-languageclient": "9.0.1",
+        "vscode-textmate": "9.2.0"
     }
 }
