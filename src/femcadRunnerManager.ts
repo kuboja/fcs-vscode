@@ -2,7 +2,6 @@ import * as fs from "fs";
 import { join } from "path";
 import * as vscode from "vscode";
 import * as treekill from "tree-kill";
-import * as psTree from "ps-tree";
 import { ChildProcess, spawn, exec } from "child_process";
 
 import { TelemetryReporterClient } from "./appInsightsClient";
@@ -376,8 +375,6 @@ export class FemcadRunner {
     }
 
     public async openFcsFile(fcsPath: string): Promise<void> {
-        var term: vscode.Terminal = this.terminal;
-
         try {
             let fliPath: string | undefined = await this.getFliPath();
 
@@ -387,27 +384,9 @@ export class FemcadRunner {
 
             var terminalCommand: string = fliPath + " " + FileSystemManager.quoteFileName(fcsPath);
 
-            let processId: number | undefined = await term.processId;
-
-            if (processId) {
-                try {
-                    const psTreeTimeout = new Promise<never>((_, reject) =>
-                        setTimeout(() => reject(new Error("psTree timeout")), 3000)
-                    );
-                    let children = await Promise.race([AsyncTools.psTreeAsync(processId), psTreeTimeout]);
-
-                    if (children.length > 0) {
-                        for (const child of children) {
-                            if (child) {
-                                await AsyncTools.treekillAsync(parseInt(child.PID));
-                            }
-                        }
-                    }
-                } catch (psError) {
-                    console.log("Open terminal: psTree error (ignored)");
-                    console.log(psError);
-                }
-            }
+            // Dispose old terminal to kill any running processes, then get a fresh one
+            this.disposeTerminal();
+            var term: vscode.Terminal = this.terminal;
 
             term.show(true);
 
@@ -431,19 +410,6 @@ export class FemcadRunner {
 }
 
 class AsyncTools {
-
-    public static async psTreeAsync(processId: number): Promise<readonly psTree.PS[]> {
-        return new Promise((resolve, reject) => {
-            psTree(processId, (err, children) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve(children);
-                }
-            });
-        });
-    }
 
     public static async treekillAsync(processId: number | undefined): Promise<void> {
         if (!processId) {
