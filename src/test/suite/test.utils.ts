@@ -1,18 +1,34 @@
 import * as fs from "fs";
+import * as path from "path";
 import { parseRawGrammar, Registry, ITokenizeLineResult } from "vscode-textmate";
+import { loadWASM, createOnigScanner, createOnigString } from "vscode-oniguruma";
 
-async function readFile(path: string): Promise<string> {
+async function readFile(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    fs.readFile(path, "utf8", (error, data) => error ? reject(error) : resolve(data));
+    fs.readFile(filePath, "utf8", (error, data) => error ? reject(error) : resolve(data));
   });
 }
 
+async function readFileBuffer(filePath: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, (error, data) => error ? reject(error) : resolve(data));
+  });
+}
+
+const onigLibPromise = (async () => {
+  const wasmPath = path.join(require.resolve("vscode-oniguruma"), "../onig.wasm");
+  const wasmBin = await readFileBuffer(wasmPath);
+  await loadWASM(wasmBin.buffer as ArrayBuffer);
+  return { createOnigScanner, createOnigString };
+})();
+
 const registry = new Registry({
+  onigLib: onigLibPromise,
   loadGrammar: async (scopeName: string) => {
     if (scopeName === "source.fcs") {
-      let data = await readFile(__dirname + "../../../../syntaxes/fcs.tmLanguage.json");
-      let grammar = parseRawGrammar(data, __dirname + "../../../../syntaxes/fcs.tmLanguage.json");
-      return grammar;
+      const grammarPath = path.resolve(__dirname, "../../../syntaxes/fcs.tmLanguage.json");
+      const data = await readFile(grammarPath);
+      return parseRawGrammar(data, grammarPath);
     }
     return null;
   },

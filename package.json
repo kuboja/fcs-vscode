@@ -28,7 +28,9 @@
     "activationEvents": [
         "workspaceContains:**/*.fcs"
     ],
-    "extensionDependencies": ["vscode.json-language-features"],
+    "extensionDependencies": [
+        "vscode.json-language-features"
+    ],
     "capabilities": {
         "virtualWorkspaces": true
     },
@@ -466,7 +468,6 @@
         "views": {
             "femcad": [
                 {
-                    
                     "id": "fcstree",
                     "name": "Fcs Tree",
                     "icon": "media/iconView.svg"
@@ -496,39 +497,37 @@
         "watch": "webpack --mode development --watch",
         "lint": "tslint -p ./",
         "test-compile": "tsc -p ./",
-        "test": "node ./out/test/runTest.js",
-        "mochatest": "npx mocha ./out/test/suite/extension.test.js --recursive",
-        "st": "npm run test-compile && npm run mochatest"
+        "test": "npm run test-compile && vscode-test"
     },
     "engines": {
         "vscode": "^1.68.0"
     },
     "devDependencies": {
         "@types/adm-zip": "0.5.7",
-        "@types/mocha": "10.0.10",
-        "@types/node": "^14.x",
-        "@types/ps-tree": "^1.1.2",
-        "@types/shelljs": "^0.8.10",
-        "@types/uuid": "^8.3.0",
-        "@types/vscode": "^1.63.0",
-        "@typescript-eslint/eslint-plugin": "^5.9.0",
-        "@typescript-eslint/parser": "^5.9.0",
-        "mocha": "^11.7.4",
-        "ts-loader": "9.5.1",
-        "typescript": "5.5.4",
-        "vscode-test": "^1.6.1",
-        "webpack": "^5.102.1",
-        "webpack-cli": "5.1.4"
+        "@types/node": "^22.x",
+        "@types/ps-tree": "^1.1.6",
+        "@types/shelljs": "^0.10.0",
+        "@types/uuid": "11.0.0",
+        "@types/vscode": "^1.109.0",
+        "@typescript-eslint/eslint-plugin": "8.56.1",
+        "@typescript-eslint/parser": "8.56.1",
+        "@vscode/test-cli": "^0.0.10",
+        "@vscode/test-electron": "^2.5.2",
+        "ts-loader": "9.5.4",
+        "typescript": "5.9.3",
+        "vscode-oniguruma": "^2.0.1",
+        "webpack": "^5.105.3",
+        "webpack-cli": "6.0.1"
     },
     "dependencies": {
+        "@vscode/extension-telemetry": "^1.5.1",
         "adm-zip": "^0.5.16",
         "original-fs": "1.2.0",
         "ps-tree": "^1.2.0",
         "shelljs": "0.10.0",
         "tree-kill": "1.2.2",
         "uuid": "11.1.0",
-        "@vscode/extension-telemetry": "1.0.0",
         "vscode-languageclient": "9.0.1",
-        "vscode-textmate": "9.2.0"
+        "vscode-textmate": "9.3.2"
     }
 }

@@ -1,8 +1,5 @@
 import * as assert from "assert";
-import { suite, test } from "mocha";
 import { getTokenOnCharRange, hasScope, tokenizeLine } from "./test.utils";
-
-import * as vscode from "vscode";
 
 suite("Extension Test Suite", () => {
 

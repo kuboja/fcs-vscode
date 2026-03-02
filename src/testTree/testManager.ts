@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as rpc from "vscode-jsonrpc";
+import * as rpc from "vscode-jsonrpc/node";
 import { ChildProcess, spawn } from "child_process";
 import { ExtensionData } from "../extensionData";
 import { TextDecoder } from "util";
@@ -127,7 +127,7 @@ export class TestManager implements vscode.Disposable {
         if (this.canSendRequest()) { return true; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("start");
-        let req2 = new rpc.RequestType2<string, string, boolean, any, any>("start");
+        let req2 = new rpc.RequestType2<string, string, boolean, any>("start");
 
         try {
             this.sessionStarted = await this.connection.sendRequest(req2, this.pathFcs, "");
@@ -142,7 +142,7 @@ export class TestManager implements vscode.Disposable {
     public async executeTests(path: string) {
         if (!this.connection) { return; }
 
-        let req = new rpc.RequestType2<string, string, TestInfo, any, any>("executeTests");
+        let req = new rpc.RequestType2<string, string, TestInfo, any>("executeTests");
 
         try {
             return await this.connection.sendRequest(req, path, "");

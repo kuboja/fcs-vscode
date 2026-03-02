@@ -204,7 +204,7 @@ export class FemcadRunner {
 
                     calcelationToken.onCancellationRequested(() => this.killProcess());
 
-                    const handle: NodeJS.Timer = setInterval(() => {
+                    const handle: NodeJS.Timeout = setInterval(() => {
 
                         if (!this.isRunning) {
                             p.report({ message: "Fli ended." });
@@ -389,17 +389,23 @@ export class FemcadRunner {
 
             let processId: number | undefined = await term.processId;
 
-            if (!processId){
-                return;
-            }
+            if (processId) {
+                try {
+                    const psTreeTimeout = new Promise<never>((_, reject) =>
+                        setTimeout(() => reject(new Error("psTree timeout")), 3000)
+                    );
+                    let children = await Promise.race([AsyncTools.psTreeAsync(processId), psTreeTimeout]);
 
-            let children = await AsyncTools.psTreeAsync(processId);
-
-            if (children.length > 0) {
-                for (const child of children) {
-                    if (child) {
-                        await AsyncTools.treekillAsync(parseInt(child.PID));
+                    if (children.length > 0) {
+                        for (const child of children) {
+                            if (child) {
+                                await AsyncTools.treekillAsync(parseInt(child.PID));
+                            }
+                        }
                     }
+                } catch (psError) {
+                    console.log("Open terminal: psTree error (ignored)");
+                    console.log(psError);
                 }
             }
 

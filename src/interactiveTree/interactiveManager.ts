@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as rpc from 'vscode-jsonrpc';
+import * as rpc from 'vscode-jsonrpc/node';
 import { ChildProcess, spawn } from "child_process";
 import { ExtensionData } from "../extensionData";
 
@@ -114,7 +114,7 @@ export class InteractiveManager implements vscode.Disposable {
         if (this.canSendRequest()) { return true; }
 
         //let req = new rpc.RequestType1<string,any,any,any>("start");
-        let req2 = new rpc.RequestType2<string, string, boolean, string, void>("start");
+        let req2 = new rpc.RequestType2<string, string, boolean, string>("start");
 
         try {
             this.sessionStarted = await this.connection.sendRequest(req2, this.pathFcs, "");
@@ -129,7 +129,7 @@ export class InteractiveManager implements vscode.Disposable {
     public async getList(path: string, forceEvaluation: boolean) {
         if (!this.connection) { return; }
 
-        let req = new rpc.RequestType2<string, boolean, Bits, string, void>("list");
+        let req = new rpc.RequestType2<string, boolean, Bits, string>("list");
 
         try {
             return await this.connection.sendRequest(req, path, forceEvaluation);

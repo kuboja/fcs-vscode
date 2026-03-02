@@ -212,7 +212,7 @@ export class FliUpdater {
             let zipFile = new AdmZip(lastVersionZip);
 
             let unAll = promisify(zipFile.extractAllToAsync);
-            await unAll(fliDir, true);
+            await unAll(fliDir, true, undefined);
         } catch (error) {
             console.error("FliVS updater: Downloading and unzipping the zip with the new version failed: " + error);
             return false;
