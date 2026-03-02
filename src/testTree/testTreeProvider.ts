@@ -116,7 +116,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         return treeItem;
     }
 
-    private getIconByTokenType(e: TestNode): ThenableTreeIconPath | undefined {
+    private getIconByTokenType(e: TestNode): vscode.IconPath | undefined {
         let name: string;
 
         if (!e.isEvaluated) {
@@ -135,8 +135,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
         let normalName = name + ".svg";
         let inverseName = name + ".svg";
-        let lightIconPath = this.context.asAbsolutePath("media/icons/light/" + normalName);
-        let darkIconPath = this.context.asAbsolutePath("media/icons/dark/" + inverseName);
+        let lightIconPath = vscode.Uri.joinPath(this.context.extensionUri, "media/icons/light/" + normalName);
+        let darkIconPath = vscode.Uri.joinPath(this.context.extensionUri, "media/icons/dark/" + inverseName);
 
         return {
             light: lightIconPath,

@@ -98,7 +98,7 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
         return treeItem;
     }
 
-    private getIconByTokenType(cat: BitCategory): ThenableTreeIconPath | undefined {
+    private getIconByTokenType(cat: BitCategory): vscode.IconPath | undefined {
         let name: string;
 
         switch (cat) {
@@ -128,8 +128,8 @@ export class TreeInteractionProvider implements vscode.TreeDataProvider<Entry>, 
 
         let normalName = name + ".svg";
         let inverseName = name + ".svg";
-        let lightIconPath = this.context.asAbsolutePath("media/icons/types/light/" + normalName);
-        let darkIconPath = this.context.asAbsolutePath("media/icons/types/dark/" + inverseName);
+        let lightIconPath = vscode.Uri.joinPath(this.context.extensionUri, "media/icons/types/light/" + normalName);
+        let darkIconPath = vscode.Uri.joinPath(this.context.extensionUri, "media/icons/types/dark/" + inverseName);
 
         return {
             light: lightIconPath,
