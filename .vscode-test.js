@@ -1,7 +1,7 @@
 const { defineConfig } = require("@vscode/test-cli");
 
 module.exports = defineConfig({
-    files: "out/test/suite/**/*.test.js",
+    files: "out/tests/**/*.test.js",
     workspaceFolder: ".",
     mocha: {
         ui: "tdd",

@@ -26,7 +26,7 @@ const registry = new Registry({
   onigLib: onigLibPromise,
   loadGrammar: async (scopeName: string) => {
     if (scopeName === "source.fcs") {
-      const grammarPath = path.resolve(__dirname, "../../../syntaxes/fcs.tmLanguage.json");
+      const grammarPath = path.resolve(__dirname, "../../syntaxes/fcs.tmLanguage.json");
       const data = await readFile(grammarPath);
       return parseRawGrammar(data, grammarPath);
     }

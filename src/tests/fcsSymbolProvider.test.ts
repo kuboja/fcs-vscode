@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import * as vscode from "vscode";
-import { FcsSymbolProvider } from "../../fcsSymbolUtil";
+import { FcsSymbolProvider } from "../fcsSymbolUtil";
 
 // ---------------------------------------------------------------------------
 // Minimal TextDocument mock — only the parts getSymbolsInDocument uses
