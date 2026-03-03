@@ -12,7 +12,8 @@ export class FcsDefinitionProvider implements vscode.DefinitionProvider {
         //    e.g.  gclass {res} filename "_FcsComponentResources.fcs"
         const gclassFilePath = FcsDefinitionProvider.getGclassFilenameAtPosition(document, position);
         if (gclassFilePath) {
-            return new vscode.Location(vscode.Uri.file(gclassFilePath), new vscode.Position(0, 0));
+            await FcsDefinitionProvider.openFileWithoutPosition(gclassFilePath);
+            return undefined;
         }
 
         const wordRange = document.getWordRangeAtPosition(position);
@@ -30,7 +31,27 @@ export class FcsDefinitionProvider implements vscode.DefinitionProvider {
         }
 
         // 3. Recursively search imported files
-        return this.findInImports(document, word, token, new Set([document.uri.fsPath]));
+        const foundInImports = await this.findInImports(document, word, token, new Set([document.uri.fsPath]));
+        if (foundInImports) { return foundInImports; }
+
+        // 4. Check neighboring .fcs files (implicit gclasses)
+        const neighbors = await FcsSymbolProvider.getNeighboringFcsFiles(document);
+        const neighbor = neighbors.find(n => n.name === word);
+        if (neighbor) {
+            await FcsDefinitionProvider.openFileWithoutPosition(neighbor.filePath);
+            return undefined;
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Opens a file in the editor without forcing the cursor to any position.
+     * If the file was previously open, the last known cursor position is preserved.
+     */
+    private static async openFileWithoutPosition(fsPath: string): Promise<void> {
+        const uri = vscode.Uri.file(fsPath);
+        await vscode.window.showTextDocument(uri, { preserveFocus: false, preview: false });
     }
 
     /**

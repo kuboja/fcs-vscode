@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { FcsGrammar } from "./fcsGrammar";
 import { ExtensionData } from "./extensionData";
 import { GrammarType } from "./grammarNodes/grammarType";
+import { FcsSymbolProvider } from "./fcsSymbolUtil";
 
 
 export class FcsCompletionItemProvider implements vscode.CompletionItemProvider {
@@ -61,6 +62,17 @@ export class FcsCompletionItemProvider implements vscode.CompletionItemProvider 
         //console.log(priorWord  + " | " + currentWord + " | " + numberOfDot + " | " + filteredObjects.map(v => v.name).join(", "));
 
         var CompletionItems: vscode.CompletionItem[] = filteredObjects.map(v => v.GetCompletionItem());
+
+        // Add neighboring .fcs files as implicit gclass completions (only at top level, no dot context)
+        if (numberOfDot <= 0 && !dotBefore) {
+            const neighbors = await FcsSymbolProvider.getNeighboringFcsFiles(document);
+            for (const neighbor of neighbors) {
+                const item = new vscode.CompletionItem(neighbor.name, vscode.CompletionItemKind.Class);
+                item.detail = "Implicit gclass (neighboring file)";
+                item.documentation = new vscode.MarkdownString(`Neighboring file: \`${neighbor.filePath}\``);
+                CompletionItems.push(item);
+            }
+        }
 
         return Promise.resolve(CompletionItems);
     }

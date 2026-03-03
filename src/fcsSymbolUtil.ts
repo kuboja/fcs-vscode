@@ -62,6 +62,31 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         return result;
     }
 
+    /**
+     * Returns { name, filePath } for every .fcs file in the same directory as
+     * the given document, excluding the document itself.
+     * `name` is the basename without the .fcs extension.
+     */
+    public static async getNeighboringFcsFiles(document: vscode.TextDocument): Promise<{ name: string; filePath: string }[]> {
+        const selfPath = document.uri.fsPath;
+        const dir = path.dirname(selfPath);
+        const dirUri = vscode.Uri.file(dir);
+        try {
+            const entries = await vscode.workspace.fs.readDirectory(dirUri);
+            return entries
+                .filter(([name, type]) =>
+                    type === vscode.FileType.File &&
+                    name.toLowerCase().endsWith(".fcs") &&
+                    path.join(dir, name) !== selfPath)
+                .map(([name]) => ({
+                    name: path.basename(name, path.extname(name)),
+                    filePath: path.join(dir, name),
+                }));
+        } catch {
+            return [];
+        }
+    }
+
     /** Maps FCS definition keywords to their VS Code SymbolKind. */
     public static readonly keywordKinds: ReadonlyMap<string, vscode.SymbolKind> = new Map([
         ["gclass",        vscode.SymbolKind.Class],
