@@ -90,4 +90,36 @@ suite("FcsCommandsToFliMamanager - command detection", () => {
         assert.ok(result, "should produce FLI params");
         assert.ok(result!.includes('"myVar"'), `unexpected params: ${result}`);
     });
+
+    // --- curly-brace object declarations -----------------------------------
+
+    test("gclass {Name} extracts name from braces", () => {
+        const result = fli('gclass {MyClass} filename "MyClass.fcs"');
+        assert.ok(result, "should produce FLI params");
+        assert.ok(result!.includes('"MyClass"'), `unexpected params: ${result}`);
+    });
+
+    test("vertex {Name} extracts name from braces", () => {
+        const result = fli("vertex {myVertex} (0 0 0)");
+        assert.ok(result, "should produce FLI params");
+        assert.ok(result!.includes('"myVertex"'), `unexpected params: ${result}`);
+    });
+
+    test("gblock {Name} extracts name from braces", () => {
+        const result = fli("gblock {AnalysisBlock} gclass (AnalysisClass) lcs (GCS)");
+        assert.ok(result, "should produce FLI params");
+        assert.ok(result!.includes('"AnalysisBlock"'), `unexpected params: ${result}`);
+    });
+
+    test("distribution {Name} extracts name from braces", () => {
+        const result = fli("distribution {dashLine} gclass {line} lcs (Lcs)");
+        assert.ok(result, "should produce FLI params");
+        assert.ok(result!.includes('"dashLine"'), `unexpected params: ${result}`);
+    });
+
+    test("layer {Name} extracts name from braces", () => {
+        const result = fli("layer {myLayer} color (255 0 0)");
+        assert.ok(result, "should produce FLI params");
+        assert.ok(result!.includes('"myLayer"'), `unexpected params: ${result}`);
+    });
 });

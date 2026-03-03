@@ -220,6 +220,15 @@ class FliExpressionCommand extends FliPrintCommand {
             return match[1].toString();
         }
 
+        // >gclass {ClassName} ...
+        //          ^^^^^^^^^
+        let regCurly = /^(?:#[ \t]*)?(?:gclass|vertex|gblock|layer|load|distribution|area|label|material|thickness|planestress|volume|support|filletedpoly|cross_section|beam|traction|curvelcs|curve|pointlcs)\s*\{([a-zA-Z][a-zA-Z0-9_]*)\}/;
+        let matchCurly = regCurly.exec(line.trimedLine);
+
+        if (matchCurly && matchCurly.length > 1) {
+            return matchCurly[1].toString();
+        }
+
         // >#value   
         //   ^^^^^
         let reg2 = /^(?:#[ \t]*)?([a-zA-Z][a-zA-Z0-9_.]*)\s*/;
