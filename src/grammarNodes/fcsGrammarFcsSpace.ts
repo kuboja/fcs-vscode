@@ -292,6 +292,7 @@ export const fcsSpaceGrammarNodes = [
     // new GrammarType({ dot: 2, key: "Fcs.Reporting.Block", kind: GrammarKind.Object }),
     new GrammarType({ dot: 2, key: "Fcs.Reporting.Table", kind: GrammarKind.Object }),
     new GrammarType({ dot: 2, key: "Fcs.Reporting.Table.Row", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Reporting.Table.Cell", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Reporting.Symbol", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Reporting.Image", kind: GrammarKind.Object }),
 
@@ -351,6 +352,9 @@ export const fcsSpaceGrammarNodes = [
     new GrammarType({ dot: 2, key: "Fcs.Reporting.Collage", kind: GrammarKind.Module }),
     new GrammarType({ dot: 3, key: "Fcs.Reporting.Collage.Canvas", kind: GrammarKind.Object }),
     new GrammarType({ dot: 3, key: "Fcs.Reporting.Collage.Item", kind: GrammarKind.Object }),
+
+    new GrammarType({ dot: 2, key: "Fcs.Reporting.Email", kind: GrammarKind.Module }),
+    new GrammarType({ dot: 3, key: "Fcs.Reporting.Email.EmailData", kind: GrammarKind.Object }),
 
 
     new GrammarType({ dot: 1, key: "Fcs.Units", kind: GrammarKind.Module }),
@@ -464,7 +468,10 @@ export const fcsSpaceGrammarNodes = [
     new GrammarType({ dot: 2, key: "Fcs.Object.IsNullOrEmpty", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Object.HasPropertyValue", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Object.HasPropertyChainValue", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Object.HasPropertyChainNonEmptyValue", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Object.FindPropertyChainValue", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Object.GetPropertyChainValueOrDefault", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Object.GetValueOrDefault", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Object.FindProperty", kind: GrammarKind.Function }),
 
 
@@ -478,17 +485,24 @@ export const fcsSpaceGrammarNodes = [
     new GrammarType({ dot: 2, key: "Fcs.Converters.FormatObjectStringlyToxxHash", kind: GrammarKind.Function }),
 
     new GrammarType({ dot: 2, key: "Fcs.Converters.ToSequence", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Converters.ToSequenceDeep", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Converters.ExpandoToDynamicObject", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Converters.ValueToFcsType", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Converters.ToArray", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Converters.ToJson", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Converters.ParseJson", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Converters.TryParseJson", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Converters.TryParseNumber", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Converters.ToInt", kind: GrammarKind.Function }),
-    new GrammarType({ dot: 2, key: "Fcs.Converters.TryParseJson", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Converters.TryParseJValue", kind: GrammarKind.Function }),
 
     new GrammarType({ dot: 2, key: "Fcs.Converters.EnumerableRange", kind: GrammarKind.Function }),
 
     new GrammarType({ dot: 2, key: "Fcs.Converters.SequenceToStringMultiline", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Converters.SequenceToString", kind: GrammarKind.Function }),
+
+    new GrammarType({ dot: 2, key: "Fcs.Converters.StringToFcsStringLiteral", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Converters.StringToFcsStringLiteralKeepWhiteSpace", kind: GrammarKind.Function }),
 
 
     new GrammarType({ dot: 1, key: "Fcs.Exception", kind: GrammarKind.Module }),
@@ -716,15 +730,34 @@ export const fcsSpaceGrammarNodes = [
     new GrammarType({ dot: 2, key: "Fcs.Ifc.GenerateNewGuidInBase64", kind: GrammarKind.Function }),
     new GrammarType({ dot: 2, key: "Fcs.Ifc.GenerateTimeStampUnixTimeSeconds", kind: GrammarKind.Function }),
 
+    
+    new GrammarType({ dot: 1, key: "Fcs.Step", kind: GrammarKind.Module }),
+    new GrammarType({ dot: 2, key: "Fcs.Step.ExportGeometry", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Step.ExportFixedGeometry", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Step.ExportFixedGeometryCustom", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 2, key: "Fcs.Step.GenerateTimeStampNow", kind: GrammarKind.Function }),
+
 
     new GrammarType({ dot: 1, key: "Fcs.Presentation", kind: GrammarKind.Module }),
     new GrammarType({ dot: 2, key: "Fcs.Presentation.DxfUpdateRenderer", kind: GrammarKind.Object }),
     new GrammarType({ dot: 2, key: "Fcs.Presentation.ImageRenderer", kind: GrammarKind.Object }),
     new GrammarType({ dot: 2, key: "Fcs.Presentation.ImageUpdateRenderer", kind: GrammarKind.Object }),
 
+    new GrammarType({ dot: 2, key: "Fcs.Presentation.ImageData", kind: GrammarKind.Module }),
+    new GrammarType({ dot: 3, key: "Fcs.Presentation.ImageData.FromDataUrl", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 3, key: "Fcs.Presentation.ImageData.FromBase64", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 3, key: "Fcs.Presentation.ImageData.FromFile", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 3, key: "Fcs.Presentation.ImageData.FromUrl", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 3, key: "Fcs.Presentation.ImageData.ToBoolMaskByRed", kind: GrammarKind.Function }),
+    new GrammarType({ dot: 3, key: "Fcs.Presentation.ImageData.ToBoolMaskByPredicate", kind: GrammarKind.Function }),
+
 
     new GrammarType({ dot: 1, key: "Fcs.Dxf", kind: GrammarKind.Module }),
     new GrammarType({ dot: 2, key: "Fcs.Dxf.DefaultSettings", kind: GrammarKind.Constant }),
+
+
+    new GrammarType({ dot: 1, key: "Fcs.Recognition", kind: GrammarKind.Module }),
+    new GrammarType({ dot: 2, key: "Fcs.Recognition.RecognizeBoolMaskAreaToBufferedGeometry", kind: GrammarKind.Function }),
 
 
     new GrammarType({ dot: 1, key: "Fcs.SteelLib", kind: GrammarKind.Module }),
