@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as path from "path";
 
 
 export enum fcsSymbolType {
@@ -26,6 +27,21 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
 
     public provideDocumentSymbols(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.SymbolInformation[] {
         return FcsSymbolProvider.getSymbolsInDocument(document, token);
+    }
+
+    /** Returns absolute paths of all files imported by this document. */
+    public static getImportPathsInDocument(document: vscode.TextDocument): string[] {
+        const regImport = /^\s*import\s+"([^"]+)"/;
+        const dir = path.dirname(document.uri.fsPath);
+        const paths: string[] = [];
+
+        for (let line = 0; line < document.lineCount; line++) {
+            const match = document.lineAt(line).text.match(regImport);
+            if (match) {
+                paths.push(path.resolve(dir, match[1]));
+            }
+        }
+        return paths;
     }
 
     public static getSymbolsInDocument(document: vscode.TextDocument, token?: vscode.CancellationToken): vscode.SymbolInformation[] {
