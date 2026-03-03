@@ -1,4 +1,5 @@
 import * as assert from "assert";
+import * as path from "path";
 import * as vscode from "vscode";
 import { FcsSymbolProvider } from "../fcsSymbolUtil";
 
@@ -136,5 +137,82 @@ suite("FcsSymbolProvider - keyword {name} patterns", () => {
         assert.strictEqual(symbols[0].name, "steel");
         assert.strictEqual(symbols[1].name, "b1");
         assert.strictEqual(symbols[2].name, "myVar");
+    });
+});
+
+// ---------------------------------------------------------------------------
+suite("FcsSymbolProvider - getGclassFileReferences", () => {
+
+    function makeDocAt(lines: string[], fsPath: string): vscode.TextDocument {
+        return {
+            lineCount: lines.length,
+            lineAt: (i: number) => ({ text: lines[i] } as vscode.TextLine),
+            uri: vscode.Uri.file(fsPath),
+        } as vscode.TextDocument;
+    }
+
+    // Derive DIR via Uri.file so the drive-letter casing matches what the implementation sees
+    const DOC_URI = vscode.Uri.file("C:/project/model.fcs");
+    const DOC_DIR = path.dirname(DOC_URI.fsPath);
+
+    function docAt(lines: string[]): vscode.TextDocument {
+        return makeDocAt(lines, DOC_URI.fsPath);
+    }
+
+    test("single gclass with filename returns correct entry", () => {
+        const doc = docAt(['gclass {MyClass} filename "MyClass.fcs"']);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.size, 1);
+        assert.strictEqual(refs.get("MyClass"), path.resolve(DOC_DIR, "MyClass.fcs"));
+    });
+
+    test("gclass with extra attributes before filename", () => {
+        const doc = docAt(['gclass {MyClass} someattr (val) filename "sub/MyClass.fcs"']);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.get("MyClass"), path.resolve(DOC_DIR, "sub/MyClass.fcs"));
+    });
+
+    test("multiple gclass entries are all captured", () => {
+        const doc = docAt([
+            'gclass {ClassA} filename "ClassA.fcs"',
+            'gclass {ClassB} filename "ClassB.fcs"',
+        ]);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.size, 2);
+        assert.ok(refs.has("ClassA"));
+        assert.ok(refs.has("ClassB"));
+    });
+
+    test("line without filename is not included", () => {
+        const doc = docAt(['gclass {NoFile} someattr (val)']);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.size, 0);
+    });
+
+    test("non-gclass keyword is not included", () => {
+        const doc = docAt(['material {mat1} filename "mat.fcs"']);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.size, 0);
+    });
+
+    test("comment line is not included", () => {
+        const doc = docAt(['# gclass {MyClass} filename "MyClass.fcs"']);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.size, 0);
+    });
+
+    test("gclass with filename in parens is captured", () => {
+        const doc = docAt(['gclass {MyClass} filename ("MyClass.fcs")']);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.size, 1);
+        assert.strictEqual(refs.get("MyClass"), path.resolve(DOC_DIR, "MyClass.fcs"));
+    });
+
+    test("absolute path in filename is preserved correctly", () => {
+        const absUri = vscode.Uri.file("C:/other/AbsClass.fcs");
+        const absPath = absUri.fsPath;
+        const doc = docAt([`gclass {AbsClass} filename "${absPath.replace(/\\/g, "/")}"`]);
+        const refs = FcsSymbolProvider.getGclassFileReferences(doc);
+        assert.strictEqual(refs.get("AbsClass"), absPath);
     });
 });

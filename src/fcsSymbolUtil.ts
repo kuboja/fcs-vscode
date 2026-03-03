@@ -44,6 +44,24 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         return paths;
     }
 
+    /**
+     * Returns a map of gclass name → absolute file path for all lines of the form
+     * `gclass {Name} ... filename "file.fcs"` or `filename ("file.fcs")` in the document.
+     */
+    public static getGclassFileReferences(document: vscode.TextDocument): Map<string, string> {
+        const reg = /^gclass\s+\{([a-zA-Z][a-zA-Z0-9_]*)\}.*?\bfilename\s+\(?"([^"]+)"\)?/;
+        const dir = path.dirname(document.uri.fsPath);
+        const result = new Map<string, string>();
+
+        for (let line = 0; line < document.lineCount; line++) {
+            const match = document.lineAt(line).text.match(reg);
+            if (match) {
+                result.set(match[1], path.resolve(dir, match[2]));
+            }
+        }
+        return result;
+    }
+
     /** Maps FCS definition keywords to their VS Code SymbolKind. */
     public static readonly keywordKinds: ReadonlyMap<string, vscode.SymbolKind> = new Map([
         ["gclass",        vscode.SymbolKind.Class],
