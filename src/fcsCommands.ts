@@ -96,6 +96,29 @@ export class FcsCommandsToFliMamanager {
         }
     }
 
+    /**
+     * Resolves the FLI command string for a given raw line of text.
+     * Exposed for unit testing.
+     * @returns The FLI parameter string, or undefined when no command matches.
+     */
+    public static getFliParamsForLine(rawLine: string, filePath: string, outputFolder: string): string | undefined {
+        const lineData = {
+            projectDirectory: undefined,
+            filePath,
+            rawLine,
+            trimedLine: rawLine.trim(),
+            outputFolder,
+            fromSelection: false,
+        };
+        for (const cmd of FcsCommandsToFliMamanager.getCommands()) {
+            if (cmd.isThisCommand(lineData)) {
+                const p = cmd.getFliParameters(lineData);
+                return p.fli;
+            }
+        }
+        return undefined;
+    }
+
     private static getCommands(): FliPrintCommand[] {
         if (FcsCommandsToFliMamanager.commands.length === 0) {
             FcsCommandsToFliMamanager.commands = [
@@ -191,7 +214,7 @@ class FliExpressionCommand extends FliPrintCommand {
         // >value := expression  
         //  ^^^^^
         let reg = /^([a-zA-Z][a-zA-Z0-9_]*)\s*:?=/;
-        let match = reg.exec(line.rawLine);
+        let match = reg.exec(line.trimedLine);
 
         if (match && match.length > 1) {
             return match[1].toString();
@@ -200,7 +223,7 @@ class FliExpressionCommand extends FliPrintCommand {
         // >#value   
         //   ^^^^^
         let reg2 = /^(?:#[ \t]*)?([a-zA-Z][a-zA-Z0-9_.]*)\s*/;
-        let match2 = reg2.exec(line.rawLine);
+        let match2 = reg2.exec(line.trimedLine);
 
         if (match2 && match2.length > 1) {
             return match2[1].toString();
