@@ -44,17 +44,40 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
         return paths;
     }
 
+    /** Maps FCS definition keywords to their VS Code SymbolKind. */
+    public static readonly keywordKinds: ReadonlyMap<string, vscode.SymbolKind> = new Map([
+        ["gclass",        vscode.SymbolKind.Class],
+        ["gblock",        vscode.SymbolKind.Object],
+        ["material",      vscode.SymbolKind.Object],
+        ["thickness",     vscode.SymbolKind.Object],
+        ["planestress",   vscode.SymbolKind.Object],
+        ["traction",      vscode.SymbolKind.Object],
+        ["area",          vscode.SymbolKind.Object],
+        ["curve",         vscode.SymbolKind.Object],
+        ["vertex",        vscode.SymbolKind.Object],
+        ["layer",         vscode.SymbolKind.Object],
+        ["volume",        vscode.SymbolKind.Object],
+        ["distribution",  vscode.SymbolKind.Object],
+        ["beam",          vscode.SymbolKind.Object],
+        ["cross_section", vscode.SymbolKind.Object],
+        ["pointlcs",      vscode.SymbolKind.Object],
+        ["lcs",           vscode.SymbolKind.Object],
+        ["curvelcs",      vscode.SymbolKind.Object],
+        ["shell",         vscode.SymbolKind.Object],
+        ["load",          vscode.SymbolKind.Object],
+        ["support",       vscode.SymbolKind.Object],
+        ["mesharea",      vscode.SymbolKind.Object],
+        ["meshcurve",     vscode.SymbolKind.Object],
+        ["meshvertex",    vscode.SymbolKind.Object],
+    ]);
+
     public static getSymbolsInDocument(document: vscode.TextDocument, token?: vscode.CancellationToken): vscode.SymbolInformation[] {
         const result: vscode.SymbolInformation[] = [];
         const lineCount: number = Math.min(document.lineCount, 10000);
 
-        //console.log("Start");
-        //let time = Date.now();
-        //let couter = 0;
-
         const regFunctionDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)\s*(?:\(\s*)?([a-zA-Z][a-zA-Z0-9\s,]*)=>/;
         const regVariableDefinition: RegExp = /^([a-zA-Z][a-zA-Z0-9_]+)\s*(:?=)/;
-        const regGnameDefinition: RegExp = / *{([a-zA-Z][a-zA-Z0-9_]+)} *filename/;
+        const regBraceName: RegExp = /\{([a-zA-Z][a-zA-Z0-9_]*)\}/;
 
         for (let line: number = 0; line < lineCount; line++) {
             if (token && token.isCancellationRequested) { break; }
@@ -66,54 +89,50 @@ export class FcsSymbolProvider implements vscode.DocumentSymbolProvider {
             let name: string | null = null;
             let kind: vscode.SymbolKind = vscode.SymbolKind.Variable;
 
-            if (text.startsWith("gblock ") || text.startsWith("gclass ")) {
-                let gname: RegExpMatchArray | null = text.match(regGnameDefinition);
-                if (gname !== null && gname.length > 0) {
-                    name = (gname.length > 1) ? gname[1] : gname[0];
-                    if (text.startsWith("gblock ")) {
-                        kind = vscode.SymbolKind.Object;
+            // Check for keyword {name} patterns (gclass, gblock, material, …)
+            for (const [keyword, kwKind] of FcsSymbolProvider.keywordKinds) {
+                if (text.startsWith(keyword + " ") || text === keyword) {
+                    const match = text.match(regBraceName);
+                    if (match) {
+                        name = match[1];
+                        kind = kwKind;
                     }
-                    else {
-                        kind = vscode.SymbolKind.Class;
-                    }
+                    break;
                 }
             }
 
-            if (text.includes(":=") || text.includes("=")) {
-                let functionName: RegExpMatchArray | null = null;
-
+            // Check for variable / function definitions (only if no keyword matched)
+            if (name === null && (text.includes(":=") || text.includes("="))) {
                 if (text.includes("=>")) {
-                    functionName = text.match(regFunctionDefinition);
+                    const functionName = text.match(regFunctionDefinition);
+                    if (functionName !== null && functionName.length > 0) {
+                        name = (functionName.length > 1) ? functionName[1] : functionName[0];
+                        kind = vscode.SymbolKind.Function;
+                    }
                 }
 
-                if (functionName !== null && functionName.length > 0) {
-                    name = (functionName.length > 1) ? functionName[1] : functionName[0];
-                    kind = vscode.SymbolKind.Function;
-                } else {
-                    let variableName: RegExpMatchArray | null = text.match(regVariableDefinition);
+                if (name === null) {
+                    const variableName = text.match(regVariableDefinition);
                     if (variableName !== null && variableName.length > 0) {
                         name = (variableName.length > 1) ? variableName[1] : variableName[0];
                     }
                 }
             }
 
-            if (name !== null) {
-                if (name.length > 0) {
-                    let posStart = new vscode.Position(line, 0);
-                    let posEnd = this.endOfDefinition(document, line);
-                    let range = new vscode.Range(posStart, posEnd);
+            if (name !== null && name.length > 0) {
+                const posStart = new vscode.Position(line, 0);
+                const posEnd = this.endOfDefinition(document, line);
+                const range = new vscode.Range(posStart, posEnd);
 
-                    line = posEnd.line;
+                line = posEnd.line;
 
-                    result.push(new vscode.SymbolInformation(
-                        name,
-                        kind,
-                        "",
-                        new vscode.Location(document.uri, range)
-                    ));
-                }
+                result.push(new vscode.SymbolInformation(
+                    name,
+                    kind,
+                    "",
+                    new vscode.Location(document.uri, range)
+                ));
             }
-            //couter++;
         }
 
         //console.log("End - Count: " + couter + " - Time: " + ( Date.now() - time ));
