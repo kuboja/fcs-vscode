@@ -363,6 +363,11 @@
             "type": "object",
             "title": "Femcad Script",
             "properties": {
+                "fcs-vscode.languageServerPath": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to flils.exe (FCS Language Server). If empty, looks in fliFolder/femcadFolder. Leave empty to auto-discover, or set to disable LSP by pointing to a nonexistent path."
+                },
                 "fcs-vscode.maxNumberOfProblems": {
                     "type": "number",
                     "default": 100,

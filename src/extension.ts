@@ -8,17 +8,26 @@ import { InteractiveTree } from "./interactiveTree/interactiveTree";
 import { FliUpdater } from "./fliUpdater/fliUpdater";
 import { TestTree } from "./testTree/testTree";
 import { FcsTextContentProvider } from "./fcsTextContentProvider";
+import { startLanguageServer, stopLanguageServer, isLanguageServerRunning } from "./fcsLanguageServer";
 
 let extData: ExtensionData;
 
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
     
     //console.log("Activate Extension");
 
     extData = new ExtensionData(context);
 
-    registerSymbolManager(extData.context, extData);
     registerCommands(extData.context, extData);
+
+    // Start LSP if flils.exe is available — enhances the extension with
+    // diagnostics, model-aware completions, hover, and go-to-definition.
+    // The extension works fine without it (regex-based providers remain active).
+    await startLanguageServer(context);
+
+    // Register regex-based providers. Skip definition provider when LSP is
+    // active to avoid duplicate "Go to Definition" results.
+    registerSymbolManager(extData.context, extData, isLanguageServerRunning());
 }
 
 
@@ -57,7 +66,7 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
 }
 
 
-function registerSymbolManager(context: vscode.ExtensionContext, extData: ExtensionData): void {
+function registerSymbolManager(context: vscode.ExtensionContext, extData: ExtensionData, lspActive: boolean): void {
 
     let fcsLang = { language: "fcs", scheme: "" };
 
@@ -69,12 +78,15 @@ function registerSymbolManager(context: vscode.ExtensionContext, extData: Extens
         vscode.languages.registerDocumentSymbolProvider(fcsLang, new FcsSymbolProvider())
     );
 
-    context.subscriptions.push(
-        vscode.languages.registerDefinitionProvider(fcsLang, new FcsDefinitionProvider())
-    );
+    if (!lspActive) {
+        context.subscriptions.push(
+            vscode.languages.registerDefinitionProvider(fcsLang, new FcsDefinitionProvider())
+        );
+    }
 }
 
 export async function deactivate() {
+    await stopLanguageServer();
     if (extData) {
         await extData.deactivate();
         console.log("Deactivated");
