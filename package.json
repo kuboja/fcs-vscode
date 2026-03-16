@@ -29,7 +29,8 @@
         "workspaceContains:**/*.fcs"
     ],
     "extensionDependencies": [
-        "vscode.json-language-features"
+        "vscode.json-language-features",
+        "vscode.github-authentication"
     ],
     "capabilities": {
         "virtualWorkspaces": true
@@ -139,6 +140,16 @@
                 "command": "fcs-vscode.openInFemcad",
                 "title": "Open in FemCAD",
                 "description": "Open current file in FemCAD"
+            },
+            {
+                "command": "fcs-vscode.selectLanguageServerVersion",
+                "title": "FCS: Select Language Server Version",
+                "description": "Pin or unpin a specific version of the FCS Language Server"
+            },
+            {
+                "command": "fcs-vscode.redownloadLanguageServer",
+                "title": "FCS: Re-download Language Server",
+                "description": "Force a fresh download of the FCS Language Server binary"
             },
             {
                 "command": "fcs-vscode.openInViewer",

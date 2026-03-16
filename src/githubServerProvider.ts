@@ -1,0 +1,417 @@
+/**
+ * githubServerProvider.ts
+ *
+ * Handles GitHub authentication, access-check against a private repository,
+ * and download of the proprietary language-server binary from a private
+ * GitHub Release asset.
+ *
+ * Flow:
+ *  1. Request a GitHub OAuth session (VS Code built-in auth provider).
+ *  2. Use the token to verify the user has read access to PRIVATE_REPO.
+ *  3. Find the latest release in PRIVATE_REPO and download the matching asset.
+ *  4. Cache the binary in context.globalStorageUri so re-downloads only happen
+ *     when a newer release is available.
+ */
+
+import * as vscode from "vscode";
+import * as fs from "fs";
+import * as path from "path";
+import * as https from "https";
+import { exec } from "child_process";
+import { IncomingMessage } from "http";
+
+// ── Configuration ────────────────────────────────────────────────────────────
+
+/** Owner and name of the PRIVATE repository that hosts the language server. */
+const PRIVATE_REPO_OWNER = "HiStructClient";
+const PRIVATE_REPO_NAME  = "fcs-flivs";
+
+/** Name of the zip asset uploaded to the GitHub Release. */
+const ASSET_NAME = "flivs.zip";
+
+/** Name of the EXE inside the zip that acts as the language server. */
+const EXE_IN_ZIP = "flils.exe";
+
+/** Name of the info/compatibility JSON file inside the zip. */
+const FLIVS_INFO_FILENAME = "flivs-info.json";
+
+/** Subdirectory inside globalStorageUri where the zip is extracted. */
+const EXTRACT_DIR = "flivs";
+
+/** File that stores the tag of the currently cached release. */
+const CACHED_TAG_FILE = "flivs-release-tag.txt";
+
+/** File that stores the timestamp of the last GitHub API check. */
+const LAST_CHECK_FILE = "flivs-last-check.txt";
+
+/** File that stores a user-pinned version tag (optional). */
+const PINNED_TAG_FILE = "flivs-pinned-tag.txt";
+
+/** Minimum interval between GitHub API checks (ms). */
+const CHECK_INTERVAL_MS = 15 * 60 * 1000;
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface GitHubRelease {
+    tag_name: string;
+    published_at: string;
+    assets: { name: string; url: string }[];
+}
+
+/** Contents of flivs-info.json bundled inside flivs.zip. */
+interface FlivsInfo {
+    /** Minimum extension version required to work with this flivs release. */
+    minExtensionVersion?: string;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Perform an authenticated HTTPS GET that returns the full body as a string. */
+function httpsGet(url: string, token: string, accept: string): Promise<{ status: number; body: string }> {
+    return new Promise((resolve, reject) => {
+        const options = {
+            headers: {
+                "User-Agent":    "fcs-vscode",
+                "Authorization": `Bearer ${token}`,
+                "Accept":        accept,
+            },
+        };
+
+        const req = https.get(url, options, (res: IncomingMessage) => {
+            // Follow a single redirect (GitHub asset downloads use 302 → S3)
+            if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+                httpsGet(res.headers.location, token, accept).then(resolve).catch(reject);
+                return;
+            }
+
+            let body = "";
+            res.on("data", (chunk: Buffer) => (body += chunk.toString()));
+            res.on("end", () => resolve({ status: res.statusCode ?? 0, body }));
+        });
+
+        req.on("error", reject);
+        req.end();
+    });
+}
+
+/** Download a binary asset into `destPath` using the GitHub API asset endpoint. */
+function downloadBinary(assetApiUrl: string, token: string, destPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const options = {
+            headers: {
+                "User-Agent":    "fcs-vscode",
+                "Authorization": `Bearer ${token}`,
+                "Accept":        "application/octet-stream",
+            },
+        };
+
+        function follow(url: string): void {
+            https.get(url, options, (res: IncomingMessage) => {
+                if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+                    follow(res.headers.location);
+                    return;
+                }
+                if (res.statusCode !== 200) {
+                    reject(new Error(`Download failed with HTTP ${res.statusCode}`));
+                    return;
+                }
+                const file = fs.createWriteStream(destPath);
+                res.pipe(file);
+                file.on("finish", () => file.close(() => resolve()));
+                file.on("error", (err) => { fs.unlink(destPath, () => undefined); reject(err); });
+            }).on("error", reject);
+        }
+
+        follow(assetApiUrl);
+    });
+}
+
+/** Extract a zip file using PowerShell's Expand-Archive (Windows built-in). */
+function extractZip(zipPath: string, destDir: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        // -Force overwrites existing files; no external tools needed
+        const cmd = `powershell -NoProfile -Command "Expand-Archive -LiteralPath '${zipPath}' -DestinationPath '${destDir}' -Force"`;
+        exec(cmd, (err) => {
+            if (err) { reject(err); } else { resolve(); }
+        });
+    });
+}
+
+/** Compare two dot-separated version strings (e.g. "1.9.0" vs "1.8.11"). */
+function compareVersions(a: string, b: string): number {
+    const pa = a.split(".").map(Number);
+    const pb = b.split(".").map(Number);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+        const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+        if (diff !== 0) { return diff; }
+    }
+    return 0;
+}
+
+/**
+ * Read flivs-info.json from the extract directory and show a warning
+ * if the current extension version is older than minExtensionVersion.
+ */
+function checkExtensionCompatibility(extractDir: string, context: vscode.ExtensionContext): void {
+    const infoPath = path.join(extractDir, FLIVS_INFO_FILENAME);
+    if (!fs.existsSync(infoPath)) { return; }
+
+    let info: FlivsInfo;
+    try {
+        const raw = fs.readFileSync(infoPath, "utf-8").replace(/^\uFEFF/, "");
+        info = JSON.parse(raw) as FlivsInfo;
+    } catch (e) {
+        console.warn(`FCS Language Server: failed to parse ${FLIVS_INFO_FILENAME}: ${e}`);
+        return;
+    }
+
+    if (!info.minExtensionVersion) { return; }
+
+    const current = context.extension.packageJSON.version as string;
+    if (compareVersions(current, info.minExtensionVersion) < 0) {
+        vscode.window.showWarningMessage(
+            `FCS Language Server requires extension version ${info.minExtensionVersion} or newer ` +
+            `(you have ${current}). Please update the extension.`,
+            "Update Extension"
+        ).then((choice) => {
+            if (choice === "Update Extension") {
+                vscode.commands.executeCommand("workbench.extensions.action.checkForUpdates");
+            }
+        });
+    }
+}
+
+/** Fetch a specific release by tag, or the latest release if tag is undefined. */
+async function fetchRelease(token: string, tag?: string): Promise<GitHubRelease | undefined> {
+    const url = tag
+        ? `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}/releases/tags/${tag}`
+        : `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}/releases/latest`;
+    const resp = await httpsGet(url, token, "application/vnd.github+json").catch(() => null);
+    if (!resp || resp.status !== 200) { return undefined; }
+    try { return JSON.parse(resp.body) as GitHubRelease; } catch { return undefined; }
+}
+
+/** List all release tag names from the private repository. */
+async function fetchAllTags(token: string): Promise<string[]> {
+    const url = `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}/releases?per_page=50`;
+    const resp = await httpsGet(url, token, "application/vnd.github+json").catch(() => null);
+    if (!resp || resp.status !== 200) { return []; }
+    try {
+        const releases = JSON.parse(resp.body) as GitHubRelease[];
+        return releases.map((r) => r.tag_name);
+    } catch { return []; }
+}
+
+// ── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Try to obtain the path to the language-server binary via GitHub.
+ *
+ * Returns `undefined` when:
+ *  - the user refuses to sign in, or
+ *  - the user has no read access to the private repository, or
+ *  - the download fails.
+ *
+ * The caller should treat `undefined` as "no server available" and fall back
+ * to the regex-based providers (same behaviour as when flils.exe is absent).
+ */
+export async function resolveServerPathFromGitHub(
+    context: vscode.ExtensionContext
+): Promise<string | undefined> {
+
+    // 1. Authenticate with GitHub
+    let session: vscode.AuthenticationSession;
+    try {
+        session = await vscode.authentication.getSession(
+            "github",
+            ["repo"],          // 'repo' scope grants read access to private repos
+            { createIfNone: true }
+        );
+    } catch {
+        // User dismissed the login dialog — silently skip the server
+        return undefined;
+    }
+
+    const token = session.accessToken;
+
+    // 2. Check repository access
+    const repoUrl = `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}`;
+    const repoResp = await httpsGet(repoUrl, token, "application/vnd.github+json").catch(() => null);
+    if (!repoResp || repoResp.status !== 200) {
+        vscode.window.showWarningMessage(
+            `FCS Language Server: GitHub account '${session.account.label}' does not have access ` +
+            `to ${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}. Advanced features are disabled.`
+        );
+        return undefined;
+    }
+
+    // 3. Determine cache paths
+    const storageDir = context.globalStorageUri.fsPath;
+    if (!fs.existsSync(storageDir)) {
+        fs.mkdirSync(storageDir, { recursive: true });
+    }
+
+    const extractDir       = path.join(storageDir, EXTRACT_DIR);
+    const cachedBinaryPath = path.join(extractDir, EXE_IN_ZIP);
+    const cachedTagPath    = path.join(storageDir, CACHED_TAG_FILE);
+    const lastCheckPath    = path.join(storageDir, LAST_CHECK_FILE);
+    const pinnedTagPath    = path.join(storageDir, PINNED_TAG_FILE);
+
+    const pinnedTag     = fs.existsSync(pinnedTagPath) ? fs.readFileSync(pinnedTagPath, "utf-8").trim() : "";
+    const cachedTag     = fs.existsSync(cachedTagPath) ? fs.readFileSync(cachedTagPath, "utf-8").trim() : "";
+    const lastCheck     = fs.existsSync(lastCheckPath) ? Number(fs.readFileSync(lastCheckPath, "utf-8").trim()) : 0;
+    const sinceLastCheck = Date.now() - lastCheck;
+
+    // 4. Skip GitHub API check entirely if binary exists and was checked recently
+    if (fs.existsSync(cachedBinaryPath) && sinceLastCheck < CHECK_INTERVAL_MS) {
+        checkExtensionCompatibility(extractDir, context);
+        return cachedBinaryPath;
+    }
+
+    // 5. Fetch target release (pinned or latest)
+    const targetRelease = await fetchRelease(token, pinnedTag || undefined);
+    if (!targetRelease) {
+        return undefined;
+    }
+
+    const asset = targetRelease.assets.find((a) => a.name === ASSET_NAME);
+    if (!asset) {
+        return undefined;
+    }
+
+    // 6. If pinned, warn when a newer release exists
+    if (pinnedTag) {
+        const latestRelease = await fetchRelease(token);
+        if (latestRelease && latestRelease.tag_name !== pinnedTag) {
+            const publishedAt = new Date(targetRelease.published_at).toLocaleDateString();
+            vscode.window.showWarningMessage(
+                `FCS Language Server: you are using pinned version ${pinnedTag} (released ${publishedAt}). ` +
+                `A newer version ${latestRelease.tag_name} is available.`,
+                "Switch to latest"
+            ).then((choice) => {
+                if (choice === "Switch to latest") {
+                    fs.unlinkSync(pinnedTagPath);
+                }
+            });
+        }
+    }
+
+    // 7. Re-use cache if the binary is already up to date (tag matches)
+    if (cachedTag === targetRelease.tag_name && fs.existsSync(cachedBinaryPath)) {
+        fs.writeFileSync(lastCheckPath, String(Date.now()), "utf-8");
+        checkExtensionCompatibility(extractDir, context);
+        return cachedBinaryPath;
+    }
+
+    // 8. Download zip and extract
+    const zipPath = path.join(storageDir, ASSET_NAME);
+    await vscode.window.withProgress(
+        {
+            location: vscode.ProgressLocation.Notification,
+            title: `FCS Language Server: downloading ${targetRelease.tag_name}…`,
+            cancellable: false,
+        },
+        async () => {
+            await downloadBinary(asset.url, token, zipPath);
+            await extractZip(zipPath, extractDir);
+            // Remove zip after successful extraction
+            fs.unlink(zipPath, () => undefined);
+            fs.writeFileSync(cachedTagPath, targetRelease.tag_name, "utf-8");
+            fs.writeFileSync(lastCheckPath, String(Date.now()), "utf-8");
+            checkExtensionCompatibility(extractDir, context);
+        }
+    );
+
+    return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
+}
+
+/**
+ * Command: Let the user pick a specific release version to pin, or clear the pin.
+ * Shows a QuickPick with all available release tags + "Latest version" option.
+ */
+export async function selectServerVersionCommand(context: vscode.ExtensionContext): Promise<void> {
+
+    let session: vscode.AuthenticationSession;
+    try {
+        session = await vscode.authentication.getSession("github", ["repo"], { createIfNone: true });
+    } catch {
+        vscode.window.showErrorMessage("FCS Language Server: GitHub sign-in is required to select a version.");
+        return;
+    }
+
+    const token = session.accessToken;
+    const storageDir    = context.globalStorageUri.fsPath;
+    const pinnedTagPath = path.join(storageDir, PINNED_TAG_FILE);
+    const currentPin    = fs.existsSync(pinnedTagPath) ? fs.readFileSync(pinnedTagPath, "utf-8").trim() : "";
+
+    await vscode.window.withProgress(
+        { location: vscode.ProgressLocation.Notification, title: "FCS Language Server: fetching version list…", cancellable: false },
+        async () => { /* zobrazí spinner během fetchAllTags */ }
+    );
+
+    const tags = await fetchAllTags(token);
+    if (tags.length === 0) {
+        vscode.window.showErrorMessage("FCS Language Server: failed to fetch version list.");
+        return;
+    }
+
+    const LATEST_LABEL = "$(rocket) Latest version (automatic)";
+
+    const items: vscode.QuickPickItem[] = [
+        {
+            label: LATEST_LABEL,
+            description: currentPin ? "" : "$(check) currently selected",
+        },
+        ...tags.map((tag) => ({
+            label: `$(tag) ${tag}`,
+            description: tag === currentPin ? "$(check) currently selected" : "",
+        })),
+    ];
+
+    const picked = await vscode.window.showQuickPick(items, {
+        title: "FCS Language Server – select version",
+        placeHolder: currentPin ? `Currently pinned: ${currentPin}` : "Currently: latest version",
+    });
+
+    if (!picked) { return; }
+
+    if (!fs.existsSync(storageDir)) {
+        fs.mkdirSync(storageDir, { recursive: true });
+    }
+
+    if (picked.label === LATEST_LABEL) {
+        if (fs.existsSync(pinnedTagPath)) { fs.unlinkSync(pinnedTagPath); }
+        vscode.window.showInformationMessage("FCS Language Server: switched to latest version.");
+    } else {
+        const tag = picked.label.replace("$(tag) ", "");
+        fs.writeFileSync(pinnedTagPath, tag, "utf-8");
+        vscode.window.showInformationMessage(`FCS Language Server: pinned to version ${tag}.`);
+    }
+}
+
+/**
+ * Command: Force re-download of the language-server binary for the currently
+ * active version (pinned or latest). Clears the cache and runs the full
+ * download flow so the user gets a fresh copy immediately.
+ */
+export async function redownloadServerCommand(
+    context: vscode.ExtensionContext,
+    restartServer: () => Promise<void>
+): Promise<void> {
+
+    const storageDir    = context.globalStorageUri.fsPath;
+    const cachedTagPath = path.join(storageDir, CACHED_TAG_FILE);
+    const lastCheckPath = path.join(storageDir, LAST_CHECK_FILE);
+
+    // Clear cache markers so resolveServerPathFromGitHub performs a fresh download
+    for (const f of [cachedTagPath, lastCheckPath]) {
+        if (fs.existsSync(f)) { fs.unlinkSync(f); }
+    }
+
+    try {
+        await restartServer();
+        vscode.window.showInformationMessage("FCS Language Server: re-download complete.");
+    } catch (err) {
+        vscode.window.showErrorMessage(`FCS Language Server: re-download failed. ${err}`);
+    }
+}

@@ -9,6 +9,7 @@ import { FliUpdater } from "./fliUpdater/fliUpdater";
 import { TestTree } from "./testTree/testTree";
 import { FcsTextContentProvider } from "./fcsTextContentProvider";
 import { startLanguageServer, stopLanguageServer, isLanguageServerRunning } from "./fcsLanguageServer";
+import { selectServerVersionCommand, redownloadServerCommand } from "./githubServerProvider";
 
 let extData: ExtensionData;
 
@@ -63,6 +64,19 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.openInViewer", async () => { await viewerFcs.openInViewer(); }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.selectLanguageServerVersion", async () => {
+            await selectServerVersionCommand(context);
+        }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.redownloadLanguageServer", async () => {
+            await redownloadServerCommand(context, async () => {
+                await stopLanguageServer();
+                await startLanguageServer(context);
+            });
+        }));
 }
 
 

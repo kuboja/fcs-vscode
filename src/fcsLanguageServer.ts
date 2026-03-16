@@ -7,14 +7,15 @@ import {
     ServerOptions,
     TransportKind,
 } from "vscode-languageclient/node";
+import { resolveServerPathFromGitHub } from "./githubServerProvider";
 
 let client: LanguageClient | undefined;
 
 /**
  * Find flils.exe path from settings or well-known locations.
- * Returns undefined if not found — the extension works fine without it.
+ * Returns undefined if not found — falls through to GitHub download.
  */
-function resolveServerPath(): string | undefined {
+function resolveServerPathLocally(): string | undefined {
     const config = vscode.workspace.getConfiguration("fcs-vscode");
 
     // 1. Explicit setting takes priority
@@ -24,7 +25,7 @@ function resolveServerPath(): string | undefined {
     }
 
     // 2. Look alongside fli in fliFolder or femcadFolder
-    const fliFolder = config.get<string>("fliFolder", "") 
+    const fliFolder = config.get<string>("fliFolder", "")
                    || config.get<string>("femcadFolder", "");
     if (fliFolder) {
         const candidate = path.join(fliFolder, "flils.exe");
@@ -36,8 +37,25 @@ function resolveServerPath(): string | undefined {
     return undefined;
 }
 
+/**
+ * Resolve the language-server binary:
+ *  1. Local path from settings / well-known locations.
+ *  2. Proprietary binary downloaded from the private GitHub repository
+ *     (requires the user to be signed in and have repo access).
+ */
+async function resolveServerPath(context: vscode.ExtensionContext): Promise<string | undefined> {
+    // Local path wins — no GitHub round-trip needed
+    const local = resolveServerPathLocally();
+    if (local) {
+        return local;
+    }
+
+    // Fall back to GitHub-authenticated download
+    return resolveServerPathFromGitHub(context);
+}
+
 export async function startLanguageServer(context: vscode.ExtensionContext): Promise<void> {
-    const serverPath = resolveServerPath();
+    const serverPath = await resolveServerPath(context);
     if (!serverPath) {
         // No server found — extension works fine with regex providers only
         return;
