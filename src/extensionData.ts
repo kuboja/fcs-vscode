@@ -38,12 +38,15 @@ export class ExtensionData {
         }
     }
 
-    public get femcadFolderPath(): string {
-        return this.GetStringValue("femcadFolder", "");
+    /** Local directory path used as override for development (looked up first before GitHub cache). */
+    public get localOverridePath(): string {
+        return this.GetStringValue("localOverridePath", "");
     }
 
-    public get fliFolderPath(): string {
-        return this.GetStringValue("fliFolder", this.femcadFolderPath);
+    /** Path to the flivs extract directory in globalStorage (contains fliw.exe, femcad.exe, etc.). */
+    public get flivsFolderPath(): string {
+        const storage = this.context.globalStorageUri.fsPath;
+        return require("path").join(storage, "flivs");
     }
 
     public get showExecutionMessage(): boolean {
@@ -68,14 +71,6 @@ export class ExtensionData {
 
     public get saveFileBeforeRun(): boolean {
         return this.GetBooleanValue("saveFileBeforeRun", true);
-    }
-
-    public get autoupdateFliVSenabled(): boolean {
-        return this.GetBooleanValue("autoupdateFliVSenabled", true);
-    }
-
-    public get autoupdateFliVSsource(): string {
-        return this.GetStringValue("autoupdateFliVSsource", "Q:\\Builds\\fliVS");
     }
 
     public get collapseTestAfterRun(): boolean {

@@ -12,26 +12,25 @@ import { resolveServerPathFromGitHub } from "./githubServerProvider";
 let client: LanguageClient | undefined;
 
 /**
- * Find flils.exe path from settings or well-known locations.
- * Returns undefined if not found — falls through to GitHub download.
+ * Find flils.exe from the local override path (development) or flivs cache.
+ * Returns undefined to fall through to GitHub download.
  */
-function resolveServerPathLocally(): string | undefined {
+function resolveServerPathLocally(context: vscode.ExtensionContext): string | undefined {
     const config = vscode.workspace.getConfiguration("fcs-vscode");
 
-    // 1. Explicit setting takes priority
-    const explicit = config.get<string>("languageServerPath", "");
-    if (explicit && fs.existsSync(explicit)) {
-        return explicit;
-    }
-
-    // 2. Look alongside fli in fliFolder or femcadFolder
-    const fliFolder = config.get<string>("fliFolder", "")
-                   || config.get<string>("femcadFolder", "");
-    if (fliFolder) {
-        const candidate = path.join(fliFolder, "flils.exe");
+    // 1. Local override path wins (for development)
+    const overrideDir = config.get<string>("localOverridePath", "");
+    if (overrideDir) {
+        const candidate = path.join(overrideDir, "flils.exe");
         if (fs.existsSync(candidate)) {
             return candidate;
         }
+    }
+
+    // 2. flivs cache directory (downloaded via GitHub)
+    const flivsCandidate = path.join(context.globalStorageUri.fsPath, "flivs", "flils.exe");
+    if (fs.existsSync(flivsCandidate)) {
+        return flivsCandidate;
     }
 
     return undefined;
@@ -45,7 +44,7 @@ function resolveServerPathLocally(): string | undefined {
  */
 async function resolveServerPath(context: vscode.ExtensionContext): Promise<string | undefined> {
     // Local path wins — no GitHub round-trip needed
-    const local = resolveServerPathLocally();
+    const local = resolveServerPathLocally(context);
     if (local) {
         return local;
     }

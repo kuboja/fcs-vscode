@@ -374,10 +374,10 @@
             "type": "object",
             "title": "Femcad Script",
             "properties": {
-                "fcs-vscode.languageServerPath": {
+                "fcs-vscode.localOverridePath": {
                     "type": "string",
                     "default": "",
-                    "description": "Path to flils.exe (FCS Language Server). If empty, looks in fliFolder/femcadFolder. Leave empty to auto-discover, or set to disable LSP by pointing to a nonexistent path."
+                    "description": "Local directory path for development overrides. If set, all executables (flils.exe, flivs.exe, femcad.exe, fliw.exe) will be looked up here first before using the GitHub-downloaded cache."
                 },
                 "fcs-vscode.maxNumberOfProblems": {
                     "type": "number",
@@ -393,16 +393,6 @@
                     ],
                     "default": "off",
                     "description": "Traces the communication between VSCode and the fcs-vscode service."
-                },
-                "fcs-vscode.femcadFolder": {
-                    "type": "string",
-                    "default": "C:\\FemCAD\\Application",
-                    "description": "FemCAD instalation folder."
-                },
-                "fcs-vscode.fliFolder": {
-                    "type": "string",
-                    "default": null,
-                    "description": "FLI instalation folder. (default is FemCAD folder)"
                 },
                 "fcs-vscode.clearPreviousOutput": {
                     "type": "boolean",
@@ -443,16 +433,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Whether to show 'Run Code' icon in editor title menu."
-                },
-                "fcs-vscode.autoupdateFliVSenabled": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If true, auto update is enabled before openig file in interactive tree"
-                },
-                "fcs-vscode.autoupdateFliVSsource": {
-                    "type": "string",
-                    "default": "Q:\\Builds\\fliVS",
-                    "description": "Path to source folder of FliVS."
                 },
                 "fcs-vscode.testsAutoload": {
                     "type": "boolean",

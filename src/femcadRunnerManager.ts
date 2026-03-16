@@ -48,62 +48,56 @@ export class FemcadRunner {
     private readonly outputChannel: vscode.OutputChannel;
     private readonly IsInitialized: boolean;
 
-    private getFemcadFolder(): string {
-        return this.extData.femcadFolderPath;
-    }
-
     private async getFemcadFilepath(fileName: string, quiteOnFile: boolean = false): Promise<string | undefined> {
-        let femcadFolder: string = this.getFemcadFolder();
 
-        if (!(femcadFolder)) {
-            throw new Error("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-        }
-
-        // kontrola jestli je adresář femcadu dostupný
-        if (!await AsyncTools.fsAccess(femcadFolder)) {
-            throw new Error("Nebyl nalezen zadaný FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
-        }
-
-        let filePath = join(femcadFolder, fileName);
-
-        // kontrola jestli je v adresáři femcad dostupný soubor
-        if (!await AsyncTools.fsAccess(filePath)) {
-            if (quiteOnFile) {
-                return;
-            }
-            else {
-                throw new Error("Nenalezen " + filePath + "! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder'.");
+        // 1. Local override path (for development)
+        const overrideDir = this.extData.localOverridePath;
+        if (overrideDir) {
+            const overrideCandidate = join(overrideDir, fileName);
+            if (await AsyncTools.fsAccess(overrideCandidate)) {
+                return overrideCandidate;
             }
         }
 
-        return filePath;
+        // 2. flivs cache directory
+        const flivsFolder = this.extData.flivsFolderPath;
+        if (flivsFolder) {
+            const flivsCandidate = join(flivsFolder, fileName);
+            if (await AsyncTools.fsAccess(flivsCandidate)) {
+                return flivsCandidate;
+            }
+        }
+
+        if (!quiteOnFile) {
+            throw new Error(`Nenalezen ${fileName}. Stáhněte flivs pomocí příkazu 'FCS: Re-download Language Server', nebo nastavte 'fcs-vscode.localOverridePath'.`);
+        }
+        return undefined;
     }
 
     private async getFliFilepath(fileName: string, quiteOnFile: boolean = false): Promise<string | undefined> {
-        let fliFolder: string = this.extData.fliFolderPath;
 
-        if (!(fliFolder)) {
-            throw new Error("Není nastaven FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder', případně 'fcs-vscode.fliFolder'.");
-        }
-
-        // kontrola jestli je adresář femcadu dostupný
-        if (!await AsyncTools.fsAccess(fliFolder)) {
-            throw new Error("Nebyl nalezen zadaný FemCAD adresář. Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder', případně 'fcs-vscode.fliFolder'.");
-        }
-
-        let filePath = join(fliFolder, fileName);
-
-        // kontrola jestli je v adresáři femcad dostupný soubor
-        if (!await AsyncTools.fsAccess(filePath)) {
-            if (quiteOnFile) {
-                return;
-            }
-            else {
-                throw new Error("Nenalezen " + filePath + "! Zkontrolujte nastavení parametru 'fcs-vscode.femcadFolder', případně 'fcs-vscode.fliFolder'.");
+        // 1. Local override path (for development)
+        const overrideDir = this.extData.localOverridePath;
+        if (overrideDir) {
+            const overrideCandidate = join(overrideDir, fileName);
+            if (await AsyncTools.fsAccess(overrideCandidate)) {
+                return overrideCandidate;
             }
         }
 
-        return filePath;
+        // 2. flivs cache directory
+        const flivsFolder = this.extData.flivsFolderPath;
+        if (flivsFolder) {
+            const flivsCandidate = join(flivsFolder, fileName);
+            if (await AsyncTools.fsAccess(flivsCandidate)) {
+                return flivsCandidate;
+            }
+        }
+
+        if (!quiteOnFile) {
+            throw new Error(`Nenalezen ${fileName}. Stáhněte flivs pomocí příkazu 'FCS: Re-download Language Server', nebo nastavte 'fcs-vscode.localOverridePath'.`);
+        }
+        return undefined;
     }
 
     private async getFliPath(): Promise<string | undefined> {
