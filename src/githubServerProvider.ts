@@ -50,6 +50,18 @@ const PINNED_TAG_FILE = "flivs-pinned-tag.txt";
 /** Minimum interval between GitHub API checks (ms). */
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 
+/** Lock file preventing concurrent updates from multiple VS Code windows. */
+const LOCK_FILE = "flivs-update.lock";
+
+/** Lock older than this is considered stale (owner process probably crashed). */
+const LOCK_STALE_MS = 5 * 60 * 1000;
+
+/** Temporary directory used during download + extraction of a new release. */
+const STAGING_DIR = "flivs-staging";
+
+/** Temporary name for the current active directory during an atomic swap. */
+const OLD_DIR = "flivs-old";
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface GitHubRelease {
@@ -65,6 +77,91 @@ interface FlivsInfo {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Check whether a process with the given PID is still alive. */
+function isProcessAlive(pid: number): boolean {
+    try { process.kill(pid, 0); return true; } catch { return false; }
+}
+
+/**
+ * Try to acquire an exclusive file-based lock.
+ * Returns true if this process now owns the lock, false if another live
+ * process already holds it.
+ */
+function acquireLock(storageDir: string): boolean {
+    const lockPath = path.join(storageDir, LOCK_FILE);
+
+    if (fs.existsSync(lockPath)) {
+        try {
+            const data = JSON.parse(fs.readFileSync(lockPath, "utf-8")) as { pid: number; ts: number };
+            const stale = (Date.now() - data.ts) > LOCK_STALE_MS;
+            const dead  = !isProcessAlive(data.pid);
+            if (!stale && !dead) {
+                return false; // another live VS Code window is updating
+            }
+        } catch { /* corrupt lock — steal it */ }
+    }
+
+    // Use exclusive create flag to avoid a TOCTOU race between the check above
+    // and the write. If two processes reach here simultaneously, only one wins.
+    try {
+        fs.writeFileSync(lockPath, JSON.stringify({ pid: process.pid, ts: Date.now() }), { flag: "wx" });
+        return true;
+    } catch (e: any) {
+        if (e.code === "EEXIST") { return false; }
+        throw e;
+    }
+}
+
+/** Release the file-based lock. */
+function releaseLock(storageDir: string): void {
+    try { fs.unlinkSync(path.join(storageDir, LOCK_FILE)); } catch { /* ignore */ }
+}
+
+/**
+ * Remove leftover staging and old directories from a previous crashed update.
+ * Called once at the beginning of each update check.
+ */
+function cleanupStaleDirs(storageDir: string): void {
+    // Only attempt cleanup when no lock is held (no update in progress)
+    if (fs.existsSync(path.join(storageDir, LOCK_FILE))) { return; }
+    for (const name of [STAGING_DIR, OLD_DIR]) {
+        const dir = path.join(storageDir, name);
+        if (fs.existsSync(dir)) {
+            try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* files still in use */ }
+        }
+    }
+}
+
+/**
+ * Atomic directory swap: flivs-staging/ → flivs/ (the active cache dir).
+ *
+ * Strategy:
+ *  1. Rename existing flivs/ → flivs-old/  (works on Windows even with running
+ *     executables — processes hold handles by inode, not by path).
+ *  2. Rename flivs-staging/ → flivs/.
+ *  3. Attempt async deletion of flivs-old/ — may fail silently if exes are
+ *     still in use; cleanupStaleDirs() will finish the job next time.
+ */
+function atomicSwap(storageDir: string): void {
+    const activeDir  = path.join(storageDir, EXTRACT_DIR);
+    const stagingDir = path.join(storageDir, STAGING_DIR);
+    const oldDir     = path.join(storageDir, OLD_DIR);
+
+    if (fs.existsSync(activeDir)) {
+        if (fs.existsSync(oldDir)) {
+            try { fs.rmSync(oldDir, { recursive: true, force: true }); } catch { /* ignore */ }
+        }
+        fs.renameSync(activeDir, oldDir);
+    }
+
+    fs.renameSync(stagingDir, activeDir);
+
+    // Best-effort async cleanup — silently ignore EPERM (exe still running)
+    setImmediate(() => {
+        try { fs.rmSync(oldDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    });
+}
 
 /** Perform an authenticated HTTPS GET that returns the full body as a string. */
 function httpsGet(url: string, token: string, accept: string): Promise<{ status: number; body: string }> {
@@ -251,15 +348,19 @@ export async function resolveServerPathFromGitHub(
         fs.mkdirSync(storageDir, { recursive: true });
     }
 
+    // Clean up leftover staging/old dirs from any previously crashed update
+    cleanupStaleDirs(storageDir);
+
     const extractDir       = path.join(storageDir, EXTRACT_DIR);
+    const stagingDir       = path.join(storageDir, STAGING_DIR);
     const cachedBinaryPath = path.join(extractDir, EXE_IN_ZIP);
     const cachedTagPath    = path.join(storageDir, CACHED_TAG_FILE);
     const lastCheckPath    = path.join(storageDir, LAST_CHECK_FILE);
     const pinnedTagPath    = path.join(storageDir, PINNED_TAG_FILE);
 
-    const pinnedTag     = fs.existsSync(pinnedTagPath) ? fs.readFileSync(pinnedTagPath, "utf-8").trim() : "";
-    const cachedTag     = fs.existsSync(cachedTagPath) ? fs.readFileSync(cachedTagPath, "utf-8").trim() : "";
-    const lastCheck     = fs.existsSync(lastCheckPath) ? Number(fs.readFileSync(lastCheckPath, "utf-8").trim()) : 0;
+    const pinnedTag      = fs.existsSync(pinnedTagPath) ? fs.readFileSync(pinnedTagPath, "utf-8").trim() : "";
+    const cachedTag      = fs.existsSync(cachedTagPath) ? fs.readFileSync(cachedTagPath, "utf-8").trim() : "";
+    const lastCheck      = fs.existsSync(lastCheckPath) ? Number(fs.readFileSync(lastCheckPath, "utf-8").trim()) : 0;
     const sinceLastCheck = Date.now() - lastCheck;
 
     // 4. Skip GitHub API check entirely if binary exists and was checked recently
@@ -271,12 +372,12 @@ export async function resolveServerPathFromGitHub(
     // 5. Fetch target release (pinned or latest)
     const targetRelease = await fetchRelease(token, pinnedTag || undefined);
     if (!targetRelease) {
-        return undefined;
+        return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
     }
 
     const asset = targetRelease.assets.find((a) => a.name === ASSET_NAME);
     if (!asset) {
-        return undefined;
+        return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
     }
 
     // 6. If pinned, warn when a newer release exists
@@ -303,24 +404,51 @@ export async function resolveServerPathFromGitHub(
         return cachedBinaryPath;
     }
 
-    // 8. Download zip and extract
+    // 8. Acquire update lock — only one VS Code window performs the download at a time.
+    //    If another window is already updating, return the current cache and let the
+    //    other window finish. On the next check the new version will be present.
+    if (!acquireLock(storageDir)) {
+        console.log("FCS Language Server: update already in progress in another window, using cached binary.");
+        return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
+    }
+
+    // 9. Download zip → extract to staging → atomic swap (rename-based, safe for running exes)
     const zipPath = path.join(storageDir, ASSET_NAME);
-    await vscode.window.withProgress(
-        {
-            location: vscode.ProgressLocation.Notification,
-            title: `FCS Language Server: downloading ${targetRelease.tag_name}…`,
-            cancellable: false,
-        },
-        async () => {
-            await downloadBinary(asset.url, token, zipPath);
-            await extractZip(zipPath, extractDir);
-            // Remove zip after successful extraction
-            fs.unlink(zipPath, () => undefined);
-            fs.writeFileSync(cachedTagPath, targetRelease.tag_name, "utf-8");
-            fs.writeFileSync(lastCheckPath, String(Date.now()), "utf-8");
-            checkExtensionCompatibility(extractDir, context);
-        }
-    );
+    try {
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: `FCS Language Server: downloading ${targetRelease.tag_name}…`,
+                cancellable: false,
+            },
+            async () => {
+                // Ensure staging dir is empty before extraction
+                if (fs.existsSync(stagingDir)) {
+                    fs.rmSync(stagingDir, { recursive: true, force: true });
+                }
+
+                await downloadBinary(asset.url, token, zipPath);
+
+                // Extract into staging — never touches the live flivs/ directory
+                await extractZip(zipPath, stagingDir);
+                fs.unlink(zipPath, () => undefined);
+
+                // Atomic swap: flivs/ → flivs-old/, flivs-staging/ → flivs/
+                // On Windows, renaming a directory with running executables inside
+                // succeeds because processes hold file handles by inode, not by path.
+                atomicSwap(storageDir);
+
+                fs.writeFileSync(cachedTagPath, targetRelease.tag_name, "utf-8");
+                fs.writeFileSync(lastCheckPath, String(Date.now()), "utf-8");
+                checkExtensionCompatibility(extractDir, context);
+            }
+        );
+    } finally {
+        // Always release the lock, even if an error occurred mid-download
+        releaseLock(storageDir);
+        // Clean up any leftover zip if download/extraction failed
+        if (fs.existsSync(zipPath)) { fs.unlink(zipPath, () => undefined); }
+    }
 
     return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
 }

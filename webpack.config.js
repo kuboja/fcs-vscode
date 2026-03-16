@@ -59,6 +59,8 @@ module.exports = (env, argv) => {
 
     devtool: 'nosources-source-map',
 
+    ignoreWarnings: [{ module: /vscode-languageserver-types/ }],
+
     infrastructureLogging: {
       level: "log", // enables logging required for problem matchers
     },
