@@ -208,15 +208,17 @@ function registerSymbolManager(context: vscode.ExtensionContext, extData: Extens
 
     let fcsLang = { language: "fcs", scheme: "" };
 
-    context.subscriptions.push(
-        vscode.languages.registerCompletionItemProvider(fcsLang, new FcsCompletionItemProvider(extData), ".")
-    );
-
-    context.subscriptions.push(
-        vscode.languages.registerDocumentSymbolProvider(fcsLang, new FcsSymbolProvider())
-    );
-
+    // When LSP is active it provides completions, symbols and definitions itself.
+    // Registering the regex-based providers on top would cause duplicates.
     if (!lspActive) {
+        context.subscriptions.push(
+            vscode.languages.registerCompletionItemProvider(fcsLang, new FcsCompletionItemProvider(extData), ".")
+        );
+
+        context.subscriptions.push(
+            vscode.languages.registerDocumentSymbolProvider(fcsLang, new FcsSymbolProvider())
+        );
+
         context.subscriptions.push(
             vscode.languages.registerDefinitionProvider(fcsLang, new FcsDefinitionProvider())
         );

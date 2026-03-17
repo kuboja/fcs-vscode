@@ -21,6 +21,11 @@ function resolveServerPath(context: vscode.ExtensionContext): string | undefined
 }
 
 export async function startLanguageServer(context: vscode.ExtensionContext): Promise<void> {
+    if (client?.isRunning()) {
+        // Already running — nothing to do
+        return;
+    }
+
     const serverPath = resolveServerPath(context);
     if (!serverPath) {
         // No server found — extension works fine with regex providers only
