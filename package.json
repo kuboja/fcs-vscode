@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.8.11",
+    "version": "1.9.0",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
@@ -492,7 +492,9 @@
     },
     "scripts": {
         "package": "npx vsce package",
+        "package:prerelease": "npx vsce package --pre-release",
         "publish": "npx vsce publish",
+        "publish:prerelease": "npx vsce publish --pre-release",
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode development",
         "watch": "webpack --mode development --watch",
