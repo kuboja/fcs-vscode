@@ -2,19 +2,15 @@ import * as vscode from "vscode";
 
 import { Entry, TreeInteractionProvider } from "./treeInteractionProvider";
 import { FcsSymbolProvider } from "../fcsSymbolUtil";
-import { FliUpdater } from "../fliUpdater/fliUpdater";
 import { ExtensionData } from "../extensionData";
 
 
 export class InteractiveTree implements vscode.Disposable {
-    private fliUpdater: FliUpdater;
     private treeDataProvider: TreeInteractionProvider;
     private tree: vscode.TreeView<Entry>;
 
-    constructor(context: vscode.ExtensionContext, extData: ExtensionData, fliUpdater: FliUpdater) {
-        this.fliUpdater = fliUpdater;
-
-        this.treeDataProvider = new TreeInteractionProvider(context, this.fliUpdater, extData);
+    constructor(context: vscode.ExtensionContext, extData: ExtensionData) {
+        this.treeDataProvider = new TreeInteractionProvider(context, extData);
         this.tree = vscode.window.createTreeView('fcstree', { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
 
         vscode.commands.registerCommand('fcs-vscode.intOpen', async () => await this.openFromEditor());
@@ -58,10 +54,6 @@ export class InteractiveTree implements vscode.Disposable {
         catch (e) {
             console.error(e);
         }
-    }
-
-    private async updateFlivs() {
-        return await this.fliUpdater.runUpdate();
     }
 
     private async close(element: Entry | undefined) {

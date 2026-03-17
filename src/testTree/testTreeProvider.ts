@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import * as fs from "fs";
 import { join } from "path";
 
-import { FliUpdater } from "../fliUpdater/fliUpdater";
+import { getFlivsExePath } from "../githubServerProvider";
 import { ExtensionData } from "../extensionData";
 import { TestManager, TestInfo } from "./testManager";
 import { TelemetryReporterClient } from "../appInsightsClient";
@@ -14,18 +14,16 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     private context: vscode.ExtensionContext;
     private extData: ExtensionData;
     private reporter: TelemetryReporterClient;
-    private fliUpdater: FliUpdater;
 
     public tree: vscode.TreeView<TestNode> | undefined;
 
     private _onDidChangeTreeData: vscode.EventEmitter<TestNode | undefined>;
     private roots: TestNode[] | undefined;
 
-    public constructor(context: vscode.ExtensionContext, fliUpdater: FliUpdater, extData: ExtensionData) {
+    public constructor(context: vscode.ExtensionContext, extData: ExtensionData) {
         this.context = context;
         this.extData = extData;
         this.reporter = extData.reporter;
-        this.fliUpdater = fliUpdater;
 
         this._onDidChangeTreeData = new vscode.EventEmitter<TestNode>();
         this.expandedTests = [];
@@ -608,12 +606,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
     }
 
     private async getManager(element: TestNode) {
-        if (!await this.fliUpdater.runUpdate()) {
-            return;
-        }
-
-        
-        let man = new TestManager(element.filePath, this.fliUpdater.getFliPath(), this.extData);
+        let man = new TestManager(element.filePath, getFlivsExePath(this.context, "flivs.exe"), this.extData);
 
         if (!await man.startConnection()) {
             return;

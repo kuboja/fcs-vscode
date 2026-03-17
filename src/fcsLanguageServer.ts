@@ -7,54 +7,21 @@ import {
     ServerOptions,
     TransportKind,
 } from "vscode-languageclient/node";
-import { resolveServerPathFromGitHub } from "./githubServerProvider";
+import { getFlivsExePath } from "./githubServerProvider";
 
 let client: LanguageClient | undefined;
 
 /**
- * Find flils.exe from the local override path (development) or flivs cache.
- * Returns undefined to fall through to GitHub download.
+ * Resolve the language-server binary from cache only.
+ * Updates are handled exclusively by the background timer and the re-download command.
  */
-function resolveServerPathLocally(context: vscode.ExtensionContext): string | undefined {
-    const config = vscode.workspace.getConfiguration("fcs-vscode");
-
-    // 1. Local override path wins (for development)
-    const overrideDir = config.get<string>("localOverridePath", "");
-    if (overrideDir) {
-        const candidate = path.join(overrideDir, "flils.exe");
-        if (fs.existsSync(candidate)) {
-            return candidate;
-        }
-    }
-
-    // 2. flivs cache directory (downloaded via GitHub)
-    const flivsCandidate = path.join(context.globalStorageUri.fsPath, "flivs", "flils.exe");
-    if (fs.existsSync(flivsCandidate)) {
-        return flivsCandidate;
-    }
-
-    return undefined;
-}
-
-/**
- * Resolve the language-server binary:
- *  1. Local path from settings / well-known locations.
- *  2. Proprietary binary downloaded from the private GitHub repository
- *     (requires the user to be signed in and have repo access).
- */
-async function resolveServerPath(context: vscode.ExtensionContext): Promise<string | undefined> {
-    // Local path wins — no GitHub round-trip needed
-    const local = resolveServerPathLocally(context);
-    if (local) {
-        return local;
-    }
-
-    // Fall back to GitHub-authenticated download
-    return resolveServerPathFromGitHub(context);
+function resolveServerPath(context: vscode.ExtensionContext): string | undefined {
+    const exePath = getFlivsExePath(context, "flils.exe");
+    return fs.existsSync(exePath) ? exePath : undefined;
 }
 
 export async function startLanguageServer(context: vscode.ExtensionContext): Promise<void> {
-    const serverPath = await resolveServerPath(context);
+    const serverPath = resolveServerPath(context);
     if (!serverPath) {
         // No server found — extension works fine with regex providers only
         return;

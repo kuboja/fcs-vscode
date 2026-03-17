@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 
 import { TestNode, TestTreeProvider } from "./testTreeProvider";
 import { FcsSymbolProvider } from "../fcsSymbolUtil";
-import { FliUpdater } from "../fliUpdater/fliUpdater";
 import { ExtensionData } from "../extensionData";
 import { Disposable } from "vscode-jsonrpc";
 
@@ -10,17 +9,15 @@ import { Disposable } from "vscode-jsonrpc";
 export class TestTree implements vscode.Disposable {
 
     private extData: ExtensionData;
-    private fliUpdater: FliUpdater;
     private treeDataProvider: TestTreeProvider;
     private tree: vscode.TreeView<TestNode>;
     private disposable: Disposable[];
 
-    constructor(context: vscode.ExtensionContext, extData: ExtensionData, fliUpdater: FliUpdater) {
+    constructor(context: vscode.ExtensionContext, extData: ExtensionData) {
         this.disposable = [];
         this.extData = extData;
-        this.fliUpdater = fliUpdater;
 
-        this.treeDataProvider = new TestTreeProvider(context, this.fliUpdater, extData);
+        this.treeDataProvider = new TestTreeProvider(context, extData);
         this.tree = vscode.window.createTreeView("fcstesttree", { treeDataProvider: this.treeDataProvider, showCollapseAll: true });
 
         this.treeDataProvider.tree = this.tree;

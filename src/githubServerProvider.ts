@@ -41,14 +41,30 @@ const EXTRACT_DIR = "flivs";
 /** File that stores the tag of the currently cached release. */
 const CACHED_TAG_FILE = "flivs-release-tag.txt";
 
-/** File that stores the timestamp of the last GitHub API check. */
+/** File that stores the timestamp of the last GitHub API version check. */
 const LAST_CHECK_FILE = "flivs-last-check.txt";
 
 /** File that stores a user-pinned version tag (optional). */
 const PINNED_TAG_FILE = "flivs-pinned-tag.txt";
 
-/** Minimum interval between GitHub API checks (ms). */
-const CHECK_INTERVAL_MS = 15 * 60 * 1000;
+// ── Status bar ───────────────────────────────────────────────────────────────
+
+/**
+ * Returns the currently cached flivs release tag (e.g. "v1.2.3"), or
+ * `undefined` when no release has been downloaded yet.
+ */
+export function getCachedFlivsTag(context: vscode.ExtensionContext): string | undefined {
+    const tagPath = path.join(context.globalStorageUri.fsPath, CACHED_TAG_FILE);
+    if (!fs.existsSync(tagPath)) { return undefined; }
+    const tag = fs.readFileSync(tagPath, "utf-8").trim();
+    return tag || undefined;
+}
+
+/** Skip the GitHub API version check if last check was within this interval. */
+const CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+
+/** How often the background update timer fires (ms). */
+const BACKGROUND_CHECK_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
 /** Lock file preventing concurrent updates from multiple VS Code windows. */
 const LOCK_FILE = "flivs-update.lock";
@@ -300,7 +316,45 @@ async function fetchAllTags(token: string): Promise<string[]> {
 }
 
 // ── Public API ───────────────────────────────────────────────────────────────
+/**
+ * Returns the path to a named executable from flivs cache.
+ * Checks localOverridePath setting first (for development), then the GitHub cache.
+ * Does NOT check whether the file actually exists — caller must verify.
+ */
+export function getFlivsExePath(context: vscode.ExtensionContext, exeName: string): string {
+    const config = vscode.workspace.getConfiguration("fcs-vscode");
+    const overrideDir = config.get<string>("localOverridePath", "");
+    if (overrideDir) {
+        const candidate = path.join(overrideDir, exeName);
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+    }
+    return path.join(context.globalStorageUri.fsPath, EXTRACT_DIR, exeName);
+}
 
+/**
+ * Schedule a silent hourly background update check.
+ * Only fires if the user is already signed in to GitHub — no login prompt.
+ * Registers the timer in context.subscriptions so it’s disposed on deactivation.
+ *
+ * @param onUpdated  Optional callback invoked when a new version was downloaded.
+ *                   Use this to restart the language server or notify the user.
+ */
+export function scheduleBackgroundUpdates(
+    context: vscode.ExtensionContext,
+    onUpdated?: () => Promise<void>
+): void {
+    const timer = setInterval(async () => {
+        try {
+            await resolveServerPathFromGitHub(context, false, onUpdated);
+        } catch (e) {
+            console.error("FCS Language Server: background update check failed.", e);
+        }
+    }, BACKGROUND_CHECK_INTERVAL_MS);
+
+    context.subscriptions.push({ dispose: () => clearInterval(timer) });
+}
 /**
  * Try to obtain the path to the language-server binary via GitHub.
  *
@@ -313,36 +367,12 @@ async function fetchAllTags(token: string): Promise<string[]> {
  * to the regex-based providers (same behaviour as when flils.exe is absent).
  */
 export async function resolveServerPathFromGitHub(
-    context: vscode.ExtensionContext
+    context: vscode.ExtensionContext,
+    promptForLogin = true,
+    onUpdated?: () => Promise<void>
 ): Promise<string | undefined> {
 
-    // 1. Authenticate with GitHub
-    let session: vscode.AuthenticationSession;
-    try {
-        session = await vscode.authentication.getSession(
-            "github",
-            ["repo"],          // 'repo' scope grants read access to private repos
-            { createIfNone: true }
-        );
-    } catch {
-        // User dismissed the login dialog — silently skip the server
-        return undefined;
-    }
-
-    const token = session.accessToken;
-
-    // 2. Check repository access
-    const repoUrl = `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}`;
-    const repoResp = await httpsGet(repoUrl, token, "application/vnd.github+json").catch(() => null);
-    if (!repoResp || repoResp.status !== 200) {
-        vscode.window.showWarningMessage(
-            `FCS Language Server: GitHub account '${session.account.label}' does not have access ` +
-            `to ${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}. Advanced features are disabled.`
-        );
-        return undefined;
-    }
-
-    // 3. Determine cache paths
+    // 1. Determine cache paths (no auth needed)
     const storageDir = context.globalStorageUri.fsPath;
     if (!fs.existsSync(storageDir)) {
         fs.mkdirSync(storageDir, { recursive: true });
@@ -358,18 +388,50 @@ export async function resolveServerPathFromGitHub(
     const lastCheckPath    = path.join(storageDir, LAST_CHECK_FILE);
     const pinnedTagPath    = path.join(storageDir, PINNED_TAG_FILE);
 
-    const pinnedTag      = fs.existsSync(pinnedTagPath) ? fs.readFileSync(pinnedTagPath, "utf-8").trim() : "";
-    const cachedTag      = fs.existsSync(cachedTagPath) ? fs.readFileSync(cachedTagPath, "utf-8").trim() : "";
+    const pinnedTag = fs.existsSync(pinnedTagPath) ? fs.readFileSync(pinnedTagPath, "utf-8").trim() : "";
+    const cachedTag = fs.existsSync(cachedTagPath) ? fs.readFileSync(cachedTagPath, "utf-8").trim() : "";
     const lastCheck      = fs.existsSync(lastCheckPath) ? Number(fs.readFileSync(lastCheckPath, "utf-8").trim()) : 0;
     const sinceLastCheck = Date.now() - lastCheck;
 
-    // 4. Skip GitHub API check entirely if binary exists and was checked recently
-    if (fs.existsSync(cachedBinaryPath) && sinceLastCheck < CHECK_INTERVAL_MS) {
+    // Fast path: binary is cached and the version check was done recently — skip GitHub API.
+    // Always skipped when promptForLogin=false (background timer handles its own cadence).
+    if (promptForLogin && fs.existsSync(cachedBinaryPath) && sinceLastCheck < CHECK_INTERVAL_MS) {
         checkExtensionCompatibility(extractDir, context);
         return cachedBinaryPath;
     }
 
-    // 5. Fetch target release (pinned or latest)
+    // 2. Authenticate with GitHub
+    let session: vscode.AuthenticationSession | undefined = undefined;
+    try {
+        session = await vscode.authentication.getSession(
+            "github",
+            ["repo"],
+            { createIfNone: promptForLogin, silent: !promptForLogin }
+        );
+    } catch {
+        // User dismissed the login dialog — use cached binary if available
+    }
+
+    if (!session) {
+        return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
+    }
+
+    const token = session.accessToken;
+
+    // 3. Check repository access
+    const repoUrl = `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}`;
+    const repoResp = await httpsGet(repoUrl, token, "application/vnd.github+json").catch(() => null);
+    if (!repoResp || repoResp.status !== 200) {
+        if (promptForLogin) {
+            vscode.window.showWarningMessage(
+                `FCS Language Server: GitHub account '${session.account.label}' does not have access ` +
+                `to ${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}. Advanced features are disabled.`
+            );
+        }
+        return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
+    }
+
+    // 4. Fetch target release (pinned or latest)
     const targetRelease = await fetchRelease(token, pinnedTag || undefined);
     if (!targetRelease) {
         return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
@@ -414,6 +476,7 @@ export async function resolveServerPathFromGitHub(
 
     // 9. Download zip → extract to staging → atomic swap (rename-based, safe for running exes)
     const zipPath = path.join(storageDir, ASSET_NAME);
+    let downloadSucceeded = false;
     try {
         await vscode.window.withProgress(
             {
@@ -441,6 +504,10 @@ export async function resolveServerPathFromGitHub(
                 fs.writeFileSync(cachedTagPath, targetRelease.tag_name, "utf-8");
                 fs.writeFileSync(lastCheckPath, String(Date.now()), "utf-8");
                 checkExtensionCompatibility(extractDir, context);
+
+                downloadSucceeded = true;
+                // NOTE: onUpdated is intentionally NOT called here so the progress
+                // notification closes immediately after the download finishes.
             }
         );
     } finally {
@@ -448,6 +515,11 @@ export async function resolveServerPathFromGitHub(
         releaseLock(storageDir);
         // Clean up any leftover zip if download/extraction failed
         if (fs.existsSync(zipPath)) { fs.unlink(zipPath, () => undefined); }
+    }
+
+    // Notify caller after the spinner has already closed.
+    if (downloadSucceeded && onUpdated) {
+        await onUpdated();
     }
 
     return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
@@ -518,6 +590,29 @@ export async function selectServerVersionCommand(context: vscode.ExtensionContex
 }
 
 /**
+ * Command: Force an immediate GitHub version check, bypassing the 1-hour
+ * throttle. Shows a message when already up to date.
+ */
+export async function checkForUpdatesCommand(
+    context: vscode.ExtensionContext,
+    onUpdated: () => Promise<void>
+): Promise<void> {
+    const storageDir    = context.globalStorageUri.fsPath;
+    const lastCheckPath = path.join(storageDir, LAST_CHECK_FILE);
+
+    // Remove throttle file so the next call always hits the GitHub API
+    if (fs.existsSync(lastCheckPath)) { fs.unlinkSync(lastCheckPath); }
+
+    const before = getCachedFlivsTag(context);
+    await resolveServerPathFromGitHub(context, true, onUpdated);
+    const after = getCachedFlivsTag(context);
+
+    if (after && after === before) {
+        vscode.window.showInformationMessage(`FCS Language Server: already up to date (${after}).`);
+    }
+}
+
+/**
  * Command: Force re-download of the language-server binary for the currently
  * active version (pinned or latest). Clears the cache and runs the full
  * download flow so the user gets a fresh copy immediately.
@@ -529,12 +624,9 @@ export async function redownloadServerCommand(
 
     const storageDir    = context.globalStorageUri.fsPath;
     const cachedTagPath = path.join(storageDir, CACHED_TAG_FILE);
-    const lastCheckPath = path.join(storageDir, LAST_CHECK_FILE);
 
-    // Clear cache markers so resolveServerPathFromGitHub performs a fresh download
-    for (const f of [cachedTagPath, lastCheckPath]) {
-        if (fs.existsSync(f)) { fs.unlinkSync(f); }
-    }
+    // Clear cache marker so resolveServerPathFromGitHub performs a fresh download
+    if (fs.existsSync(cachedTagPath)) { fs.unlinkSync(cachedTagPath); }
 
     try {
         await restartServer();

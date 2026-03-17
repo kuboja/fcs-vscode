@@ -147,6 +147,11 @@
                 "description": "Pin or unpin a specific version of the FCS Language Server"
             },
             {
+                "command": "fcs-vscode.checkForUpdates",
+                "title": "FCS: Check for Updates",
+                "description": "Check GitHub for a newer version of the FCS Language Server"
+            },
+            {
                 "command": "fcs-vscode.redownloadLanguageServer",
                 "title": "FCS: Re-download Language Server",
                 "description": "Force a fresh download of the FCS Language Server binary"
