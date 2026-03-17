@@ -21,12 +21,21 @@ function createStatusBarItem(context: vscode.ExtensionContext): vscode.StatusBar
 }
 
 function updateStatusBar(item: vscode.StatusBarItem, context: vscode.ExtensionContext): void {
+    const overridePath = vscode.workspace.getConfiguration("fcs-vscode").get<string>("localOverridePath", "");
+    if (overridePath) {
+        item.text = `$(folder) fli: local`;
+        item.tooltip = `FCS Language Server — local override: ${overridePath}\nAktualizace se nevyhledávají.`;
+        item.show();
+        return;
+    }
     const tag = getCachedFlivsTag(context);
     if (tag) {
         item.text = `$(server) fli ${tag}`;
+        item.tooltip = "FCS Language Server — click for options";
         item.show();
     } else {
         item.text = "$(warning) fli: not installed";
+        item.tooltip = "FCS Language Server — click for options";
         item.show();
     }
 }
@@ -89,21 +98,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             if (picked) { await picked.run(); }
         }));
 
-    // On startup: check GitHub for a new version (with login prompt).
-    // Skipped if a check already happened within the last hour (flivs-last-check.txt).
-    // On first install (no cache) this downloads the binary before starting the LS.
-    await resolveServerPathFromGitHub(context, true, async () => {
-        if (!isLanguageServerRunning()) {
-            await startLanguageServer(context);
-        } else {
-            await onUpdated();
-        }
-    }).catch((e) => console.error("FCS Language Server: startup update check failed.", e));
+    const localOverridePath = vscode.workspace.getConfiguration("fcs-vscode").get<string>("localOverridePath", "");
 
-    // Sync knownTag so the poll timer doesn't mistake our own download for
-    // "installed by another window" (happens when the LS wasn't running yet
-    // and the startup callback took the startLanguageServer branch instead of onUpdated).
-    knownTag = getCachedFlivsTag(context) ?? knownTag;
+    if (!localOverridePath) {
+        // On startup: check GitHub for a new version (with login prompt).
+        // Skipped if a check already happened within the last hour (flivs-last-check.txt).
+        // On first install (no cache) this downloads the binary before starting the LS.
+        await resolveServerPathFromGitHub(context, true, async () => {
+            if (!isLanguageServerRunning()) {
+                await startLanguageServer(context);
+            } else {
+                await onUpdated();
+            }
+        }).catch((e) => console.error("FCS Language Server: startup update check failed.", e));
+
+        // Sync knownTag so the poll timer doesn't mistake our own download for
+        // "installed by another window" (happens when the LS wasn't running yet
+        // and the startup callback took the startLanguageServer branch instead of onUpdated).
+        knownTag = getCachedFlivsTag(context) ?? knownTag;
+    }
 
     updateStatusBar(statusBar, context);
 
@@ -112,27 +125,32 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // the binary existed before the update check ran.
     await startLanguageServer(context);
 
-    // Hourly silent background update check (no login prompt).
-    scheduleBackgroundUpdates(context, onUpdated);
+    if (!localOverridePath) {
+        // Hourly silent background update check (no login prompt).
+        scheduleBackgroundUpdates(context, onUpdated);
 
-    // Poll every 30 s: if another VS Code window downloaded a new flivs version,
-    // update the status bar and show a reload notification.
-    const pollTimer = setInterval(() => {
-        const currentTag = getCachedFlivsTag(context);
-        if (currentTag && currentTag !== knownTag) {
-            knownTag = currentTag;
-            updateStatusBar(statusBar, context);
-            vscode.window.showInformationMessage(
-                `FCS Language Server: version ${currentTag} is now available (installed by another window). Reload to apply.`,
-                "Reload"
-            ).then((choice) => {
-                if (choice === "Reload") {
-                    vscode.commands.executeCommand("workbench.action.reloadWindow");
+        // Poll every 30 s: if another VS Code window downloaded a new flivs version,
+        // update the status bar and show a reload notification.
+        const pollTimer = setInterval(() => {
+            const currentTag = getCachedFlivsTag(context);
+            if (currentTag && currentTag !== knownTag) {
+                const wasKnown = !!knownTag; // false on first install → skip notification
+                knownTag = currentTag;
+                updateStatusBar(statusBar, context);
+                if (wasKnown) {
+                    vscode.window.showInformationMessage(
+                        `FCS Language Server: version ${currentTag} is now available (installed by another window). Reload to apply.`,
+                        "Reload"
+                    ).then((choice) => {
+                        if (choice === "Reload") {
+                            vscode.commands.executeCommand("workbench.action.reloadWindow");
+                        }
+                    });
                 }
-            });
-        }
-    }, 30_000);
-    context.subscriptions.push({ dispose: () => clearInterval(pollTimer) });
+            }
+        }, 30_000);
+        context.subscriptions.push({ dispose: () => clearInterval(pollTimer) });
+    }
 
     // Register regex-based providers. Skip definition provider when LSP is
     // active to avoid duplicate "Go to Definition" results.
