@@ -38,32 +38,32 @@ export class FcsCommandsToFliMamanager {
 
     public getFliParameters(editor: vscode.TextEditor): FliCommand | undefined {
 
-        let doc = editor.document;
-        let selection = editor.selection;
+        const doc = editor.document;
+        const selection = editor.selection;
 
         if (!selection.isSingleLine) {
             return;
         }
 
-        let line = doc.lineAt(selection.active.line);
+        const line = doc.lineAt(selection.active.line);
         let lineText = line.text;
 
-        let wrkspc = vscode.workspace.getWorkspaceFolder(doc.uri);
+        const wrkspc = vscode.workspace.getWorkspaceFolder(doc.uri);
         // if (wrkspc === undefined || line.isEmptyOrWhitespace) {
         //     return;
         // }
 
-        let isSelection = !selection.isEmpty;
+        const isSelection = !selection.isEmpty;
         if (isSelection) {
-            let selStart = selection.start.character;
-            let selEnd = selection.end.character;
+            const selStart = selection.start.character;
+            const selEnd = selection.end.character;
 
             lineText = lineText.substring(selStart, selEnd);
         }
 
-        let outFolder = (this.extData.outputFolder === "") ? FileSystemManager.getReportFolderPath() : this.extData.outputFolder;
+        const outFolder = (this.extData.outputFolder === "") ? FileSystemManager.getReportFolderPath() : this.extData.outputFolder;
 
-        let lineData = {
+        const lineData = {
             projectDirectory: wrkspc?.uri?.fsPath,
             filePath: doc.fileName,
             rawLine: lineText,
@@ -72,22 +72,24 @@ export class FcsCommandsToFliMamanager {
             fromSelection: isSelection,
         };
 
-        let commands = FcsCommandsToFliMamanager.getCommands();
+        const commands = FcsCommandsToFliMamanager.getCommands();
 
         for (const cmd of commands) {
             if (cmd.isThisCommand(lineData)) {
-                let fliParametres = cmd.getFliParameters(lineData);
+                const fliParametres = cmd.getFliParameters(lineData);
 
                 if (!fliParametres.fli) {
                     return;
                 }
 
-                let fliCommand = new FliCommand(fliParametres.fli);
+                const fliCommand = new FliCommand(fliParametres.fli);
 
                 fliCommand.afterSuccessExecution = () => {
                     if (cmd.canBeOpened && this.extData.openAfterExport && fliParametres.outputFile) {
-                        let uri = vscode.Uri.file(fliParametres.outputFile);
-                        vscode.env.openExternal(uri);
+                        if (FileSystemManager.fileExists(fliParametres.outputFile)) {
+                            const uri = vscode.Uri.file(fliParametres.outputFile);
+                            vscode.env.openExternal(uri);
+                        }
                     }
                 };
 
