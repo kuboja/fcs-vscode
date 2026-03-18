@@ -54,6 +54,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const onUpdated = async () => {
         knownTag = getCachedFlivsTag(context); // keep poll timer in sync — this window did the download
         updateStatusBar(statusBar, context);
+        extData.reporter.sendEvent("Language Server: updated", { version: knownTag ?? "unknown" });
         const choice = await vscode.window.showInformationMessage(
             "FCS Language Server: new version downloaded. Reload window to apply.",
             "Reload"
@@ -65,6 +66,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.checkForUpdates", async () => {
+            extData.reporter.sendEvent("Command: Check for updates");
             await checkForUpdatesCommand(context, async () => {
                 updateStatusBar(statusBar, context);
                 await onUpdated();
@@ -124,6 +126,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Already started above on first install; this covers the normal case where
     // the binary existed before the update check ran.
     await startLanguageServer(context);
+    extData.reporter.sendEvent("Language Server: started", { version: getCachedFlivsTag(context) ?? "unknown" });
 
     if (!localOverridePath) {
         // Hourly silent background update check (no login prompt).
@@ -228,6 +231,7 @@ function registerSymbolManager(context: vscode.ExtensionContext, extData: Extens
 export async function deactivate() {
     await stopLanguageServer();
     if (extData) {
+        extData.reporter.sendEvent("Extension deactivated");
         await extData.deactivate();
         console.log("Deactivated");
     }

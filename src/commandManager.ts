@@ -28,6 +28,7 @@ export class OpenFileInFemCAD {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
+            this.reporter.sendError("Command: Open in FemCAD", <Error>error);
             vscode.window.showErrorMessage((<Error>error).message);
             return;
         }
@@ -49,8 +50,8 @@ export class OpenFileInFemCAD {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
             if (error) {
+                this.reporter.sendError("Command: Open in FemCAD with profiling", <Error>error);
                 vscode.window.showErrorMessage((<Error>error).message);
-
             }
             return;
         }
@@ -94,6 +95,7 @@ export class ViewerCommandRunner {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
+            this.reporter.sendError("Command: Open in Histruct Viewer", <Error>error);
             vscode.window.showErrorMessage((<Error>error).message);
             return;
         }
@@ -144,6 +146,7 @@ export class FliCommandRunner {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
+            this.reporter.sendError("Command: Run line", <Error>error);
             vscode.window.showErrorMessage((<Error>error).message);
             return;
         }
@@ -179,6 +182,7 @@ export class FliCommandRunner {
         try {
             await this.extData.saveDocumentBySettings(editor);
         } catch (error) {
+            this.reporter.sendError("Command: Open in terminal", <Error>error);
             vscode.window.showErrorMessage((<Error>error).message);
             return;
         }

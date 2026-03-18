@@ -9,23 +9,34 @@ export class TelemetryReporterClient {
 
     private reporter: TelemetryReporter;
     private enableAppInsights: boolean;
+    private readonly extensionVersion: string;
 
     constructor(context: vscode.ExtensionContext) {
-        // let version = context.extension.packageJSON.version;
+        this.extensionVersion = context.extension.packageJSON.version ?? "unknown";
 
         const reporter = new TelemetryReporter(this.connectionString);
         reporter.setContextTag("user.id", os.userInfo().username);
-        
+        reporter.setContextTag("extension.version", this.extensionVersion);
+
         context.subscriptions.push(reporter);
 
         this.enableAppInsights = true;
         this.reporter = reporter;
     }
 
-    public sendEvent(eventName: string): void {
+    public sendEvent(eventName: string, properties?: Record<string, string>, measurements?: Record<string, number>): void {
         if (this.enableAppInsights) {
-            this.reporter.sendTelemetryEvent(eventName);
+            this.reporter.sendTelemetryEvent(eventName, properties, measurements);
         }
+    }
+
+    public sendError(eventName: string, error?: Error, properties?: Record<string, string>): void {
+        if (!this.enableAppInsights) { return; }
+        const errorProps: Record<string, string> = {
+            ...properties,
+            ...(error ? { errorMessage: error.message, errorName: error.name } : {}),
+        };
+        this.reporter.sendTelemetryErrorEvent(eventName, errorProps);
     }
 
     public async deactivate() {

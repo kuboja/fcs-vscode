@@ -425,6 +425,21 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                     await this.evalutateTests(e);
                 }
             }
+
+            // Report aggregated results for the root
+            if (element.isEvaluated) {
+                let score = { ok: 0, fail: 0 };
+                for (const node of element.nodes ?? []) {
+                    if (node.tests && node.tests.length > 0) {
+                        const s = this.getDeepCount(node.tests);
+                        score.ok += s.ok;
+                        score.fail += s.fail;
+                    }
+                }
+                this.sendEvent("rootEvaluated",
+                    { ok: String(element.isOk) },
+                    { passed: score.ok, failed: score.fail, total: score.ok + score.fail, durationSeconds: element.elapsedTime });
+            }
         }
 
         else if (element.type === NodeType.definition) {
@@ -486,7 +501,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
                 vscode.env.clipboard.writeText(element.result.replace(/\s/g, ""));
             }
             else {
-                this.sendEvent("copyResultClear");
+                this.sendEvent("copyResult");
                 vscode.env.clipboard.writeText(element.result);
             }
         }
@@ -556,8 +571,8 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
         outChan.appendLine(`UPDATED: ${variable} in ${file}`);
     }
 
-    private sendEvent(event: string){
-        this.reporter.sendEvent("Test tree: " + event);
+    private sendEvent(event: string, properties?: Record<string, string>, measurements?: Record<string, number>){
+        this.reporter.sendEvent("Test tree: " + event, properties, measurements);
     }
 
     /// Managers
@@ -595,6 +610,7 @@ export class TestTreeProvider implements vscode.TreeDataProvider<TestNode>, vsco
 
         if (rootElement && rootElement.type === NodeType.root) {
             this.updateRoot(rootElement);
+            this.sendEvent("nodeEvaluated", { ok: String(element.isOk) }, { durationSeconds: element.elapsedTime });
         }
 
         await this.closeManager(man);

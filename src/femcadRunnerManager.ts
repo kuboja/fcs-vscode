@@ -331,8 +331,6 @@ export class FemcadRunner {
     }
 
     public async openInFemcad(fcsFilePath: string): Promise<void> {
-        this.reporter.sendEvent("Open in FemCAD");
-
         if (!this.IsInitialized) {
             return;
         }
@@ -350,8 +348,6 @@ export class FemcadRunner {
     }
 
     public async openInFemcadProfiling(fcsFilePath: string): Promise<void> {
-        this.reporter.sendEvent("Open in FemCAD with profiling");
-
         if (!this.IsInitialized) {
             return;
         }
