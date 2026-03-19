@@ -1,6 +1,6 @@
 {
     "name": "fcs-vscode",
-    "version": "1.9.2",
+    "version": "1.9.3",
     "displayName": "FemCAD Script",
     "description": "FemCAD Script for Visual Studio Code.",
     "author": "Kuboja",
@@ -143,18 +143,18 @@
             },
             {
                 "command": "fcs-vscode.selectLanguageServerVersion",
-                "title": "FCS: Select Language Server Version",
-                "description": "Pin or unpin a specific version of the FCS Language Server"
+                "title": "FCS: Select FCS Apps Version",
+                "description": "Pin or unpin a specific version of the FCS Extension Apps"
             },
             {
                 "command": "fcs-vscode.checkForUpdates",
-                "title": "FCS: Check for Updates",
-                "description": "Check GitHub for a newer version of the FCS Language Server"
+                "title": "FCS: Check for FCS Apps Updates",
+                "description": "Check GitHub for a newer version of the FCS Extension Apps"
             },
             {
                 "command": "fcs-vscode.redownloadLanguageServer",
-                "title": "FCS: Re-download Language Server",
-                "description": "Force a fresh download of the FCS Language Server binary"
+                "title": "FCS: Re-download FCS Apps",
+                "description": "Force a fresh download of the FCS Extension Apps"
             },
             {
                 "command": "fcs-vscode.openInViewer",
