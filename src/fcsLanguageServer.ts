@@ -35,8 +35,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext): Pro
     const config = vscode.workspace.getConfiguration("fcs-vscode");
 
     const serverOptions: ServerOptions = {
-        run:   { command: serverPath, transport: TransportKind.stdio },
-        debug: { command: serverPath, transport: TransportKind.stdio },
+        run:   { command: serverPath, transport: TransportKind.pipe },
+        debug: { command: serverPath, transport: TransportKind.pipe },
     };
 
     const clientOptions: LanguageClientOptions = {
