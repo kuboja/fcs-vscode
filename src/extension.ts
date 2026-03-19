@@ -217,13 +217,15 @@ function registerSymbolManager(context: vscode.ExtensionContext, extData: Extens
 
     let fcsLang = { language: "fcs", scheme: "" };
 
-    // When LSP is active it provides completions, symbols and definitions itself.
-    // Registering the regex-based providers on top would cause duplicates.
-    if (!lspActive) {
-        context.subscriptions.push(
-            vscode.languages.registerCompletionItemProvider(fcsLang, new FcsCompletionItemProvider(extData), ".")
-        );
+    // The grammar-based completion provider supplies static Fcs.* namespace completions
+    // (e.g. Fcs.Parameter.ItemAction) that the LSP does not cover — always register it.
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(fcsLang, new FcsCompletionItemProvider(extData), ".")
+    );
 
+    // Symbol and definition providers are skipped when the LSP is active because
+    // the LSP already handles those and registering them twice causes duplicates.
+    if (!lspActive) {
         context.subscriptions.push(
             vscode.languages.registerDocumentSymbolProvider(fcsLang, new FcsSymbolProvider())
         );
