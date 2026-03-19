@@ -115,7 +115,12 @@ function acquireLock(storageDir: string): boolean {
             if (!stale && !dead) {
                 return false; // another live VS Code window is updating
             }
-        } catch { /* corrupt lock — steal it */ }
+            // Stale or dead lock — remove it so the exclusive-create write below succeeds.
+            try { fs.unlinkSync(lockPath); } catch { /* ignore race — the wx write will handle it */ }
+        } catch {
+            // Corrupt lock — try to remove it before stealing.
+            try { fs.unlinkSync(lockPath); } catch { /* ignore */ }
+        }
     }
 
     // Use exclusive create flag to avoid a TOCTOU race between the check above
