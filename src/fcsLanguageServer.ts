@@ -4,7 +4,9 @@ import * as fs from "fs";
 import {
     LanguageClient,
     LanguageClientOptions,
+    RevealOutputChannelOn,
     ServerOptions,
+    State,
     TransportKind,
 } from "vscode-languageclient/node";
 import { getFlivsExePath } from "./githubServerProvider";
@@ -12,6 +14,8 @@ import { getFlivsExePath } from "./githubServerProvider";
 let client: LanguageClient | undefined;
 let activeTransport: "pipe" | "stdio" | undefined;
 let resolvedServerPath: string | undefined;
+let crashedUnexpectedly = false;
+let intentionallyStopped = false;
 
 const outputChannel = vscode.window.createOutputChannel("FCS Language Server (diagnostics)");
 
@@ -24,7 +28,8 @@ function log(msg: string): void {
 export function getLanguageServerStatus(): string {
     if (!resolvedServerPath) { return "flils.exe not found"; }
     const bin = path.basename(resolvedServerPath);
-    if (!client)           { return `not running  (${bin})`; }
+    if (!client)            { return `not running  (${bin})`; }
+    if (crashedUnexpectedly){ return `crashed — VS Code stopped restarting it  (${bin})`; }
     if (client.isRunning()) { return `running via ${activeTransport ?? "unknown"} transport  (${bin})`; }
     return `stopped  (${bin})`;
 }
@@ -36,6 +41,16 @@ export function getLanguageServerStatus(): string {
 function resolveServerPath(context: vscode.ExtensionContext): string | undefined {
     const exePath = getFlivsExePath(context, "flils.exe");
     return fs.existsSync(exePath) ? exePath : undefined;
+}
+
+function registerCrashDetection(c: LanguageClient, onCrash?: () => void): void {
+    c.onDidChangeState((e) => {
+        if (e.newState === State.Stopped && !intentionallyStopped) {
+            crashedUnexpectedly = true;
+            log("Language server stopped unexpectedly — VS Code gave up restarting it");
+            onCrash?.();
+        }
+    });
 }
 
 async function tryStartWithTransport(
@@ -70,13 +85,15 @@ async function tryStartWithTransport(
     }
 }
 
-export async function startLanguageServer(context: vscode.ExtensionContext): Promise<void> {
+export async function startLanguageServer(context: vscode.ExtensionContext, onCrash?: () => void): Promise<void> {
     if (client?.isRunning()) {
         return;
     }
 
     activeTransport = undefined;
     resolvedServerPath = undefined;
+    crashedUnexpectedly = false;
+    intentionallyStopped = false;
 
     const serverPath = resolveServerPath(context);
     if (!serverPath) {
@@ -95,6 +112,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext): Pro
         },
         outputChannelName: "FCS Language Server",
         traceOutputChannel: vscode.window.createOutputChannel("FCS Language Server Trace"),
+        revealOutputChannelOn: RevealOutputChannelOn.Never,
         initializationOptions: {
             maxNumberOfProblems: config.get<number>("maxNumberOfProblems", 100),
         },
@@ -107,12 +125,14 @@ export async function startLanguageServer(context: vscode.ExtensionContext): Pro
     client = await tryStartWithTransport(serverPath, TransportKind.pipe, clientOptions, 5000);
     if (client) {
         activeTransport = "pipe";
+        registerCrashDetection(client, onCrash);
         return;
     }
 
     client = await tryStartWithTransport(serverPath, TransportKind.stdio, clientOptions);
     if (client) {
         activeTransport = "stdio";
+        registerCrashDetection(client, onCrash);
         return;
     }
 
@@ -124,6 +144,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext): Pro
 
 export async function stopLanguageServer(): Promise<void> {
     if (client) {
+        intentionallyStopped = true;
         log("Stopping language server");
         await client.stop();
         client = undefined;

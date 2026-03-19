@@ -16,7 +16,7 @@ let extData: ExtensionData;
 function createStatusBarItem(context: vscode.ExtensionContext): vscode.StatusBarItem {
     const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     item.command = "fcs-vscode.showFliMenu";
-    item.tooltip = "FCS Language Server — click for options";
+    item.tooltip = "FCS Apps — click for options";
     context.subscriptions.push(item);
     return item;
 }
@@ -24,20 +24,20 @@ function createStatusBarItem(context: vscode.ExtensionContext): vscode.StatusBar
 function updateStatusBar(item: vscode.StatusBarItem, context: vscode.ExtensionContext): void {
     const overridePath = vscode.workspace.getConfiguration("fcs-vscode").get<string>("localOverridePath", "");
     if (overridePath) {
-        item.text = `$(folder) fli: local`;
-        item.tooltip = `FCS Language Server — local override: ${overridePath}\nAktualizace se nevyhledávají.\nLS: ${getLanguageServerStatus()}`;
+        item.text = `$(folder) FCS Apps: local`;
+        item.tooltip = `FCS Apps — local override: ${overridePath}\nWith updates disabled.\nLS: ${getLanguageServerStatus()}`;
         item.show();
         return;
     }
     const tag = getCachedFlivsTag(context);
     const lsStatus = getLanguageServerStatus();
     if (tag) {
-        item.text = `$(server) fli ${tag}`;
-        item.tooltip = `FCS Language Server — click for options\nLS: ${lsStatus}`;
+        item.text = `$(server) FCS Apps ${tag}`;
+        item.tooltip = `FCS Apps — click for options\nLS: ${lsStatus}`;
         item.show();
     } else {
-        item.text = "$(warning) fli: not installed";
-        item.tooltip = `FCS Language Server — click for options\nLS: ${lsStatus}`;
+        item.text = "$(warning) FCS Apps: not installed";
+        item.tooltip = `FCS Apps — click for options\nLS: ${lsStatus}`;
         item.show();
     }
 }
@@ -57,9 +57,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     const onUpdated = async () => {
         knownTag = getCachedFlivsTag(context); // keep poll timer in sync — this window did the download
         updateStatusBar(statusBar, context);
-        extData.reporter.sendEvent("Language Server: updated", { version: knownTag ?? "unknown" });
+        extData.reporter.sendEvent("FCS Apps: updated", { version: knownTag ?? "unknown" });
         const choice = await vscode.window.showInformationMessage(
-            "FCS Language Server: new version downloaded. Reload window to apply.",
+            "FCS Apps: new version downloaded. Reload window to apply.",
             "Reload"
         );
         if (choice === "Reload") {
@@ -69,12 +69,20 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.checkForUpdates", async () => {
-            extData.reporter.sendEvent("Command: Check for updates");
+            extData.reporter.sendEvent("Command: Check for FCS Apps Updates");
             await checkForUpdatesCommand(context, async () => {
                 updateStatusBar(statusBar, context);
                 await onUpdated();
             });
             updateStatusBar(statusBar, context);
+        }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.selectLanguageServerVersion", async () => {
+            await selectServerVersionCommand(context, async () => {
+                updateStatusBar(statusBar, context);
+                await onUpdated();
+            }, stopLanguageServer);
         }));
 
     context.subscriptions.push(
@@ -92,13 +100,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     run: () => vscode.commands.executeCommand("fcs-vscode.selectLanguageServerVersion"),
                 },
                 {
-                    label: "$(cloud-download) Re-download Language Server",
+                    label: "$(cloud-download) Re-download FCS Apps",
                     description: "Force a fresh download of the current version",
                     run: () => vscode.commands.executeCommand("fcs-vscode.redownloadLanguageServer"),
                 },
             ];
             const picked = await vscode.window.showQuickPick(items, {
-                placeHolder: "FCS Language Server — choose an action",
+                placeHolder: "FCS Apps — choose an action",
             }) as MenuItem | undefined;
             if (picked) { await picked.run(); }
         }));
@@ -110,12 +118,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         // Skipped if a check already happened within the last hour (flivs-last-check.txt).
         // On first install (no cache) this downloads the binary before starting the LS.
         await resolveServerPathFromGitHub(context, true, async () => {
+            // Show version in status bar immediately after download, before LS starts.
+            updateStatusBar(statusBar, context);
             if (!isLanguageServerRunning()) {
-                await startLanguageServer(context);
+                await startLanguageServer(context, () => {
+                    extData.reporter.sendError("Language Server: crashed unexpectedly");
+                    updateStatusBar(statusBar, context);
+                });
+                updateStatusBar(statusBar, context); // update again with LS connection status
             } else {
                 await onUpdated();
             }
-        }).catch((e) => console.error("FCS Language Server: startup update check failed.", e));
+        }).catch((e) => console.error("FCS Apps: startup update check failed.", e));
 
         // Sync knownTag so the poll timer doesn't mistake our own download for
         // "installed by another window" (happens when the LS wasn't running yet
@@ -128,7 +142,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     // Start LSP from cache (instant, no network).
     // Already started above on first install; this covers the normal case where
     // the binary existed before the update check ran.
-    await startLanguageServer(context);
+    await startLanguageServer(context, () => {
+        extData.reporter.sendError("Language Server: crashed unexpectedly");
+        updateStatusBar(statusBar, context);
+    });
+    updateStatusBar(statusBar, context); // update with LS connection status after start attempt
     extData.reporter.sendEvent("Language Server: started", { version: getCachedFlivsTag(context) ?? "unknown" });
 
     if (!localOverridePath) {
@@ -145,7 +163,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                 updateStatusBar(statusBar, context);
                 if (wasKnown) {
                     vscode.window.showInformationMessage(
-                        `FCS Language Server: version ${currentTag} is now available (installed by another window). Reload to apply.`,
+                        `FCS Apps: version ${currentTag} is now available (installed by another window). Reload to apply.`,
                         "Reload"
                     ).then((choice) => {
                         if (choice === "Reload") {
@@ -195,10 +213,6 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.openInViewer", async () => { await viewerFcs.openInViewer(); }));
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand("fcs-vscode.selectLanguageServerVersion", async () => {
-            await selectServerVersionCommand(context);
-        }));
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.redownloadLanguageServer", async () => {

@@ -47,6 +47,9 @@ const LAST_CHECK_FILE = "flivs-last-check.txt";
 /** File that stores a user-pinned version tag (optional). */
 const PINNED_TAG_FILE = "flivs-pinned-tag.txt";
 
+/** Tag file written into flivs-staging/ after extraction so its version is always known. */
+const STAGING_TAG_FILE = "flivs-staging-tag.txt";
+
 // ── Status bar ───────────────────────────────────────────────────────────────
 
 /**
@@ -279,7 +282,7 @@ function checkExtensionCompatibility(extractDir: string, context: vscode.Extensi
         const raw = fs.readFileSync(infoPath, "utf-8").replace(/^\uFEFF/, "");
         info = JSON.parse(raw) as FlivsInfo;
     } catch (e) {
-        console.warn(`FCS Language Server: failed to parse ${FLIVS_INFO_FILENAME}: ${e}`);
+        console.warn(`FCS Apps: failed to parse ${FLIVS_INFO_FILENAME}: ${e}`);
         return;
     }
 
@@ -288,7 +291,7 @@ function checkExtensionCompatibility(extractDir: string, context: vscode.Extensi
     const current = context.extension.packageJSON.version as string;
     if (compareVersions(current, info.minExtensionVersion) < 0) {
         vscode.window.showWarningMessage(
-            `FCS Language Server requires extension version ${info.minExtensionVersion} or newer ` +
+            `FCS Apps requires extension version ${info.minExtensionVersion} or newer ` +
             `(you have ${current}). Please update the extension.`,
             "Update Extension"
         ).then((choice) => {
@@ -354,7 +357,7 @@ export function scheduleBackgroundUpdates(
         try {
             await resolveServerPathFromGitHub(context, false, onUpdated);
         } catch (e) {
-            console.error("FCS Language Server: background update check failed.", e);
+            console.error("FCS Apps: background update check failed.", e);
         }
     }, BACKGROUND_CHECK_INTERVAL_MS);
 
@@ -374,13 +377,30 @@ export function scheduleBackgroundUpdates(
 export async function resolveServerPathFromGitHub(
     context: vscode.ExtensionContext,
     promptForLogin = true,
-    onUpdated?: () => Promise<void>
+    onUpdated?: () => Promise<void>,
+    suppressPinnedWarning = false
 ): Promise<string | undefined> {
 
     // 1. Determine cache paths (no auth needed)
     const storageDir = context.globalStorageUri.fsPath;
     if (!fs.existsSync(storageDir)) {
         fs.mkdirSync(storageDir, { recursive: true });
+    }
+
+    // If a previous update extracted to staging but the atomic swap failed (e.g. due
+    // to another VS Code window holding flils.exe), try to complete it now before
+    // doing anything else — this avoids a redundant re-download.
+    const stagingTagPath = path.join(storageDir, STAGING_TAG_FILE);
+    if (fs.existsSync(path.join(storageDir, STAGING_DIR)) && fs.existsSync(stagingTagPath)) {
+        try {
+            atomicSwap(storageDir);
+            const resumedTag = fs.readFileSync(stagingTagPath, "utf-8").trim();
+            fs.writeFileSync(path.join(storageDir, CACHED_TAG_FILE), resumedTag, "utf-8");
+            fs.writeFileSync(path.join(storageDir, LAST_CHECK_FILE), String(Date.now()), "utf-8");
+            try { fs.unlinkSync(stagingTagPath); } catch { /* ignore */ }
+        } catch {
+            // Still locked — cleanupStaleDirs will remove staging on next start
+        }
     }
 
     // Clean up leftover staging/old dirs from any previously crashed update
@@ -429,7 +449,7 @@ export async function resolveServerPathFromGitHub(
     if (!repoResp || repoResp.status !== 200) {
         if (promptForLogin) {
             vscode.window.showWarningMessage(
-                `FCS Language Server: GitHub account '${session.account.label}' does not have access ` +
+                `FCS Apps: GitHub account '${session.account.label}' does not have access ` +
                 `to ${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}. Advanced features are disabled.`
             );
         }
@@ -447,13 +467,13 @@ export async function resolveServerPathFromGitHub(
         return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
     }
 
-    // 6. If pinned, warn when a newer release exists
-    if (pinnedTag) {
+    // 6. If pinned, warn when a newer release exists (skip when user just selected the version)
+    if (pinnedTag && !suppressPinnedWarning) {
         const latestRelease = await fetchRelease(token);
         if (latestRelease && latestRelease.tag_name !== pinnedTag) {
             const publishedAt = new Date(targetRelease.published_at).toLocaleDateString();
             vscode.window.showWarningMessage(
-                `FCS Language Server: you are using pinned version ${pinnedTag} (released ${publishedAt}). ` +
+                `FCS Apps: you are using pinned version ${pinnedTag} (released ${publishedAt}). ` +
                 `A newer version ${latestRelease.tag_name} is available.`,
                 "Switch to latest"
             ).then((choice) => {
@@ -475,7 +495,7 @@ export async function resolveServerPathFromGitHub(
     //    If another window is already updating, return the current cache and let the
     //    other window finish. On the next check the new version will be present.
     if (!acquireLock(storageDir)) {
-        console.log("FCS Language Server: update already in progress in another window, using cached binary.");
+        console.log("FCS Apps: update already in progress in another window, using cached binary.");
         return fs.existsSync(cachedBinaryPath) ? cachedBinaryPath : undefined;
     }
 
@@ -486,7 +506,7 @@ export async function resolveServerPathFromGitHub(
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: `FCS Language Server: downloading ${targetRelease.tag_name}…`,
+                title: `FCS Apps: downloading ${targetRelease.tag_name}…`,
                 cancellable: false,
             },
             async () => {
@@ -501,13 +521,29 @@ export async function resolveServerPathFromGitHub(
                 await extractZip(zipPath, stagingDir);
                 fs.unlink(zipPath, () => undefined);
 
+                // Record the version so staging can be resumed after a failed swap
+                fs.writeFileSync(path.join(storageDir, STAGING_TAG_FILE), targetRelease.tag_name, "utf-8");
+
                 // Atomic swap: flivs/ → flivs-old/, flivs-staging/ → flivs/
-                // On Windows, renaming a directory with running executables inside
-                // succeeds because processes hold file handles by inode, not by path.
-                atomicSwap(storageDir);
+                // Retry with back-off: on Windows another VS Code window may hold
+                // flils.exe open, which prevents the rename until it releases the handle.
+                let swapped = false;
+                for (let attempt = 1; attempt <= 6; attempt++) {
+                    try { atomicSwap(storageDir); swapped = true; break; }
+                    catch { if (attempt < 6) { await new Promise(r => setTimeout(r, attempt * 400)); } }
+                }
+                if (!swapped) {
+                    vscode.window.showErrorMessage(
+                        "FCS Apps: could not replace the installation — " +
+                        "the files are locked by VS Code window. " +
+                        "Close all VS Code windows."
+                    );
+                    return; // leave flivs-staging/ intact so the next attempt can retry
+                }
 
                 fs.writeFileSync(cachedTagPath, targetRelease.tag_name, "utf-8");
                 fs.writeFileSync(lastCheckPath, String(Date.now()), "utf-8");
+                try { fs.unlinkSync(path.join(storageDir, STAGING_TAG_FILE)); } catch { /* ignore */ }
                 checkExtensionCompatibility(extractDir, context);
 
                 downloadSucceeded = true;
@@ -534,13 +570,17 @@ export async function resolveServerPathFromGitHub(
  * Command: Let the user pick a specific release version to pin, or clear the pin.
  * Shows a QuickPick with all available release tags + "Latest version" option.
  */
-export async function selectServerVersionCommand(context: vscode.ExtensionContext): Promise<void> {
+export async function selectServerVersionCommand(
+    context: vscode.ExtensionContext,
+    onUpdated: () => Promise<void>,
+    stopServer?: () => Promise<void>
+): Promise<void> {
 
     let session: vscode.AuthenticationSession;
     try {
         session = await vscode.authentication.getSession("github", ["repo"], { createIfNone: true });
     } catch {
-        vscode.window.showErrorMessage("FCS Language Server: GitHub sign-in is required to select a version.");
+        vscode.window.showErrorMessage("FCS Apps: GitHub sign-in is required to select a version.");
         return;
     }
 
@@ -550,13 +590,13 @@ export async function selectServerVersionCommand(context: vscode.ExtensionContex
     const currentPin    = fs.existsSync(pinnedTagPath) ? fs.readFileSync(pinnedTagPath, "utf-8").trim() : "";
 
     await vscode.window.withProgress(
-        { location: vscode.ProgressLocation.Notification, title: "FCS Language Server: fetching version list…", cancellable: false },
+        { location: vscode.ProgressLocation.Notification, title: "FCS Apps: fetching version list…", cancellable: false },
         async () => { /* zobrazí spinner během fetchAllTags */ }
     );
 
     const tags = await fetchAllTags(token);
     if (tags.length === 0) {
-        vscode.window.showErrorMessage("FCS Language Server: failed to fetch version list.");
+        vscode.window.showErrorMessage("FCS Apps: failed to fetch version list.");
         return;
     }
 
@@ -574,7 +614,7 @@ export async function selectServerVersionCommand(context: vscode.ExtensionContex
     ];
 
     const picked = await vscode.window.showQuickPick(items, {
-        title: "FCS Language Server – select version",
+        title: "FCS Apps – select version",
         placeHolder: currentPin ? `Currently pinned: ${currentPin}` : "Currently: latest version",
     });
 
@@ -584,14 +624,31 @@ export async function selectServerVersionCommand(context: vscode.ExtensionContex
         fs.mkdirSync(storageDir, { recursive: true });
     }
 
-    if (picked.label === LATEST_LABEL) {
+    const selectedTag = picked.label === LATEST_LABEL
+        ? ""
+        : picked.label.replace("$(tag) ", "");
+
+    // Bail out early if the user picked the same version that is already active.
+    if (selectedTag === currentPin) { return; }
+
+    if (selectedTag === "") {
         if (fs.existsSync(pinnedTagPath)) { fs.unlinkSync(pinnedTagPath); }
-        vscode.window.showInformationMessage("FCS Language Server: switched to latest version.");
     } else {
-        const tag = picked.label.replace("$(tag) ", "");
-        fs.writeFileSync(pinnedTagPath, tag, "utf-8");
-        vscode.window.showInformationMessage(`FCS Language Server: pinned to version ${tag}.`);
+        fs.writeFileSync(pinnedTagPath, selectedTag, "utf-8");
     }
+
+    // Clear only the throttle file so resolveServerPathFromGitHub bypasses the
+    // 1-hour check and downloads immediately. CACHED_TAG_FILE is intentionally
+    // preserved: if the subsequent atomic swap fails, the old installed version
+    // is still tagged correctly and the status bar doesn't show "not installed".
+    const lastCheckPath = path.join(storageDir, LAST_CHECK_FILE);
+    if (fs.existsSync(lastCheckPath)) { try { fs.unlinkSync(lastCheckPath); } catch { /* ignore */ } }
+
+    // Stop the language server before swapping the flivs directory so that
+    // flils.exe is not held open during the rename and the atomic swap succeeds.
+    await stopServer?.();
+
+    await resolveServerPathFromGitHub(context, true, onUpdated, true);
 }
 
 /**
@@ -613,7 +670,7 @@ export async function checkForUpdatesCommand(
     const after = getCachedFlivsTag(context);
 
     if (after && after === before) {
-        vscode.window.showInformationMessage(`FCS Language Server: already up to date (${after}).`);
+        vscode.window.showInformationMessage(`FCS Apps: already up to date (${after}).`);
     }
 }
 
@@ -681,7 +738,7 @@ export async function redownloadServerCommand(
 
     if (anyFailed) {
         vscode.window.showErrorMessage(
-            "FCS Language Server: some installation files could not be deleted — " +
+            "FCS Apps: some installation files could not be deleted — " +
             "they may be locked by another VS Code window. " +
             "Close all other VS Code windows that use FCS and try again.",
             "Reload Window"
@@ -698,8 +755,8 @@ export async function redownloadServerCommand(
 
     try {
         await startServer();
-        vscode.window.showInformationMessage("FCS Language Server: re-download complete.");
+        vscode.window.showInformationMessage("FCS Apps: re-download complete.");
     } catch (err) {
-        vscode.window.showErrorMessage(`FCS Language Server: re-download failed. ${err}`);
+        vscode.window.showErrorMessage(`FCS Apps: re-download failed. ${err}`);
     }
 }
