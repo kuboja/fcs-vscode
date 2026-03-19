@@ -9,6 +9,7 @@ import { TestTree } from "./testTree/testTree";
 import { FcsTextContentProvider } from "./fcsTextContentProvider";
 import { startLanguageServer, stopLanguageServer, isLanguageServerRunning } from "./fcsLanguageServer";
 import { selectServerVersionCommand, redownloadServerCommand, checkForUpdatesCommand, scheduleBackgroundUpdates, resolveServerPathFromGitHub, getCachedFlivsTag } from "./githubServerProvider";
+import { registerMcpServerProvider } from "./mcpServerProvider";
 
 let extData: ExtensionData;
 
@@ -45,6 +46,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     extData = new ExtensionData(context);
 
     registerCommands(extData.context, extData);
+    registerMcpServerProvider(extData.context, extData);
 
     const statusBar = createStatusBarItem(context);
     updateStatusBar(statusBar, context);

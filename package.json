@@ -488,7 +488,13 @@
                     "icon": "media/iconView.svg"
                 }
             ]
-        }
+        },
+        "mcpServerDefinitionProviders": [
+            {
+                "id": "fcs-vscode.mcpServer",
+                "label": "FemCAD Script (FCS)"
+            }
+        ]
     },
     "scripts": {
         "package": "npx vsce package",
@@ -526,6 +532,7 @@
         "webpack-cli": "6.0.1"
     },
     "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.27.1",
         "@vscode/extension-telemetry": "^1.5.1",
         "adm-zip": "^0.5.16",
         "original-fs": "1.2.0",
@@ -533,6 +540,7 @@
         "tree-kill": "1.2.2",
         "uuid": "11.1.0",
         "vscode-languageclient": "9.0.1",
-        "vscode-textmate": "9.3.2"
+        "vscode-textmate": "9.3.2",
+        "zod": "^4.3.6"
     }
 }

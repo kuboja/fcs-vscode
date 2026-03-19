@@ -66,5 +66,50 @@ module.exports = (env, argv) => {
     },
   }
 
-  return extensionConfig;
+  /** @type WebpackConfig */
+  const mcpServerConfig = {
+    mode: isDevBuild ? 'development' : 'production',
+
+    target: 'node',
+
+    entry: './src/mcpServer.ts',
+
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'mcpServer.js',
+      // No libraryTarget — this is a self-executing Node.js script, not a module.
+    },
+
+    externals: {
+      // The MCP server does not use vscode.
+      'applicationinsights-native-metrics': 'commonjs applicationinsights-native-metrics',
+      '@opentelemetry/tracing': 'commonjs @opentelemetry/tracing',
+    },
+
+    resolve: {
+      extensions: ['.ts', '.js'],
+    },
+
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          exclude: /node_modules/,
+          use: [{ loader: 'ts-loader' }],
+        },
+      ],
+    },
+
+    plugins: [
+      new webpack.DefinePlugin({ IS_DEV_BUILD: JSON.stringify(isDevBuild) }),
+    ],
+
+    devtool: 'nosources-source-map',
+
+    infrastructureLogging: {
+      level: "log",
+    },
+  };
+
+  return [extensionConfig, mcpServerConfig];
 };
