@@ -1,9 +1,10 @@
 /**
  * FCS MCP Server — runs as a standalone Node.js subprocess launched by VS Code.
  *
- * Exposes two tools:
+ * Exposes three tools:
  *   fcs_evaluate       – evaluates a FCS expression and returns text output  (like #print)
  *   fcs_evaluate_json  – evaluates a FCS expression and returns JSON output   (like #fli_json)
+ *   fcs_export         – exports a FCS expression to a file in a given format (like #fli_html, #fli_pdf, …)
  *
  * The path to fliw.exe / fli.exe is passed via the FLI_PATH environment variable
  * set by FcsMcpServerProvider in the VS Code extension.
@@ -13,6 +14,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio";
 import { z } from "zod";
 import { spawn } from "child_process";
+import { tmpdir } from "os";
+import { join } from "path";
+import { existsSync } from "fs";
 
 const FLI_PATH: string = process.env["FLI_PATH"] ?? "";
 
@@ -51,6 +55,60 @@ function runFli(filePath: string, expression: string): Promise<string> {
                 resolve(output.trim());
             } else {
                 reject(new Error(`fli exited with code ${code}:\n${output}`));
+            }
+        });
+
+        proc.on("error", (err) => reject(err));
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Helper – run fliw.exe in export mode and return the output file path
+// ---------------------------------------------------------------------------
+
+const EXPORT_FORMATS = ["HTML", "PDF", "PNG", "JPG", "DXF", "DOCX", "XLSX", "RTF", "IFC", "SVG", "ZIP"] as const;
+type ExportFormat = typeof EXPORT_FORMATS[number];
+
+const FORMAT_EXTENSION: Record<ExportFormat, string> = {
+    HTML:  "html",
+    PDF:   "pdf",
+    PNG:   "png",
+    JPG:   "jpg",
+    DXF:   "dxf",
+    DOCX:  "docx",
+    XLSX:  "xlsx",
+    RTF:   "rtf",
+    IFC:   "ifc",
+    SVG:   "svg",
+    ZIP:   "zip",
+};
+
+function buildOutputPath(format: ExportFormat): string {
+    const ts   = Date.now();
+    const rnd  = Math.random().toString(36).replace(/[^a-z]+/g, "").substring(0, 6);
+    const ext  = FORMAT_EXTENSION[format];
+    return join(tmpdir(), `fcs_mcp_${ts}_${rnd}.${ext}`);
+}
+
+function runFliExport(filePath: string, expression: string, format: ExportFormat, outputPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const quotedFli    = `"${FLI_PATH}"`;
+        const quotedFile   = `"${filePath}"`;
+        const quotedExpr   = `"${expression.replace(/"/g, '\\"')}"`;
+        const quotedOutput = `"${outputPath}"`;
+        const fullCmd = `cmd /c chcp 65001 >nul && ${quotedFli} ${quotedFile} ${quotedExpr} --t ${format} --o ${quotedOutput}`;
+
+        const proc = spawn(fullCmd, [], { shell: true });
+
+        let stderr = "";
+        proc.stderr.setEncoding("utf8");
+        proc.stderr.on("data", (chunk: string) => { stderr += chunk; });
+
+        proc.on("close", (code) => {
+            if (code === 0 && existsSync(outputPath)) {
+                resolve();
+            } else {
+                reject(new Error(`fli export failed (code ${code}):\n${stderr.trim()}`));
             }
         });
 
@@ -102,6 +160,31 @@ server.registerTool(
         const jsonExpr = `Fcs.Converters.ToJson( ${expression} )`;
         const output = await runFli(file_path, jsonExpr);
         return { content: [{ type: "text", text: output }] };
+    }
+);
+
+// Tool 3 – export to file (equivalent to #fli_html, #fli_pdf, #fli_png, …)
+server.registerTool(
+    "fcs_export",
+    {
+        description:
+            "Export a FCS expression to a file in the requested format (HTML, PDF, PNG, JPG, DXF, DOCX, XLSX, RTF, IFC, SVG, ZIP). " +
+            "Equivalent to the #fli_html / #fli_pdf / … commands in the FCS extension. " +
+            "Returns the absolute path of the generated output file.",
+        inputSchema: {
+            file_path: z.string().describe("Absolute path to the .fcs file"),
+            expression: z.string().describe(
+                "FCS expression to export (e.g. 'myReport', 'myObject')"
+            ),
+            format: z.enum(EXPORT_FORMATS).describe(
+                "Output format: HTML | PDF | PNG | JPG | DXF | DOCX | XLSX | RTF | IFC | SVG | ZIP"
+            ),
+        },
+    },
+    async ({ file_path, expression, format }) => {
+        const outputPath = buildOutputPath(format);
+        await runFliExport(file_path, expression, format, outputPath);
+        return { content: [{ type: "text", text: outputPath }] };
     }
 );
 
