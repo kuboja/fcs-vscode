@@ -7,7 +7,7 @@ import { FcsDefinitionProvider } from "./fcsDefinitionProvider";
 import { InteractiveTree } from "./interactiveTree/interactiveTree";
 import { TestTree } from "./testTree/testTree";
 import { FcsTextContentProvider } from "./fcsTextContentProvider";
-import { startLanguageServer, stopLanguageServer, isLanguageServerRunning } from "./fcsLanguageServer";
+import { startLanguageServer, stopLanguageServer, isLanguageServerRunning, getLanguageServerStatus } from "./fcsLanguageServer";
 import { selectServerVersionCommand, redownloadServerCommand, checkForUpdatesCommand, scheduleBackgroundUpdates, resolveServerPathFromGitHub, getCachedFlivsTag } from "./githubServerProvider";
 import { registerMcpServerProvider } from "./mcpServerProvider";
 
@@ -25,18 +25,19 @@ function updateStatusBar(item: vscode.StatusBarItem, context: vscode.ExtensionCo
     const overridePath = vscode.workspace.getConfiguration("fcs-vscode").get<string>("localOverridePath", "");
     if (overridePath) {
         item.text = `$(folder) fli: local`;
-        item.tooltip = `FCS Language Server — local override: ${overridePath}\nAktualizace se nevyhledávají.`;
+        item.tooltip = `FCS Language Server — local override: ${overridePath}\nAktualizace se nevyhledávají.\nLS: ${getLanguageServerStatus()}`;
         item.show();
         return;
     }
     const tag = getCachedFlivsTag(context);
+    const lsStatus = getLanguageServerStatus();
     if (tag) {
         item.text = `$(server) fli ${tag}`;
-        item.tooltip = "FCS Language Server — click for options";
+        item.tooltip = `FCS Language Server — click for options\nLS: ${lsStatus}`;
         item.show();
     } else {
         item.text = "$(warning) fli: not installed";
-        item.tooltip = "FCS Language Server — click for options";
+        item.tooltip = `FCS Language Server — click for options\nLS: ${lsStatus}`;
         item.show();
     }
 }
@@ -207,7 +208,8 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
                 async () => {
                     await resolveServerPathFromGitHub(context, true);
                     await startLanguageServer(context);
-                }
+                },
+                async () => await startLanguageServer(context)
             );
         }));
 }

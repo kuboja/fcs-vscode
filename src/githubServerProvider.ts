@@ -617,15 +617,41 @@ export async function checkForUpdatesCommand(
     }
 }
 
+/** Try to delete a path (file or directory), retrying with back-off while it stays locked. */
+async function deleteWithRetry(target: string, isDir: boolean, maxAttempts = 6): Promise<boolean> {
+    for (let i = 1; i <= maxAttempts; i++) {
+        try {
+            if (isDir) {
+                fs.rmSync(target, { recursive: true, force: true });
+            } else {
+                fs.unlinkSync(target);
+            }
+            return true;
+        } catch {
+            if (i < maxAttempts) {
+                // Back-off: 300 ms, 600 ms, 900 ms, 1200 ms, 1500 ms
+                await new Promise(r => setTimeout(r, i * 300));
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * Command: Force re-download of the language-server binary for the currently
  * active version (pinned or latest). Clears the cache and runs the full
  * download flow so the user gets a fresh copy immediately.
+ *
+ * @param stopServer          Stop the running language server.
+ * @param startServer         Download the latest version and start the server.
+ * @param restartFromCache    Start the server from whatever binary is already on disk
+ *                            (used when deletion failed and we can't download).
  */
 export async function redownloadServerCommand(
     context: vscode.ExtensionContext,
     stopServer: () => Promise<void>,
-    startServer: () => Promise<void>
+    startServer: () => Promise<void>,
+    restartFromCache: () => Promise<void>
 ): Promise<void> {
 
     const storageDir = context.globalStorageUri.fsPath;
@@ -637,30 +663,36 @@ export async function redownloadServerCommand(
     // the subsequent startServer triggers a full fresh download.
     // The pinned-tag file is intentionally preserved so the user keeps their
     // version selection.
+    // Use retries with back-off: flils.exe may still hold file handles for a
+    // brief moment after stopServer() returns.
     let anyFailed = false;
     for (const name of [EXTRACT_DIR, STAGING_DIR, OLD_DIR]) {
         const dir = path.join(storageDir, name);
-        if (fs.existsSync(dir)) {
-            try { fs.rmSync(dir, { recursive: true, force: true }); }
-            catch { anyFailed = true; }
+        if (fs.existsSync(dir) && !await deleteWithRetry(dir, true)) {
+            anyFailed = true;
         }
     }
     for (const file of [CACHED_TAG_FILE, LAST_CHECK_FILE, LOCK_FILE, ASSET_NAME]) {
         const filePath = path.join(storageDir, file);
-        if (fs.existsSync(filePath)) {
-            try { fs.unlinkSync(filePath); }
-            catch { anyFailed = true; }
+        if (fs.existsSync(filePath) && !await deleteWithRetry(filePath, false)) {
+            anyFailed = true;
         }
     }
 
     if (anyFailed) {
         vscode.window.showErrorMessage(
             "FCS Language Server: some installation files could not be deleted — " +
-            "they are probably locked by another VS Code window. " +
-            "Close all other VS Code windows that use FCS and try again."
-        );
-        // Restart from whatever is left so the LS is not completely dead.
-        await startServer();
+            "they may be locked by another VS Code window. " +
+            "Close all other VS Code windows that use FCS and try again.",
+            "Reload Window"
+        ).then(choice => {
+            if (choice === "Reload Window") {
+                vscode.commands.executeCommand("workbench.action.reloadWindow");
+            }
+        });
+        // Restart the server from whatever binary is still on disk.
+        // Do NOT attempt a download — atomicSwap would fail with the same EPERM.
+        await restartFromCache();
         return;
     }
 
