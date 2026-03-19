@@ -201,10 +201,14 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
 
     context.subscriptions.push(
         vscode.commands.registerCommand("fcs-vscode.redownloadLanguageServer", async () => {
-            await redownloadServerCommand(context, async () => {
-                await stopLanguageServer();
-                await startLanguageServer(context);
-            });
+            await redownloadServerCommand(
+                context,
+                async () => await stopLanguageServer(),
+                async () => {
+                    await resolveServerPathFromGitHub(context, true);
+                    await startLanguageServer(context);
+                }
+            );
         }));
 }
 

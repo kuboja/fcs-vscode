@@ -619,17 +619,48 @@ export async function checkForUpdatesCommand(
  */
 export async function redownloadServerCommand(
     context: vscode.ExtensionContext,
-    restartServer: () => Promise<void>
+    stopServer: () => Promise<void>,
+    startServer: () => Promise<void>
 ): Promise<void> {
 
-    const storageDir    = context.globalStorageUri.fsPath;
-    const cachedTagPath = path.join(storageDir, CACHED_TAG_FILE);
+    const storageDir = context.globalStorageUri.fsPath;
 
-    // Clear cache marker so resolveServerPathFromGitHub performs a fresh download
-    if (fs.existsSync(cachedTagPath)) { fs.unlinkSync(cachedTagPath); }
+    // Stop the language server in this window BEFORE touching the files it holds open.
+    await stopServer();
+
+    // Delete the extracted flivs directory and all cache/state files so that
+    // the subsequent startServer triggers a full fresh download.
+    // The pinned-tag file is intentionally preserved so the user keeps their
+    // version selection.
+    let anyFailed = false;
+    for (const name of [EXTRACT_DIR, STAGING_DIR, OLD_DIR]) {
+        const dir = path.join(storageDir, name);
+        if (fs.existsSync(dir)) {
+            try { fs.rmSync(dir, { recursive: true, force: true }); }
+            catch { anyFailed = true; }
+        }
+    }
+    for (const file of [CACHED_TAG_FILE, LAST_CHECK_FILE, LOCK_FILE, ASSET_NAME]) {
+        const filePath = path.join(storageDir, file);
+        if (fs.existsSync(filePath)) {
+            try { fs.unlinkSync(filePath); }
+            catch { anyFailed = true; }
+        }
+    }
+
+    if (anyFailed) {
+        vscode.window.showErrorMessage(
+            "FCS Language Server: some installation files could not be deleted — " +
+            "they are probably locked by another VS Code window. " +
+            "Close all other VS Code windows that use FCS and try again."
+        );
+        // Restart from whatever is left so the LS is not completely dead.
+        await startServer();
+        return;
+    }
 
     try {
-        await restartServer();
+        await startServer();
         vscode.window.showInformationMessage("FCS Language Server: re-download complete.");
     } catch (err) {
         vscode.window.showErrorMessage(`FCS Language Server: re-download failed. ${err}`);
