@@ -1,0 +1,1858 @@
+{
+  "type": "object",
+  "properties": {
+    "Environment": {
+      "$ref": "#/$defs/EnvironmentDrawSettings"
+    },
+    "Mesh": {
+      "$ref": "#/$defs/MeshDrawSettings"
+    },
+    "Palette": {
+      "$ref": "#/$defs/PaletteDrawSettings"
+    },
+    "WorkPlane": {
+      "$ref": "#/$defs/WorkPlaneDrawSettings"
+    },
+    "assemblyDraw": {
+      "type": "boolean"
+    },
+    "deformationScale": {
+      "type": "number"
+    },
+    "deformationScaleAmp": {
+      "type": "number"
+    },
+    "drawGeometry": {
+      "type": "boolean"
+    },
+    "draw_boudarycond": {
+      "type": "boolean"
+    },
+    "draw_mesh": {
+      "type": "boolean"
+    },
+    "fluid_field": {
+      "$ref": "#/$defs/FieldDrawSettings"
+    },
+    "fluid_pressure": {
+      "$ref": "#/$defs/BoundaryPressureDrawSettings"
+    },
+    "fluid_traction": {
+      "$ref": "#/$defs/BoundaryTractionDrawSettings"
+    },
+    "fluid_velocity": {
+      "$ref": "#/$defs/BoundaryVelocityDrawSettings"
+    },
+    "geometry_areas": {
+      "$ref": "#/$defs/AreaDrawSettings"
+    },
+    "geometry_constraints": {
+      "$ref": "#/$defs/ConstraintsDrawSettings"
+    },
+    "geometry_curveLCS": {
+      "$ref": "#/$defs/VertexLCSDrawSettings"
+    },
+    "geometry_curves": {
+      "$ref": "#/$defs/CurveDrawSettings"
+    },
+    "geometry_distributions": {
+      "$ref": "#/$defs/DistributionsDrawSettings"
+    },
+    "geometry_filletedpolys": {
+      "$ref": "#/$defs/FilletedPolyDrawSettings"
+    },
+    "geometry_gblocks": {
+      "$ref": "#/$defs/GBlocksDrawSettings"
+    },
+    "geometry_labels": {
+      "$ref": "#/$defs/LabelsDrawSettings"
+    },
+    "geometry_solids": {
+      "$ref": "#/$defs/SolidDrawSettings"
+    },
+    "geometry_tractions": {
+      "$ref": "#/$defs/TractionsDrawSettings"
+    },
+    "geometry_vertexLCS": {
+      "$ref": "#/$defs/VertexLCSDrawSettings"
+    },
+    "geometry_vertices": {
+      "$ref": "#/$defs/VertexDrawSettings"
+    },
+    "izoOnDefd": {
+      "type": "boolean"
+    },
+    "mech_beams": {
+      "$ref": "#/$defs/MechBeamDrawSettings"
+    },
+    "mech_load": {
+      "$ref": "#/$defs/LoadDrawSettings"
+    },
+    "mech_planes": {
+      "$ref": "#/$defs/PlaneStressDrawSettings"
+    },
+    "mech_plates": {
+      "$ref": "#/$defs/PlateDrawSettings"
+    },
+    "mech_sections": {
+      "$ref": "#/$defs/BeamCrossSectionDrawSettings"
+    },
+    "mech_supp": {
+      "$ref": "#/$defs/SupportDrawSettings"
+    },
+    "resultMonitors": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "result_field": {
+      "$ref": "#/$defs/ResultFieldDrawSettings"
+    },
+    "sleeptime": {
+      "type": "integer"
+    },
+    "stepsize": {
+      "type": "number"
+    },
+    "stressScale": {
+      "type": "number"
+    },
+    "therm_field": {
+      "$ref": "#/$defs/FieldDrawSettings_2"
+    },
+    "therm_heat_source": {
+      "$ref": "#/$defs/BoundaryHeatSourceDrawSettings"
+    },
+    "therm_temp": {
+      "$ref": "#/$defs/BoundaryTemperatureDrawSettings"
+    }
+  },
+  "$defs": {
+    "AreaDrawSettings": {
+      "type": "object",
+      "properties": {
+        "_offsetPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedOffsetPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "drawOffsets": {
+          "type": "boolean"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "lcsSettings": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VertexLCSDrawSettings"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "naturalCoordinatesLabels": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LabelSettings"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "onlyWires": {
+          "type": "boolean"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Beam2DColorScheme": {
+      "type": "object",
+      "properties": {
+        "_borderPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_trianglePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "freeLoopPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BeamCrossSectionDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "cgrpah_type": {
+          "$ref": "#/$defs/DrawResultCurveGraphSettings"
+        },
+        "color_scheme": {
+          "$ref": "#/$defs/Beam2DColorScheme"
+        },
+        "displayCssCentral": {
+          "type": "boolean"
+        },
+        "displayCssInertia": {
+          "type": "boolean"
+        },
+        "displayCssPrincipal": {
+          "type": "boolean"
+        },
+        "displayCssUser": {
+          "type": "boolean"
+        },
+        "displayHinges": {
+          "type": "boolean"
+        },
+        "displayLcs": {
+          "type": "boolean"
+        },
+        "displayLcsBeamCentral": {
+          "type": "boolean"
+        },
+        "displayLcsBeamPrincipal": {
+          "type": "boolean"
+        },
+        "displaySurface": {
+          "type": "boolean"
+        },
+        "displaySystemLine": {
+          "type": "boolean"
+        },
+        "drawGeometry": {
+          "type": "boolean"
+        },
+        "drawMesh": {
+          "type": "boolean"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "hingeSize": {
+          "type": "number"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "izol_type": {
+          "$ref": "#/$defs/DrawResultIzolineSettings"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "result": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BoundaryHeatSourceDrawSettings": {
+      "type": "object",
+      "properties": {
+        "_normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "sizeScale": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BoundaryPressureDrawSettings": {
+      "type": "object",
+      "properties": {
+        "_normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "sizeScale": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BoundaryTemperatureDrawSettings": {
+      "type": "object",
+      "properties": {
+        "_normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "sizeScale": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BoundaryTractionDrawSettings": {
+      "type": "object",
+      "properties": {
+        "_normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "sizeScale": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "BoundaryVelocityDrawSettings": {
+      "type": "object",
+      "properties": {
+        "_normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "sizeScale": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Color": {
+      "type": "object",
+      "properties": {
+        "knownColor": {
+          "type": "integer"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "type": "integer"
+        },
+        "value": {
+          "type": "integer"
+        }
+      }
+    },
+    "ConstraintsDrawSettings": {
+      "type": "object",
+      "properties": {
+        "_violatedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "CurveDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DistributionsDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DrawBrush": {
+      "type": "object",
+      "properties": {
+        "Alpha": {
+          "type": "integer"
+        },
+        "Color": {
+          "$ref": "#/$defs/Color"
+        },
+        "MaterialName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "DrawFont": {
+      "type": "object",
+      "properties": {
+        "ffam": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "size": {
+          "type": "number"
+        },
+        "style": {
+          "type": "integer"
+        }
+      }
+    },
+    "DrawPen": {
+      "type": "object",
+      "properties": {
+        "Color": {
+          "$ref": "#/$defs/Color"
+        },
+        "DashCustomPattern": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          }
+        },
+        "DashScale": {
+          "type": "number"
+        },
+        "DashSpaceRatio": {
+          "type": "number"
+        },
+        "DashStyle": {
+          "type": "integer"
+        },
+        "Width": {
+          "type": "number"
+        }
+      }
+    },
+    "DrawResultCurveGraphSettings": {
+      "type": "object",
+      "properties": {
+        "_graphBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "_graphPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "custom_graph_normal": {
+          "type": "boolean"
+        },
+        "drawGraph": {
+          "type": "boolean"
+        },
+        "graph_normal": {
+          "$ref": "#/$defs/vect3D"
+        },
+        "graph_scale": {
+          "type": "number"
+        },
+        "maximumLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "meanLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "minimumLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        }
+      }
+    },
+    "DrawResultIzolineSettings": {
+      "type": "object",
+      "properties": {
+        "drawExtremes": {
+          "type": "boolean"
+        },
+        "drawExtremesLabels": {
+          "type": "boolean"
+        },
+        "drawNodalValues": {
+          "type": "boolean"
+        },
+        "graph_scale": {
+          "type": "number"
+        },
+        "izol_type": {
+          "type": "integer"
+        },
+        "maximumLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "minimumLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodalValuesLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        }
+      }
+    },
+    "DrawStringFormat": {
+      "type": "object",
+      "properties": {
+        "alignment": {
+          "type": "integer"
+        },
+        "backgroundFill": {
+          "type": "integer"
+        },
+        "backgroundFillBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "borderFactor": {
+          "type": "number"
+        },
+        "borderPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "borderVisible": {
+          "type": "boolean"
+        },
+        "doubleSided": {
+          "type": "boolean"
+        },
+        "fontMetric": {
+          "type": "integer"
+        },
+        "lineAlignment": {
+          "type": "integer"
+        },
+        "lineSpacing": {
+          "type": "number"
+        },
+        "offsetZ": {
+          "type": "number"
+        }
+      }
+    },
+    "EnvironmentDrawSettings": {
+      "type": "object",
+      "properties": {
+        "grdBot": {
+          "$ref": "#/$defs/Color"
+        },
+        "grdDraw": {
+          "type": "boolean"
+        },
+        "grdTop": {
+          "$ref": "#/$defs/Color"
+        },
+        "histructEnvironment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "light1": {
+          "$ref": "#/$defs/LightSetting"
+        },
+        "light2": {
+          "$ref": "#/$defs/LightSetting"
+        },
+        "light3": {
+          "$ref": "#/$defs/LightSetting"
+        },
+        "light4": {
+          "$ref": "#/$defs/LightSetting"
+        },
+        "lights": {
+          "type": "boolean"
+        }
+      }
+    },
+    "FieldDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "color_scheme": {
+          "$ref": "#/$defs/Plane2DColorScheme"
+        },
+        "drawElementLabels": {
+          "type": "boolean"
+        },
+        "drawGeometry": {
+          "type": "boolean"
+        },
+        "drawMesh": {
+          "type": "boolean"
+        },
+        "drawNodeLabels": {
+          "type": "boolean"
+        },
+        "elementLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "izol_type": {
+          "$ref": "#/$defs/DrawResultIzolineSettings"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodeLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "FieldDrawSettings_2": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "color_scheme": {
+          "$ref": "#/$defs/Plane2DColorScheme"
+        },
+        "drawElementLabels": {
+          "type": "boolean"
+        },
+        "drawGeometry": {
+          "type": "boolean"
+        },
+        "drawMesh": {
+          "type": "boolean"
+        },
+        "drawNodeLabels": {
+          "type": "boolean"
+        },
+        "elementLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "fluxScale": {
+          "type": "number"
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "izol_type": {
+          "$ref": "#/$defs/DrawResultIzolineSettings"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodeLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "result": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "FilletedPolyDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "GBlocksDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LabelSettings": {
+      "type": "object",
+      "properties": {
+        "brush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "draw": {
+          "type": "boolean"
+        },
+        "font": {
+          "$ref": "#/$defs/DrawFont"
+        },
+        "format": {
+          "$ref": "#/$defs/DrawStringFormat"
+        },
+        "formatString": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "LabelsDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LightSetting": {
+      "type": "object",
+      "properties": {
+        "ColorAmbient": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "ColorDiffuse": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "ColorSpecular": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "Light": {
+          "type": "integer"
+        },
+        "Position": {
+          "$ref": "#/$defs/point3D"
+        },
+        "PositionHead": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LoadDrawSettings": {
+      "type": "object",
+      "properties": {
+        "AreaLoadDisplay": {
+          "type": "integer"
+        },
+        "LoadCase": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "_normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "forceSize": {
+          "type": "number"
+        },
+        "forcepaSize": {
+          "type": "number"
+        },
+        "forceplSize": {
+          "type": "number"
+        },
+        "izol_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrawResultIzolineSettings"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lineDivisions": {
+          "type": "integer"
+        },
+        "loadLabels": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LabelSettings"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "loadScale": {
+          "type": "number"
+        },
+        "momentSize": {
+          "type": "number"
+        },
+        "momentplSize": {
+          "type": "number"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "sizeScale": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "MechBeamDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "cgrpah_type": {
+          "$ref": "#/$defs/DrawResultCurveGraphSettings"
+        },
+        "color_scheme": {
+          "$ref": "#/$defs/Beam2DColorScheme"
+        },
+        "displayCssCentral": {
+          "type": "boolean"
+        },
+        "displayCssInertia": {
+          "type": "boolean"
+        },
+        "displayCssPrincipal": {
+          "type": "boolean"
+        },
+        "displayCssUser": {
+          "type": "boolean"
+        },
+        "displayHinges": {
+          "type": "boolean"
+        },
+        "displayLcs": {
+          "type": "boolean"
+        },
+        "displayLcsBeamCentral": {
+          "type": "boolean"
+        },
+        "displayLcsBeamPrincipal": {
+          "type": "boolean"
+        },
+        "displaySurface": {
+          "type": "boolean"
+        },
+        "displaySystemLine": {
+          "type": "boolean"
+        },
+        "drawGeometry": {
+          "type": "boolean"
+        },
+        "drawMesh": {
+          "type": "boolean"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "hingeSize": {
+          "type": "number"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "izol_type": {
+          "$ref": "#/$defs/DrawResultIzolineSettings"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "meshDefd": {
+          "type": "boolean"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "result": {
+          "type": "integer"
+        },
+        "resultsOn": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "MeshDrawSettings": {
+      "type": "object",
+      "properties": {
+        "HangingNodes": {
+          "type": "boolean"
+        },
+        "HangingPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "SupportingPen": {
+          "$ref": "#/$defs/DrawPen"
+        }
+      }
+    },
+    "PaletteDrawSettings": {
+      "type": "object",
+      "properties": {
+        "font": {
+          "$ref": "#/$defs/DrawFont"
+        },
+        "maxV": {
+          "type": "number"
+        },
+        "minV": {
+          "type": "number"
+        },
+        "minmaxAuto": {
+          "type": "boolean"
+        },
+        "steps": {
+          "type": "integer"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Plane2DColorScheme": {
+      "type": "object",
+      "properties": {
+        "_borderPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_trianglePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "degeneratedLoopPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "freeLoopPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "nodePen": {
+          "$ref": "#/$defs/DrawPen"
+        }
+      }
+    },
+    "PlaneStressDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "color_scheme": {
+          "$ref": "#/$defs/Plane2DColorScheme"
+        },
+        "drawElementLabels": {
+          "type": "boolean"
+        },
+        "drawGeometry": {
+          "type": "boolean"
+        },
+        "drawMesh": {
+          "type": "boolean"
+        },
+        "drawNodeLabels": {
+          "type": "boolean"
+        },
+        "elementLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "izol_type": {
+          "$ref": "#/$defs/DrawResultIzolineSettings"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodeLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "PlateDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "color_scheme": {
+          "$ref": "#/$defs/Plane2DColorScheme"
+        },
+        "drawElementLabels": {
+          "type": "boolean"
+        },
+        "drawGeometry": {
+          "type": "boolean"
+        },
+        "drawMesh": {
+          "type": "boolean"
+        },
+        "drawNodeLabels": {
+          "type": "boolean"
+        },
+        "elementLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "izol_type": {
+          "$ref": "#/$defs/DrawResultIzolineSettings"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodeLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ResultFieldDrawSettings": {
+      "type": "object",
+      "properties": {
+        "FactorizationError": {
+          "type": "boolean"
+        },
+        "_borderPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_trianglePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "color_scheme": {
+          "$ref": "#/$defs/Plane2DColorScheme"
+        },
+        "deformationPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "drawElementLabels": {
+          "type": "boolean"
+        },
+        "drawGeometry": {
+          "type": "boolean"
+        },
+        "drawMesh": {
+          "type": "boolean"
+        },
+        "drawNodeLabels": {
+          "type": "boolean"
+        },
+        "elementLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "freeLoopPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "izol_type": {
+          "$ref": "#/$defs/DrawResultIzolineSettings"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodeLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "nodePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SolidDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "SupportDrawSettings": {
+      "type": "object",
+      "properties": {
+        "MarkSize": {
+          "type": "number"
+        },
+        "_normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "_selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "reactionLabels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "result": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "sizeScale": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "TractionsDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "VertexDrawSettings": {
+      "type": "object",
+      "properties": {
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "VertexLCSDrawSettings": {
+      "type": "object",
+      "properties": {
+        "axeXPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "axeYPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "axeZPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "brushColorBy": {
+          "type": "integer"
+        },
+        "filter": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "highlightedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "inactivePen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "labels": {
+          "$ref": "#/$defs/LabelSettings"
+        },
+        "normalBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "normalPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "penColorBy": {
+          "type": "integer"
+        },
+        "place": {
+          "$ref": "#/$defs/point2D"
+        },
+        "selectedBrush": {
+          "$ref": "#/$defs/DrawBrush"
+        },
+        "selectedPen": {
+          "$ref": "#/$defs/DrawPen"
+        },
+        "size": {
+          "type": "number"
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "WorkPlaneDrawSettings": {
+      "type": "object",
+      "properties": {
+        "draw_axes": {
+          "type": "boolean"
+        },
+        "draw_grid": {
+          "type": "boolean"
+        }
+      }
+    },
+    "point2D": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "point3D": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "vect3D": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

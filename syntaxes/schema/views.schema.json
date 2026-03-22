@@ -1,0 +1,214 @@
+{
+  "type": "object",
+  "properties": {
+    "Drawings": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "NameBranchToggles": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/NameBranchToggle"
+      }
+    },
+    "NameBranchTogglesFile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "Snapshots": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "Views": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/ComponentViewDefinition"
+      }
+    },
+    "ViewsFile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "ComponentViewDefinition": {
+      "type": "object",
+      "properties": {
+        "CameraKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CameraType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DescriptionKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DisableRotation": {
+          "type": "boolean"
+        },
+        "DrawSettingsFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "FcsModelFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HtmlContent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "NameBranchToggleNames": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "ProjectionSettingsFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ReportName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "NameBranchToggle": {
+      "type": "object",
+      "properties": {
+        "Exclusive": {
+          "type": "boolean"
+        },
+        "HideUnusedItems": {
+          "type": "boolean"
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Items": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ToggleItem"
+          }
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ToggleItem": {
+      "type": "object",
+      "properties": {
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "NameMask": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Value": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

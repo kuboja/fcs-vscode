@@ -1,0 +1,43 @@
+{
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/CmpMapEntry"
+  },
+  "$defs": {
+    "CmpMapEntry": {
+      "type": "object",
+      "properties": {
+        "DraggingInfoPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ModelPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "NavigationName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ParameterPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ValidationTrigger": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

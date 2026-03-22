@@ -1,0 +1,78 @@
+{
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/NameBranchToggle"
+  },
+  "$defs": {
+    "NameBranchToggle": {
+      "type": "object",
+      "properties": {
+        "Exclusive": {
+          "type": "boolean"
+        },
+        "HideUnusedItems": {
+          "type": "boolean"
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Items": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ToggleItem"
+          }
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ToggleItem": {
+      "type": "object",
+      "properties": {
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "NameMask": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Value": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

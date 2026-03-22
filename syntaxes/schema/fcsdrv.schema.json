@@ -1,0 +1,306 @@
+{
+  "type": "object",
+  "properties": {
+    "anizotropicZoom": {
+      "type": "boolean"
+    },
+    "applySceneCutting": {
+      "type": "boolean"
+    },
+    "aspectRatio": {
+      "type": "number"
+    },
+    "autoFit": {
+      "type": "boolean"
+    },
+    "autoFitPadding": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "cutPlaneFar": {
+      "type": "number"
+    },
+    "cutPlaneFarFn": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cutPlaneNear": {
+      "type": "number"
+    },
+    "cutPlaneNearFn": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "focusDistance": {
+      "type": "number"
+    },
+    "imageDpi": {
+      "type": "number"
+    },
+    "isPerspective": {
+      "type": "boolean"
+    },
+    "layersVisibility": {
+      "$ref": "#/$defs/LayerVisibility"
+    },
+    "lineThicknessMultiplier": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "mOrigin": {
+      "$ref": "#/$defs/point3D"
+    },
+    "mOriginFn": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mShiftView": {
+      "$ref": "#/$defs/Point2D"
+    },
+    "mViewAhead": {
+      "$ref": "#/$defs/vect3D"
+    },
+    "mViewRight": {
+      "$ref": "#/$defs/vect3D"
+    },
+    "mViewUp": {
+      "$ref": "#/$defs/vect3D"
+    },
+    "mZoomX": {
+      "type": "number"
+    },
+    "mZoomY": {
+      "type": "number"
+    },
+    "perfMaxTesselPoints": {
+      "type": "integer"
+    },
+    "perspectiveAngle": {
+      "type": "number"
+    },
+    "perspectiveView": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sceneCutShape": {
+      "$ref": "#/$defs/SceneCutShape"
+    },
+    "sizeAutoToScreen": {
+      "type": "boolean"
+    },
+    "textDpi": {
+      "type": "number"
+    },
+    "visibilityStyle": {
+      "type": "integer"
+    },
+    "xSize": {
+      "type": "integer"
+    },
+    "ySize": {
+      "type": "integer"
+    }
+  },
+  "$defs": {
+    "BBox": {
+      "type": "object",
+      "properties": {
+        "Coords": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/Interval"
+          }
+        }
+      }
+    },
+    "DataObjectId": {
+      "type": "object",
+      "properties": {
+        "IdValue": {
+          "type": "integer"
+        },
+        "IsEmpty": {
+          "type": "boolean"
+        },
+        "NameID": {
+          "$ref": "#/$defs/NameID"
+        }
+      }
+    },
+    "Interval": {
+      "type": "object",
+      "properties": {
+        "Max": {
+          "type": "number"
+        },
+        "Min": {
+          "type": "number"
+        }
+      }
+    },
+    "LCS": {
+      "type": "object",
+      "properties": {
+        "Origin": {
+          "$ref": "#/$defs/Point3D"
+        },
+        "Axes": {
+          "$ref": "#/$defs/Matrix33"
+        },
+        "ID": {
+          "$ref": "#/$defs/DataObjectId"
+        }
+      }
+    },
+    "LayerVisibile": {
+      "type": "object",
+      "properties": {
+        "Layer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LayerVisibility": {
+      "type": "object",
+      "properties": {
+        "implicitVisibility": {
+          "type": "boolean"
+        },
+        "list": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/LayerVisibile"
+          }
+        }
+      }
+    },
+    "Matrix33": {
+      "type": "object",
+      "properties": {
+        "X": {
+          "$ref": "#/$defs/vect3D"
+        },
+        "Y": {
+          "$ref": "#/$defs/vect3D"
+        },
+        "Z": {
+          "$ref": "#/$defs/vect3D"
+        }
+      }
+    },
+    "NameID": {
+      "type": "object",
+      "properties": {
+        "IsEmpty": {
+          "type": "boolean"
+        },
+        "HasName": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Point2D": {
+      "type": "object",
+      "properties": {
+        "X": {
+          "type": "number"
+        },
+        "Y": {
+          "type": "number"
+        },
+        "Z": {
+          "type": "number"
+        }
+      }
+    },
+    "Point3D": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "SceneCutShape": {
+      "type": "object",
+      "properties": {
+        "bbox": {
+          "$ref": "#/$defs/BBox"
+        },
+        "bboxFn": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lcs": {
+          "$ref": "#/$defs/LCS"
+        },
+        "lcsFn": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "point3D": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "vect3D": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

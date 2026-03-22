@@ -1,0 +1,235 @@
+{
+  "type": "object",
+  "properties": {
+    "EmailNotifications": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/EmailNotificationDefinition"
+      }
+    },
+    "HelpDefinitions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/HelpDefinition"
+      }
+    },
+    "Reports": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/ComponentReportDefinition"
+      }
+    }
+  },
+  "$defs": {
+    "ComponentReportDefinition": {
+      "type": "object",
+      "properties": {
+        "CloseRevision": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "Description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DescriptionKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "FileNameTemplate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "FileNameTemplateKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "GenerateOnRevisionClose": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Identifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ReportType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TelerikReportTemplateFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TelerikReportTemplatePath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ViewNamesFilter": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "EmailNotificationDefinition": {
+      "type": "object",
+      "properties": {
+        "AttachedReportNames": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "BodyFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "BodyHtmlFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "BodyHtmlPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "BodyPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Header": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HeaderFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HeaderKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HeaderPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SmtpConfigFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "HelpDefinition": {
+      "type": "object",
+      "properties": {
+        "BodyFile": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "BodyPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

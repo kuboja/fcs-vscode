@@ -69,19 +69,6 @@
                     ".fcsmth"
                 ],
                 "configuration": "./syntaxes/fcsmth-language-configuration.json"
-            },
-            {
-                "id": "json",
-                "aliases": [
-                    "FemCAD json",
-                    "fcsjson"
-                ],
-                "extensions": [
-                    ".fcsdrv",
-                    ".fcsdrs",
-                    ".fcscdm",
-                    ".fcscdf"
-                ]
             }
         ],
         "grammars": [
@@ -101,7 +88,60 @@
                 "path": "./syntaxes/fcsmth.tmLanguage.json"
             }
         ],
+        "jsonValidation": [
+            {
+                "fileMatch": "*.fcsdrv",
+                "url": "./syntaxes/schema/fcsdrv.schema.json"
+            },
+            {
+                "fileMatch": "*.fcsdrs",
+                "url": "./syntaxes/schema/fcsdrs.schema.json"
+            },
+            {
+                "fileMatch": "*.fcscdm",
+                "url": "./syntaxes/schema/fcscdm.schema.json"
+            },
+            {
+                "fileMatch": "*.fcscdf",
+                "url": "./syntaxes/schema/fcscdf.schema.json"
+            },
+            {
+                "fileMatch": "*Toggles*.fcscdx",
+                "url": "./syntaxes/schema/toggles.schema.json"
+            },
+            {
+                "fileMatch": [
+                    "*Views*.fcscdx",
+                    "!*Toggles*.fcscdx"
+                ],
+                "url": "./syntaxes/schema/views.schema.json"
+            },
+            {
+                "fileMatch": [
+                    "*Reports*.fcscdx"
+                ],
+                "url": "./syntaxes/schema/reports.schema.json"
+            },
+            {
+                "fileMatch": [
+                    "*InputPages*.fcscdx"
+                ],
+                "url": "./syntaxes/schema/pages.schema.json"
+            },
+            {
+                "fileMatch": [
+                    "*CmpMap*.fcscdx"
+                ],
+                "url": "./syntaxes/schema/cmpmap.schema.json"
+            }
+        ],
         "configurationDefaults": {
+            "files.associations": {
+                "*.fcsdrv": "json",
+                "*.fcsdrs": "json",
+                "*.fcscdm": "json",
+                "*.fcscdf": "json"
+            },
             "[fcs]": {
                 "editor.autoIndent": "brackets",
                 "editor.detectIndentation": false,

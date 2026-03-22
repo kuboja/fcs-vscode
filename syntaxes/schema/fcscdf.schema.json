@@ -1,0 +1,691 @@
+{
+  "type": "object",
+  "properties": {
+    "ClassTypes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/ClassType"
+      }
+    },
+    "Items": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/ParameterItem"
+      }
+    },
+    "ListTypeIdentifiers": {
+      "$ref": "#/$defs/ListTypeIdentifierCollection"
+    }
+  },
+  "$defs": {
+    "ClassType": {
+      "type": "object",
+      "properties": {
+        "ClassTypeItem": {
+          "$ref": "#/$defs/ParameterItemClass"
+        },
+        "ClassTypeName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Field": {
+      "type": "object",
+      "properties": {
+        "Identifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Value": {
+          "$ref": "#/$defs/ParameterValue"
+        }
+      }
+    },
+    "ListTypeIdentifier": {
+      "type": "object",
+      "properties": {
+        "List": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ListTypeOption"
+          }
+        },
+        "ListTypeName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ListTypeIdentifierCollection": {
+      "type": "object",
+      "properties": {
+        "ListTypes": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ListTypeIdentifier"
+          }
+        }
+      }
+    },
+    "ListTypeOption": {
+      "type": "object",
+      "properties": {
+        "ImageUrl": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Key": true,
+        "LegacyKeys": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "Text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TextKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Value": true,
+        "VisibilityCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "m_Item1": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "m_Item2": true
+      }
+    },
+    "ParameterItem": {
+      "type": "object",
+      "properties": {
+        "Actions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ParameterItemAction"
+          }
+        },
+        "AssumptionCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssumptionParameters": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "CssStylePropLabel": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CssStylePropValue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "EditabilityCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "EditabilityPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanDescription": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanDescriptionKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Identifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "InvalidationScope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "InvalidationScopeCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "IsForbidden": {
+          "type": "boolean"
+        },
+        "IsHidden": {
+          "type": "boolean"
+        },
+        "IsReadOnly": {
+          "type": "boolean"
+        },
+        "LegacyIdentifiers": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "MiniActions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ParameterItemAction"
+          }
+        },
+        "SceneInvalidationScope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ValidationTrigger": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "VisibilityCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "VisibilityPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ParameterItemAction": {
+      "type": "object",
+      "properties": {
+        "ActionName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Actions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ParameterItemAction"
+          }
+        },
+        "AssumptionCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssumptionParameters": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "Behavior": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CssStyleClass": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CssStyleClassKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CssStylePropLabel": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CssStylePropValue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "EditabilityCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "EditabilityPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HmtlContent": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HmtlContentKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanDescription": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanDescriptionKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Identifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "InvalidationScope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "InvalidationScopeCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "IsAuthPost": {
+          "type": "boolean"
+        },
+        "IsForbidden": {
+          "type": "boolean"
+        },
+        "IsHidden": {
+          "type": "boolean"
+        },
+        "IsNoEdit": {
+          "type": "boolean"
+        },
+        "IsQuick": {
+          "type": "boolean"
+        },
+        "IsReadOnly": {
+          "type": "boolean"
+        },
+        "LegacyIdentifiers": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "MiniActions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ParameterItemAction"
+          }
+        },
+        "NavigationUrl": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SceneInvalidationScope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ValidationTrigger": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "VisibilityCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "VisibilityPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ParameterItemClass": {
+      "type": "object",
+      "properties": {
+        "Actions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ParameterItemAction"
+          }
+        },
+        "AssumptionCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssumptionParameters": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "ClassFileName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ClassTypeName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Collapsed": {
+          "type": "boolean"
+        },
+        "CssStylePropLabel": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CssStylePropValue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "EditabilityCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "EditabilityPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Expanded": {
+          "type": "boolean"
+        },
+        "HumanDescription": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanDescriptionKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HumanNameKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Identifier": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "InvalidationScope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "InvalidationScopeCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "IsForbidden": {
+          "type": "boolean"
+        },
+        "IsHidden": {
+          "type": "boolean"
+        },
+        "IsReadOnly": {
+          "type": "boolean"
+        },
+        "Items": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ParameterItem"
+          }
+        },
+        "LegacyIdentifiers": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "MiniActions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/ParameterItemAction"
+          }
+        },
+        "PvcNeedsBreak": {
+          "type": "boolean"
+        },
+        "SceneInvalidationScope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ValidationTrigger": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Value": {
+          "$ref": "#/$defs/ParameterValueClass"
+        },
+        "VisibilityCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "VisibilityPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ParameterValue": {
+      "type": "object",
+      "properties": {
+        "ValueObject": true,
+        "TypeName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ParameterValueClass": {
+      "type": "object",
+      "properties": {
+        "ClassTypeName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Fields": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/Field"
+          }
+        }
+      }
+    }
+  }
+}
