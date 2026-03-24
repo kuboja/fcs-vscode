@@ -191,6 +191,30 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         context.subscriptions.push({ dispose: () => clearInterval(pollTimer) });
     }
 
+    // Watch for configuration changes that affect the language server.
+    context.subscriptions.push(
+        vscode.workspace.onDidChangeConfiguration(async (e) => {
+            if (!e.affectsConfiguration("fcs-vscode")) { return; }
+
+            const needsRestart =
+                e.affectsConfiguration("fcs-vscode.localOverridePath") ||
+                e.affectsConfiguration("fcs-vscode.maxNumberOfProblems");
+
+            if (!needsRestart) { return; }
+
+            updateStatusBar(statusBar, context);
+
+            const choice = await vscode.window.showInformationMessage(
+                "FCS settings changed. Restart Language Server to apply?",
+                "Restart", "Later"
+            );
+            if (choice === "Restart") {
+                await vscode.commands.executeCommand("fcs-vscode.restartLanguageServer");
+                updateStatusBar(statusBar, context);
+            }
+        })
+    );
+
     // Register regex-based providers. Skip definition provider when LSP is
     // active to avoid duplicate "Go to Definition" results.
     registerSymbolManager(extData.context, extData, isLanguageServerRunning());
