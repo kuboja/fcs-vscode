@@ -197,6 +197,18 @@
                 "description": "Force a fresh download of the FCS Extension Apps"
             },
             {
+                "command": "fcs-vscode.startLanguageServer",
+                "title": "FCS: Start Language Server"
+            },
+            {
+                "command": "fcs-vscode.stopLanguageServer",
+                "title": "FCS: Stop Language Server"
+            },
+            {
+                "command": "fcs-vscode.restartLanguageServer",
+                "title": "FCS: Restart Language Server"
+            },
+            {
                 "command": "fcs-vscode.openInViewer",
                 "title": "Open in Viewer",
                 "description": "Open current file in Histruct Viewer"

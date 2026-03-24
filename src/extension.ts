@@ -104,6 +104,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     description: "Force a fresh download of the current version",
                     run: () => vscode.commands.executeCommand("fcs-vscode.redownloadLanguageServer"),
                 },
+                { label: "", kind: vscode.QuickPickItemKind.Separator, run: () => Promise.resolve() } as MenuItem,
+                {
+                    label: "$(debug-start) Start Language Server",
+                    description: isLanguageServerRunning() ? "already running" : "not running",
+                    run: () => vscode.commands.executeCommand("fcs-vscode.startLanguageServer"),
+                },
+                {
+                    label: "$(debug-stop) Stop Language Server",
+                    description: isLanguageServerRunning() ? "running" : "not running",
+                    run: () => vscode.commands.executeCommand("fcs-vscode.stopLanguageServer"),
+                },
+                {
+                    label: "$(debug-restart) Restart Language Server",
+                    run: () => vscode.commands.executeCommand("fcs-vscode.restartLanguageServer"),
+                },
             ];
             const picked = await vscode.window.showQuickPick(items, {
                 placeHolder: "FCS Apps — choose an action",
@@ -224,6 +239,41 @@ function registerCommands(context: vscode.ExtensionContext, extData: ExtensionDa
                     await startLanguageServer(context);
                 },
                 async () => await startLanguageServer(context)
+            );
+        }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.startLanguageServer", async () => {
+            if (isLanguageServerRunning()) {
+                vscode.window.showInformationMessage("FCS Language Server is already running.");
+                return;
+            }
+            await startLanguageServer(context);
+            vscode.window.showInformationMessage(
+                isLanguageServerRunning()
+                    ? "FCS Language Server started."
+                    : "FCS Language Server failed to start."
+            );
+        }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.stopLanguageServer", async () => {
+            if (!isLanguageServerRunning()) {
+                vscode.window.showInformationMessage("FCS Language Server is not running.");
+                return;
+            }
+            await stopLanguageServer();
+            vscode.window.showInformationMessage("FCS Language Server stopped.");
+        }));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("fcs-vscode.restartLanguageServer", async () => {
+            await stopLanguageServer();
+            await startLanguageServer(context);
+            vscode.window.showInformationMessage(
+                isLanguageServerRunning()
+                    ? "FCS Language Server restarted."
+                    : "FCS Language Server failed to start."
             );
         }));
 }
